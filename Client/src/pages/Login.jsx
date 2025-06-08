@@ -1,3 +1,10 @@
+import React from 'react';
+import LoginForm from '../forms/LoginForm';
+
 export default function Login() {
-  return <div className="text-2xl font-bold p-8">Welcome Home!</div>;
+  return (
+    <div className="h-screen overflow-auto hide-scrollbar">
+      <LoginForm />
+    </div>
+  );
 }
