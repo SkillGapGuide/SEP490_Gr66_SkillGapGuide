@@ -3,31 +3,39 @@ import Home from "../pages/Home";
 import Login from "../pages/Login";
 import ErrorBoundary from "../components/ErrorBoundary";
 import UserLayout from "../layouts/UserLayout";
-import AdminLayout from "../layouts/AdminLayout";
 import NotFound from "../pages/NotFound";
+import Register from "../pages/Register";
+import UserProfile from "../pages/user/UserProfile";
+import ForgotPassword from "../pages/ForgotPassword";
+import AdminSidebar from "../layouts/AdminSidebar";
+import ManagerUser from "../pages/admin/ManagerUser";
+import AdminLayout from "../layouts/AdminLayout";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <UserLayout />,
     errorElement: <ErrorBoundary />,
+    children: [
+      { path: "", element: <Home /> },
+      { path: "login", element: <Login /> },
+      { path: "register", element: <Register /> },
+      { path: "profile", element: <UserProfile /> },
+      {path: "forgot-password", element: <ForgotPassword></ForgotPassword>}, // Placeholder for forgot password page
+    ],
   },
   {
-    path: "/login",
-    element: <UserLayout />,
-    children: [
-      {path: "", element: <Login /> },
-    ],
+    path: "*",
+    element: <NotFound />,
+  },{
+    path:"/admin",
+    element:<AdminLayout />,
     errorElement: <ErrorBoundary />,
-  },
-  // {
-  //   path: "/user",
-  //   element: <UserLayout />,
-  //   children: [
-  //     { path: "", element: <UserDashboard /> },
-  //     // các route con của user ở đây
-  //   ],
-  //    errorElement: <ErrorBoundary />,
-  // },
+    children: [
+      // Các route con của admin sẽ được định nghĩa ở đây
+      // Ví dụ: { path: "dashboard", element: <AdminDashboard /> },
+      {path: "users", element: <ManagerUser />},
+    ],
+  }
 ]);
 
 export default router;
