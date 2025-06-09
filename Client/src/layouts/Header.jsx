@@ -1,49 +1,98 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState(null);
+
+  // Menu có submenu
+  const menus = [
+    { label: "Trang chủ", to: "/" },
+    {
+      label: "Về chúng tôi",
+      submenu: [
+        { label: "Giới thiệu", to: "/about" },
+        { label: "Đội ngũ", to: "/team" },
+      ],
+    },
+    {
+      label: "Thanh toán",
+      submenu: [
+        { label: "Học phí", to: "/pricing" },
+        { label: "Hỗ trợ", to: "/support" },
+      ],
+    },
+  ];
 
   return (
-    <header className="bg-white shadow-md">
-      <nav className="container mx-auto px-4 py-3">
-        <div className="flex justify-between items-center">
-          <Link to="/" className="text-2xl font-bold text-gray-800">
-            SkillGapGuide
-          </Link>
-          
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2"
+    <header className="bg-gradient-to-r from-blue-900 via-blue-400 to-blue-300 px-6 py-3 shadow-md w-full">
+      <nav className="max-w-7xl mx-auto flex items-center">
+        {/* Logo */}
+        <Link to="/" className="text-white text-3xl font-bold mr-12 tracking-wide">
+          SkillGapGuide
+        </Link>
+
+        {/* Menu */}
+        <ul className="flex-1 flex items-center gap-8 text-white font-normal text-lg">
+          {menus.map((menu, i) =>
+            menu.submenu ? (
+              <li
+                key={menu.label}
+                className="relative group cursor-pointer"
+                onMouseEnter={() => setOpenMenu(i)}
+                onMouseLeave={() => setOpenMenu(null)}
+              >
+                <span className="flex items-center gap-1 hover:underline">
+                  {menu.label}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </span>
+                {/* Dropdown */}
+                <ul
+                  className={`absolute left-0 top-full mt-2 min-w-max bg-white rounded shadow-xl text-gray-700 z-20 transition ${
+                    openMenu === i ? "block" : "hidden"
+                  }`}
+                >
+                  {menu.submenu.map((item) => (
+                    <li key={item.to}>
+                      <Link
+                        to={item.to}
+                        className="block px-5 py-2 hover:bg-blue-50 whitespace-nowrap"
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ) : (
+              <li key={menu.label}>
+                <Link
+                  to={menu.to}
+                  className="hover:underline"
+                >
+                  {menu.label}
+                </Link>
+              </li>
+            )
+          )}
+        </ul>
+
+        {/* Button Đăng ký/Đăng nhập */}
+        <div className="flex gap-2 ml-4">
+          <Link
+            to="/login"
+            className="bg-white text-blue-900 font-semibold rounded-xl px-5 py-1.5 shadow hover:bg-blue-100 transition border border-blue-200"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {isOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-8">
-            <Link to="/" className="text-gray-600 hover:text-gray-900">Home</Link>
-            <Link to="/courses" className="text-gray-600 hover:text-gray-900">Courses</Link>
-            <Link to="/about" className="text-gray-600 hover:text-gray-900">About</Link>
-            <Link to="/login" className="text-gray-600 hover:text-gray-900">Login</Link>
-          </div>
+            Đăng Nhập
+          </Link>
+          <Link
+            to="/register"
+            className="bg-white text-blue-900 font-semibold rounded-xl px-5 py-1.5 shadow hover:bg-blue-100 transition border border-blue-200"
+          >
+            Đăng Kí
+          </Link>
         </div>
-
-        {/* Mobile Navigation */}
-        {isOpen && (
-          <div className="md:hidden mt-4 space-y-4">
-            <Link to="/" className="block text-gray-600 hover:text-gray-900">Home</Link>
-            <Link to="/courses" className="block text-gray-600 hover:text-gray-900">Courses</Link>
-            <Link to="/about" className="block text-gray-600 hover:text-gray-900">About</Link>
-            <Link to="/login" className="block text-gray-600 hover:text-gray-900">Login</Link>
-          </div>
-        )}
       </nav>
     </header>
   );

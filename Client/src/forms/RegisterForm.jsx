@@ -1,82 +1,105 @@
 import { useForm } from "react-hook-form";
 import { signInWithGoogle } from "../utils/googleAuth";
 
-export default function LoginForm() {
+export default function RegisterForm() {
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const onSubmit = (data) => {
     alert(JSON.stringify(data));
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleRegister = async () => {
     try {
       const user = await signInWithGoogle();
-      console.log("Google login success:", user);
-      // Handle successful login (e.g., redirect or update state)
+      console.log("Google registration success:", user);
     } catch (error) {
-      console.error("Google login failed:", error);
+      console.error("Google registration failed:", error);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-blue-200 via-blue-300 to-blue-500">
       <div className="flex flex-col md:flex-row items-center justify-center w-full max-w-3xl">
-        {/* Form Box */}
         <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm">
-          <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">Đăng nhập</h2>
+          <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">Đăng ký</h2>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <label className="block text-gray-700 font-medium mb-1">Họ và tên</label>
+              <input
+                {...register("fullName", { required: "Họ và tên không được bỏ trống" })}
+                placeholder="Nguyễn Văn A"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+              />
+              {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>}
+            </div>
+
             <div>
               <label className="block text-gray-700 font-medium mb-1">Email</label>
               <input
-                {...register("email", { required: "Email không được bỏ trống" })}
+                {...register("email", { 
+                  required: "Email không được bỏ trống",
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: "Email không hợp lệ"
+                  }
+                })}
                 placeholder="nguyena@gmail.com"
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
-                autoComplete="email"
               />
               {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
             </div>
+
             <div>
               <label className="block text-gray-700 font-medium mb-1">Mật khẩu</label>
               <input
                 type="password"
-                {...register("password", { required: "Mật khẩu không được bỏ trống" })}
+                {...register("password", { 
+                  required: "Mật khẩu không được bỏ trống",
+                  minLength: {
+                    value: 6,
+                    message: "Mật khẩu phải có ít nhất 6 ký tự"
+                  }
+                })}
                 placeholder="Nhập mật khẩu của bạn"
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
-                autoComplete="current-password"
               />
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
             </div>
+
             <button
               type="submit"
               className="w-full bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 rounded shadow transition focus:ring-2 focus:ring-blue-400"
             >
-              Đăng nhập
+              Đăng ký
             </button>
           </form>
+
           <div className="mt-4 flex items-center justify-center">
             <span className="border-t w-full"></span>
             <span className="px-4 text-gray-500">hoặc</span>
             <span className="border-t w-full"></span>
           </div>
+
           <button
             type="button"
-            onClick={handleGoogleLogin}
+            onClick={handleGoogleRegister}
             className="mt-4 w-full flex items-center justify-center gap-2 bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-50 transition"
           >
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
-            Đăng nhập bằng Google
+            Đăng ký bằng Google
           </button>
+
           <div className="text-center mt-4 text-sm">
-            Bạn đã có tài khoản chưa?{" "}
+            Đã có tài khoản?{" "}
             <a href="/login" className="text-blue-800 font-semibold hover:underline">
               Đăng nhập
             </a>
           </div>
         </div>
-        {/* Text Right */}
+        
         <div className="md:ml-10 mt-8 md:mt-0 text-white flex-1 text-center md:text-left flex items-center justify-center">
           <div className="text-2xl md:text-3xl font-bold drop-shadow">
-            Đăng nhập<br />với tài khoản của bạn
+            Đăng ký<br />tài khoản mới
           </div>
         </div>
       </div>
