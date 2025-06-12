@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+    private AuthService authService;
     @Value("${application.frontend-url}") // Thêm vào application.properties: application.frontend-url=http://localhost:3000
     private String frontendUrl;
     // Endpoint để đăng ký tài khoản mới
