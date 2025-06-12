@@ -10,8 +10,8 @@ const Header = () => {
     {
       label: "Về chúng tôi",
       submenu: [
-        { label: "Giới thiệu", to: "/about" },
-        { label: "Đội ngũ", to: "/team" },
+        { label: "Giới thiệu", to: "/about-us" },
+        { label: "Liên hệ", to: "/contact" },
       ],
     },
     {
@@ -37,33 +37,33 @@ const Header = () => {
             menu.submenu ? (
               <li
                 key={menu.label}
-                className="relative group cursor-pointer"
+                className="relative group"
                 onMouseEnter={() => setOpenMenu(i)}
                 onMouseLeave={() => setOpenMenu(null)}
               >
-                <span className="flex items-center gap-1 hover:underline">
+                <span className="flex items-center gap-1 hover:text-blue-100 cursor-pointer py-2">
                   {menu.label}
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </span>
-                {/* Dropdown */}
-                <ul
-                  className={`absolute left-0 top-full mt-2 min-w-max bg-white rounded shadow-xl text-gray-700 z-20 transition ${
+                {/* Dropdown with padding to prevent hover gap */}
+                <div className="absolute left-0 top-full pt-2">
+                  <ul className={`bg-white rounded-lg shadow-xl text-gray-700 overflow-hidden ${
                     openMenu === i ? "block" : "hidden"
-                  }`}
-                >
-                  {menu.submenu.map((item) => (
-                    <li key={item.to}>
-                      <Link
-                        to={item.to}
-                        className="block px-5 py-2 hover:bg-blue-50 whitespace-nowrap"
-                      >
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                  }`}>
+                    {menu.submenu.map((item) => (
+                      <li key={item.to}>
+                        <Link
+                          to={item.to}
+                          className="block px-6 py-3 hover:bg-blue-50 whitespace-nowrap text-base transition-colors"
+                        >
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </li>
             ) : (
               <li key={menu.label}>
