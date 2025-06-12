@@ -1,19 +1,28 @@
 import { useForm } from "react-hook-form";
-import { signInWithGoogle } from "../utils/googleAuth";
+import { authService } from '../services/authService';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function RegisterForm() {
+  const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm();
 
-  const onSubmit = (data) => {
-    alert(JSON.stringify(data));
+  const onSubmit = async (data) => {
+    try {
+      await authService.registerWithEmail(data.email, data.password);
+      navigate('/admin');
+    } catch (error) {
+      console.error("Registration failed:", error);
+      // Add error handling UI here
+    }
   };
 
   const handleGoogleRegister = async () => {
     try {
-      const user = await signInWithGoogle();
-      console.log("Google registration success:", user);
+      await authService.loginWithGoogle();
+      navigate('/admin'); // or wherever you want to redirect
     } catch (error) {
       console.error("Google registration failed:", error);
+      // Show error message to user
     }
   };
 
@@ -91,9 +100,9 @@ export default function RegisterForm() {
 
           <div className="text-center mt-4 text-sm">
             Đã có tài khoản?{" "}
-            <a href="/login" className="text-blue-800 font-semibold hover:underline">
+            <Link to="/login" className="text-blue-800 font-semibold hover:underline">
               Đăng nhập
-            </a>
+            </Link>
           </div>
         </div>
         

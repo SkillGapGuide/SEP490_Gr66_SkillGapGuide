@@ -1,8 +1,37 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { authService } from "../services/authService";
 
 const Header = () => {
   const [openMenu, setOpenMenu] = useState(null);
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+
+  useEffect(() => {
+    const checkLoginStatus = () => {
+      setIsLoggedIn(!!localStorage.getItem('token'));
+    };
+
+    // Kiểm tra khi component mount
+    checkLoginStatus();
+
+    // Lắng nghe sự thay đổi của localStorage
+    window.addEventListener('storage', checkLoginStatus);
+
+    return () => {
+      window.removeEventListener('storage', checkLoginStatus);
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      setIsLoggedIn(false);
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   // Menu có submenu
   const menus = [
@@ -78,20 +107,31 @@ const Header = () => {
           )}
         </ul>
 
-        {/* Button Đăng ký/Đăng nhập */}
+        {/* Button Đăng ký/Đăng nhập/Đăng xuất */}
         <div className="flex gap-2 ml-4">
-          <Link
-            to="/login"
-            className="bg-white text-blue-900 font-semibold rounded-xl px-5 py-1.5 shadow hover:bg-blue-100 transition border border-blue-200"
-          >
-            Đăng Nhập
-          </Link>
-          <Link
-            to="/register"
-            className="bg-white text-blue-900 font-semibold rounded-xl px-5 py-1.5 shadow hover:bg-blue-100 transition border border-blue-200"
-          >
-            Đăng Kí
-          </Link>
+          {!isLoggedIn ? (
+            <>
+              <Link
+                to="/login"
+                className="bg-white text-blue-900 font-semibold rounded-xl px-5 py-1.5 shadow hover:bg-blue-100 transition border border-blue-200"
+              >
+                Đăng Nhập
+              </Link>
+              <Link
+                to="/register"
+                className="bg-white text-blue-900 font-semibold rounded-xl px-5 py-1.5 shadow hover:bg-blue-100 transition border border-blue-200"
+              >
+                Đăng Kí
+              </Link>
+            </>
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="bg-white text-blue-900 font-semibold rounded-xl px-5 py-1.5 shadow hover:bg-blue-100 transition border border-blue-200"
+            >
+              Đăng xuất
+            </button>
+          )}
         </div>
       </nav>
     </header>

@@ -13,6 +13,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import AboutSection from "../pages/AboutSection";
 import ContactPage from "../pages/ContactPage";
 import CvSkillPage from "../pages/user/CvSkillPage";
+import AuthCallback from "../components/AuthCallback";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -46,6 +47,7 @@ const router = createBrowserRouter([
       { path: "users", element: <ManagerUser /> },
     ],
   },
+  {path:"auth/callback", element:<AuthCallback/>}, // Placeholder for auth callback
 ]);
 
 export default router;

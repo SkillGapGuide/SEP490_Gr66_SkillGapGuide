@@ -1,20 +1,28 @@
 import { useForm } from "react-hook-form";
-import { signInWithGoogle } from "../utils/googleAuth";
+import { authService } from '../services/authService';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function LoginForm() {
   const { register, handleSubmit, formState: { errors } } = useForm();
+  const navigate = useNavigate();
 
-  const onSubmit = (data) => {
-    alert(JSON.stringify(data));
+  const onSubmit = async (data) => {
+    try {
+      const result = await authService.loginWithEmail(data.email, data.password);
+      navigate('/');
+    } catch (error) {
+      console.error("Login failed:", error);
+      // Add error handling UI here
+    }
   };
 
   const handleGoogleLogin = async () => {
     try {
-      const user = await signInWithGoogle();
-      console.log("Google login success:", user);
-      // Handle successful login (e.g., redirect or update state)
+      await authService.loginWithGoogle();
+      navigate('/admin'); // or wherever you want to redirect
     } catch (error) {
       console.error("Google login failed:", error);
+      // Show error message to user
     }
   };
 
@@ -67,10 +75,10 @@ export default function LoginForm() {
             Đăng nhập bằng Google
           </button>
           <div className="text-center mt-4 text-sm">
-            Bạn đã có tài khoản chưa?{" "}
-            <a href="/login" className="text-blue-800 font-semibold hover:underline">
-              Đăng nhập
-            </a>
+            Chưa có tài khoản?{" "}
+            <Link to="/register" className="text-blue-800 font-semibold hover:underline">
+              Đăng ký
+            </Link>
           </div>
         </div>
         {/* Text Right */}
