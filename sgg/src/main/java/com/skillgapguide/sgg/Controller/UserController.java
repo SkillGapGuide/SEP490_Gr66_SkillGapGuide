@@ -6,6 +6,7 @@ import com.skillgapguide.sgg.Dto.RegisterRequest;
 import com.skillgapguide.sgg.Response.EHttpStatus;
 import com.skillgapguide.sgg.Response.Response;
 import com.skillgapguide.sgg.Service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +47,7 @@ public class UserController {
         );
     }
     @PostMapping("/changePassword")
+    @SecurityRequirement(name = "Bearer Authentication")
     public Response<String> changePassword(
             @RequestBody ChangePasswordRequest request
     ) {
