@@ -112,7 +112,9 @@ public class AuthService {
             // 2. Tìm user
             var user = userRepository.findByEmail(request.email())
                     .orElseThrow(() -> new IllegalStateException("Người dùng không tồn tại"));
-
+            if (user.getStatus().getName().equals("NOT_VERIFIED")) {
+                throw new IllegalStateException("Tài khoản chưa được xác thực. Vui lòng liên hệ với quản trị viên");
+            }
             // 3. Tạo JWT
             String jwtToken = jwtUtil.generateToken(user.getUsername());
 

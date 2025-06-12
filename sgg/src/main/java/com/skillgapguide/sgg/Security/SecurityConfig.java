@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Không tạo session
                 .authorizeHttpRequests(auth -> auth
                         // Các endpoint không cần xác thực
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**","api/user/**").permitAll()
                         // Ví dụ phân quyền: Endpoint này chỉ dành cho ADMIN (roleId=2)
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         // Tất cả các request khác đều cần xác thực
