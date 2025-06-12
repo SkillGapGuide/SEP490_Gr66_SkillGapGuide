@@ -30,7 +30,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserStatusRepository userStatusRepository;
     private final EmailService emailService;
-    @Value("${application.base-url}")
+    @Value("${application.base-url}") // Thêm vào application.properties: application.base-url=http://localhost:8080
     private String baseUrl;
     @Transactional
     public String register(RegisterRequest request) {
