@@ -9,6 +9,7 @@ import lombok.Data;
 public class Job {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "job_id")
     private Integer jobId;
 

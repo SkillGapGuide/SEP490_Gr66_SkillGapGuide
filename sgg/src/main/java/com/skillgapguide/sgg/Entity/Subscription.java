@@ -9,6 +9,7 @@ import lombok.Data;
 public class Subscription {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "subscription_id")
     private Integer subscriptionId;
 
