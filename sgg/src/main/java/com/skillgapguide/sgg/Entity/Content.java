@@ -9,6 +9,7 @@ import lombok.Data;
 public class Content {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "`Column`", nullable = false)
