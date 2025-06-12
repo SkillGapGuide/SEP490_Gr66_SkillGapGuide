@@ -10,6 +10,9 @@ import ForgotPassword from "../pages/ForgotPassword";
 import AdminSidebar from "../layouts/AdminSidebar";
 import ManagerUser from "../pages/admin/ManagerUser";
 import AdminLayout from "../layouts/AdminLayout";
+import AboutSection from "../pages/AboutSection";
+import ContactPage from "../pages/ContactPage";
+import CvSkillPage from "../pages/user/CvSkillPage";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -20,22 +23,29 @@ const router = createBrowserRouter([
       { path: "login", element: <Login /> },
       { path: "register", element: <Register /> },
       { path: "profile", element: <UserProfile /> },
-      {path: "forgot-password", element: <ForgotPassword></ForgotPassword>}, // Placeholder for forgot password page
+      { path: "forgot-password", element: <ForgotPassword></ForgotPassword> },
+      { path: "about-us", element: <AboutSection /> },
+      { path: "contact", element: <ContactPage /> }, // Placeholder for forgot password page
+      {
+        path: "cv-skills",
+        element: <CvSkillPage />,
+      },
     ],
   },
   {
     path: "*",
     element: <NotFound />,
-  },{
-    path:"/admin",
-    element:<AdminLayout />,
+  },
+  {
+    path: "/admin",
+    element: <AdminLayout />,
     errorElement: <ErrorBoundary />,
     children: [
       // Các route con của admin sẽ được định nghĩa ở đây
       // Ví dụ: { path: "dashboard", element: <AdminDashboard /> },
-      {path: "users", element: <ManagerUser />},
+      { path: "users", element: <ManagerUser /> },
     ],
-  }
+  },
 ]);
 
 export default router;
