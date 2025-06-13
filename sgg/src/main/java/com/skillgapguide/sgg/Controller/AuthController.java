@@ -1,6 +1,7 @@
 package com.skillgapguide.sgg.Controller;
 import com.skillgapguide.sgg.Dto.AuthRequest;
 import com.skillgapguide.sgg.Dto.AuthResponse;
+import com.skillgapguide.sgg.Dto.GoogleLoginRequest;
 import com.skillgapguide.sgg.Dto.RegisterRequest;
 import com.skillgapguide.sgg.Entity.User;
 import com.skillgapguide.sgg.Filter.JWTUtil;
@@ -57,5 +58,22 @@ public class AuthController {
         // Gọi service để xử lý logic đăng nhập và trả về token
         return new Response<>(EHttpStatus.OK, "Đăng nhập thành công", authService.login(request));
     }
+    @PostMapping("/google")
+    public Response<AuthResponse> googleLogin(@RequestBody GoogleLoginRequest request) {
+        try {
+            return new Response<>(
+                    EHttpStatus.OK,
+                    "Google login successful",
+                    authService.processGoogleLogin(request)
+            );
+        } catch (IllegalStateException e) {
+            return new Response<>(
+                    EHttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
+            );
+        }
+    }
+
 
 }

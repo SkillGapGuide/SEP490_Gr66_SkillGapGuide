@@ -1,30 +1,33 @@
 import { useForm } from "react-hook-form";
 import { authService } from '../services/authService';
 import { useNavigate, Link } from 'react-router-dom';
+import { useState, memo, useCallback } from "react";
 
-export default function LoginForm() {
+export default memo(function LoginForm() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate();
+  const [loginError, setLoginError] = useState('');
 
-  const onSubmit = async (data) => {
+  const onSubmit = useCallback(async (data) => {
     try {
+      setLoginError(''); // Clear previous errors
       const result = await authService.loginWithEmail(data.email, data.password);
       navigate('/');
     } catch (error) {
       console.error("Login failed:", error);
-      // Add error handling UI here
+      setLoginError(error.message);
     }
-  };
+  }, [navigate]);
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = useCallback(async () => {
     try {
       await authService.loginWithGoogle();
-      navigate('/admin'); // or wherever you want to redirect
+      navigate('/'); // or wherever you want to redirect
     } catch (error) {
       console.error("Google login failed:", error);
       // Show error message to user
     }
-  };
+  }, [navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-blue-200 via-blue-300 to-blue-500">
@@ -32,6 +35,11 @@ export default function LoginForm() {
         {/* Form Box */}
         <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm">
           <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">Đăng nhập</h2>
+          {loginError && (
+            <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
+              {loginError}
+            </div>
+          )}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <label className="block text-gray-700 font-medium mb-1">Email</label>
@@ -90,4 +98,4 @@ export default function LoginForm() {
       </div>
     </div>
   );
-}
+});

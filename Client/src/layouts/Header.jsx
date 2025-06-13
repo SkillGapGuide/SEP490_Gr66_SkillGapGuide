@@ -1,11 +1,14 @@
-import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
+import { useState, useEffect, memo, useRef } from "react";
 
-const Header = () => {
+const Header = memo(function Header() {
   const [openMenu, setOpenMenu] = useState(null);
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [userAvatar, setUserAvatar] = useState("/default-avatar.png"); // Default avatar
+  const profileMenuRef = useRef(null);
 
   useEffect(() => {
     const checkLoginStatus = () => {
@@ -15,11 +18,25 @@ const Header = () => {
     // Kiểm tra khi component mount
     checkLoginStatus();
 
-    // Lắng nghe sự thay đổi của localStorage
-    window.addEventListener('storage', checkLoginStatus);
+    // Lắng nghe sự thay đổi từ event custom
+    window.addEventListener('authStateChanged', checkLoginStatus);
 
     return () => {
-      window.removeEventListener('storage', checkLoginStatus);
+      window.removeEventListener('authStateChanged', checkLoginStatus);
+    };
+  }, []);
+
+  useEffect(() => {
+    // Click outside to close profile menu
+    const handleClickOutside = (event) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
@@ -107,35 +124,64 @@ const Header = () => {
           )}
         </ul>
 
-        {/* Button Đăng ký/Đăng nhập/Đăng xuất */}
-        <div className="flex gap-2 ml-4">
+        {/* Button Đăng ký/Đăng nhập/Profile */}
+        <div className="flex items-center gap-2 ml-4">
           {!isLoggedIn ? (
             <>
-              <Link
-                to="/login"
-                className="bg-white text-blue-900 font-semibold rounded-xl px-5 py-1.5 shadow hover:bg-blue-100 transition border border-blue-200"
-              >
+              <Link to="/login" className="bg-white text-blue-900 font-semibold rounded-xl px-5 py-1.5 shadow hover:bg-blue-100 transition border border-blue-200">
                 Đăng Nhập
               </Link>
-              <Link
-                to="/register"
-                className="bg-white text-blue-900 font-semibold rounded-xl px-5 py-1.5 shadow hover:bg-blue-100 transition border border-blue-200"
-              >
+              <Link to="/register" className="bg-white text-blue-900 font-semibold rounded-xl px-5 py-1.5 shadow hover:bg-blue-100 transition border border-blue-200">
                 Đăng Kí
               </Link>
             </>
           ) : (
-            <button
-              onClick={handleLogout}
-              className="bg-white text-blue-900 font-semibold rounded-xl px-5 py-1.5 shadow hover:bg-blue-100 transition border border-blue-200"
-            >
-              Đăng xuất
-            </button>
+            <div className="flex items-center gap-3">
+              <div className="relative" ref={profileMenuRef}>
+                <button 
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  className="flex items-center gap-2 bg-white rounded-full p-1 hover:ring-2 hover:ring-blue-300 transition"
+                >
+                  <img 
+                    src={userAvatar} 
+                    alt="Profile" 
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                </button>
+
+                {/* Profile Dropdown Menu */}
+                {showProfileMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50">
+                    <div className="py-1">
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"
+                      >
+                        Thông tin cá nhân
+                      </Link>
+                      <Link
+                        to="/settings"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"
+                      >
+                        Cài đặt
+                      </Link>
+                      <hr className="my-1" />
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      >
+                        Đăng xuất
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
         </div>
       </nav>
     </header>
   );
-};
+});
 
 export default Header;

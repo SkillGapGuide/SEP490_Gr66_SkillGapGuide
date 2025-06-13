@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../config/supabase';
+import { authService } from '../services/authService';
 
 function AuthCallback() {
   const navigate = useNavigate();
@@ -16,9 +17,18 @@ function AuthCallback() {
         if (error) throw error;
         
         if (session) {
-          localStorage.setItem('token', session.access_token);
-          navigate('/profile');
-        } else {
+          // Send user data to backend and get JWT
+          const response = await authService.sendUserToBackend(session);
+          
+         if (response.status === 200 && response.result?.token) {
+            localStorage.setItem('token', response.result.token);
+            window.dispatchEvent(new Event('authStateChanged'));
+            console.log('Google login successful');
+            navigate('/profile');
+          } else {
+            throw new Error('Invalid response format from server');
+          }
+        }  else {
           navigate('/login');
         }
       } catch (error) {
@@ -30,7 +40,14 @@ function AuthCallback() {
     handleCallback();
   }, [navigate]);
 
-  return <div>Processing authentication...</div>;
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-xl mb-4">Đang xử lý đăng nhập...</div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+      </div>
+    </div>
+  );
 }
 
 export default AuthCallback;

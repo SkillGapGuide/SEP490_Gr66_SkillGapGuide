@@ -1,4 +1,5 @@
 package com.skillgapguide.sgg.Entity;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -7,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Entity
@@ -22,7 +22,7 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = true) // Google user có thể không có password
     private String password;
 
     @Column(name = "full_name", nullable = false)
@@ -38,18 +38,24 @@ public class User implements UserDetails {
     private String phone;
 
     @Column(nullable = true)
-    private String address;
-    @Enumerated(EnumType.STRING) // Lưu status dưới dạng chuỗi trong DB (VD: "VERIFIED")
-    @Column(nullable = false)
-    private static final String STATUS_VERIFIED = "VERIFIED";
-    private static final String STATUS_BANNED = "BANNED";
-    @ManyToOne(fetch = FetchType.EAGER) // EAGER để luôn tải thông tin status cùng với User
+    private String avatar;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "status_id", nullable = false)
     private UserStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Provider provider;
+
+    public enum Provider {
+        LOCAL,    // Tài khoản thường
+        GOOGLE    // Tài khoản Google
+    }
+
+    // ------ Spring Security ------
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Chuyển đổi roleId thành quyền của Spring Security
-        // Ví dụ: roleId = 1 là "ROLE_USER", roleId = 2 là "ROLE_ADMIN"
         String role;
         if (this.roleId == 1) {
             role = "ROLE_SYSTEM_ADMIN";
@@ -57,48 +63,38 @@ public class User implements UserDetails {
             role = "ROLE_BUSINESS_ADMIN";
         } else if (this.roleId == 3) {
             role = "ROLE_USER";
-        }
-        else if (this.roleId == 4) {
+        } else if (this.roleId == 4) {
             role = "ROLE_PREMIUM_USER";
-        }
-        else {
-            role = "UNKNOWN"; // Mặc định nếu không có role hợp lệ
+        } else {
+            role = "UNKNOWN";
         }
         return List.of(new SimpleGrantedAuthority(role));
     }
 
     @Override
     public String getUsername() {
-        // Spring Security sẽ dùng email làm username để xác thực
         return this.email;
-    }
-
-
-    @Override
-    public String getPassword() {
-        return this.password;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true; // Tài khoản không bao giờ hết hạn
+        return true; // Không kiểm soát
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        // Tài khoản không bị khóa nếu status không phải là "BANNED"
-        return this.status != null && !this.status.getName().equals(STATUS_BANNED);
+        // BANNED = không cho login
+        return this.status != null && !"BANNED".equalsIgnoreCase(this.status.getName());
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true; // Mật khẩu không bao giờ hết hạn
+        return true; // Không kiểm soát
     }
 
     @Override
     public boolean isEnabled() {
-        // Tài khoản có thể đăng nhập nếu status là "VERIFIED"
-        return this.status != null && this.status.getName().equals(STATUS_VERIFIED);
+        // Chỉ cho phép login nếu VERIFIED
+        return this.status != null && "VERIFIED".equalsIgnoreCase(this.status.getName());
     }
 }
-
