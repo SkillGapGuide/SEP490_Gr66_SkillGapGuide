@@ -33,9 +33,9 @@ public class AuthController {
     private String frontendUrl;
     // Endpoint để đăng ký tài khoản mới
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
+    public Response<String> register(@RequestBody RegisterRequest request) {
         String message = authService.register(request);
-        return ResponseEntity.ok(message);
+        return new Response<>(EHttpStatus.OK, "Đăng ký thành công", message);
     }
     @GetMapping("/verify")
     public void verifyAccount(@RequestParam("token") String token, HttpServletResponse response) throws IOException {
@@ -44,7 +44,7 @@ public class AuthController {
             // Mã hóa message để an toàn khi đặt trên URL
             String message = URLEncoder.encode("Xác thực email thành công!", StandardCharsets.UTF_8);
             // Chuyển hướng về trang chủ của frontend với thông điệp thành công
-            response.sendRedirect(frontendUrl + "/home?message=" + message);
+            response.sendRedirect(frontendUrl + "/login?message=" + message);
         } catch (IllegalStateException e) {
             String errorMessage = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
             // Chuyển hướng về trang lỗi hoặc trang đăng nhập với thông điệp lỗi
