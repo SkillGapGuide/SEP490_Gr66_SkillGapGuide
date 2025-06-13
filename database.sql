@@ -55,7 +55,8 @@ CREATE TABLE User (
     role_id INT NOT NULL,
     subscription_id INT NOT NULL,
     phone NVARCHAR(255) NOT NULL,
-    address NVARCHAR(255) NOT NULL,
+    avatar NVARCHAR(255) NOT NULL,
+     provider VARCHAR(10) DEFAULT 'LOCAL',
     status_id INT NOT NULL,
 	PRIMARY KEY (user_id),
 	FOREIGN KEY (status_id) REFERENCES user_status(status_id),
@@ -199,9 +200,5 @@ INSERT INTO `skill_gap_guide`.`role`
 VALUES
     (4,
      'Premium User');
-ALTER TABLE
- user MODIFY address 
-NVARCHAR
-(255) 
-NULL
+
 ;
