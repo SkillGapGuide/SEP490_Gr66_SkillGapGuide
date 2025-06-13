@@ -20,20 +20,26 @@ public class SecurityConfig {
     private final JWTAuthFilter jwtAuthFilter;
 
     private final AuthenticationProvider authenticationProvider;
-
+    private static final String[] url = {
+            "/api/auth/**", "/v3/api-docs/**",
+            "/v3/api-docs/public",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/api/user/**"
+    };
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) // Vô hiệu hóa CSRF vì dùng JWT
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Không tạo session
                 .authorizeHttpRequests(auth -> auth
                         // Các endpoint không cần xác thực
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(url).permitAll()
                         // Ví dụ phân quyền: Endpoint này chỉ dành cho ADMIN (roleId=2)
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         // Tất cả các request khác đều cần xác thực
                         .anyRequest().authenticated()
                 )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Không tạo session
                 .authenticationProvider(authenticationProvider)
                 // Thêm bộ lọc JWT vào trước bộ lọc mặc định của Spring Security
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
