@@ -3,77 +3,84 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+// Thêm event custom để theo dõi thay đổi auth
+const authStateChange = new Event('authStateChanged');
+
 export const authService = {
-  async loginWithEmail(email, password) {
+async loginWithEmail(email, password) {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const response = await axios.post(`${API_URL}/api/auth/login`, {
         email,
         password,
       });
-      if (error) throw error;
       
-      // Get session token and store it
-      const session = data.session;
-      if (session?.access_token) {
-        localStorage.setItem('token', session.access_token);
+      if (response.data) {
+        localStorage.setItem('token', response.data.result.token);
+        // Dispatch event khi login thành công
+        window.dispatchEvent(authStateChange);
+        return response.data;
       }
-      
-      return data;
     } catch (error) {
-      throw error;
+      if (error.code === 'ERR_CONNECTION_REFUSED') {
+        throw new Error('Unable to connect to server. Please check if the backend server is running.');
+      }
+      // Pass the error message from backend
+      throw new Error(error.response?.data?.message || 'Đăng nhập thất bại');
     }
   },
 
-  async registerWithEmail(email, password) {
+  async registerWithEmail(email, password,fullName,phone) {
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const response = await axios.post(`${API_URL}/api/auth/register`, {
         email,
         password,
+        fullName,
+        phone
       });
-      if (error) throw error;
-      
-      if (data.session?.access_token) {
-        localStorage.setItem('token', data.session.access_token);
-      }
-      
-      return data;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  async loginWithGoogle() {
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/profile`,
-        }
-      });
-      
-      if (error) throw error;
-      
-      // Get session after redirect
-      const session = await supabase.auth.getSession();
-      const idToken = session?.data?.session?.provider_token;
-      
-      if (!idToken) throw new Error('No ID token found');
-      console.log('idToken:', idToken);
-
-      // Send to backend
-      const response = await axios.post(`${API_URL}/api/auth/google`, { idToken });
-      const { token } = response.data;
-      
-      // Store JWT
-     
       return response.data;
     } catch (error) {
       throw error;
     }
   },
 
+ async loginWithGoogle() {
+  try {
+    // Kiểm tra khởi tạo Supabase
+    if (!supabase) {
+      throw new Error('Supabase client not initialized');
+    }
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        // Đảm bảo URL callback chính xác
+        redirectTo: `${window.location.origin}/auth/callback`,
+        // Thêm các scopes cần thiết
+        scopes: 'email profile',
+        // Thêm cấu hình queryParams
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'select_account'
+        }
+      }
+    });
+
+    if (error) {
+      console.error('Supabase OAuth error:', error);
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Google login error:', error);
+    throw error;
+  }
+},
+
   logout() {
     localStorage.removeItem('token');
+    // Dispatch event khi logout
+    window.dispatchEvent(authStateChange);
     return supabase.auth.signOut();
   },
 
@@ -86,24 +93,32 @@ async sendUserToBackend(session) {
     if (!session) throw new Error('No Supabase session');
 
     const user = session.user;
-    const { id, email, user_metadata, app_metadata } = user;
+    const { id, email, user_metadata } = user;
     const userData = {
-      supabaseId: id,
+     
       email,
       name: user_metadata?.full_name || user_metadata?.name || "",
       avatar: user_metadata?.avatar_url || "",
-      provider: app_metadata?.provider || "google",
-      access_token: session.access_token,
+      accessToken: session.access_token,
+       supabaseId: id,
     };
 
-    // Gửi lên backend
-    const response = await axios.post(`${API_URL}/api/auth/supabase-google`, userData);
+   try {
+  const response = await axios.post(`${API_URL}/api/auth/google`, userData);
+  if (response.data.token) {
+    localStorage.setItem('token', response.data.token);
+    window.dispatchEvent(authStateChange);
+  }
+  return response.data;
+} catch (error) {
+  if (error.response?.status === 409) {
+    alert("Email này đã đăng ký bằng tài khoản khác. Vui lòng đăng nhập bằng đúng phương thức hoặc liên hệ hỗ trợ.");
+  } else {
+    alert("Có lỗi xảy ra khi xác thực Google. Vui lòng thử lại hoặc liên hệ hỗ trợ.");
+  }
+  throw error;
+}
 
-    // Lưu JWT backend
-    if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
-    }
-    return response.data;
-  },
+},
 
 };
