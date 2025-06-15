@@ -1,6 +1,7 @@
 import { supabase } from '../config/supabase';
 import axios from 'axios';
-
+import { ENDPOINTS } from '../constants/apiEndpoints';
+import { apiService } from './api';
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Thêm event custom để theo dõi thay đổi auth
@@ -9,7 +10,7 @@ const authStateChange = new Event('authStateChanged');
 export const authService = {
 async loginWithEmail(email, password) {
     try {
-      const response = await axios.post(`${API_URL}/api/auth/login`, {
+      const response = await apiService.post(ENDPOINTS.auth.login, {
         email,
         password,
       });
@@ -31,7 +32,7 @@ async loginWithEmail(email, password) {
 
   async registerWithEmail(email, password,fullName,phone) {
     try {
-      const response = await axios.post(`${API_URL}/api/auth/register`, {
+      const response = await apiService.post(ENDPOINTS.auth.register, {
         email,
         password,
         fullName,
@@ -84,10 +85,10 @@ async loginWithEmail(email, password) {
     return supabase.auth.signOut();
   },
 
-  async getCurrentUser() {
-    const { data: { user } } = await supabase.auth.getUser();
-    return user;
-  },
+  // async getCurrentUser() {
+  //   const { data: { user } } = await supabase.auth.getUser();
+  //   return user;
+  // },
 
 async sendUserToBackend(session) {
     if (!session) throw new Error('No Supabase session');
