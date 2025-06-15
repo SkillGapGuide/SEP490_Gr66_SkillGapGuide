@@ -12,6 +12,8 @@ import com.skillgapguide.sgg.Repository.UserStatusRepository;
 import com.skillgapguide.sgg.Repository.VerificationTokenRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -34,6 +36,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserStatusRepository userStatusRepository;
     private final EmailService emailService;
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
     @Value("${application.base-url}")
     private String baseUrl;
 
@@ -105,7 +108,7 @@ public class AuthService {
 
         tokenRepository.delete(verificationToken);
     }
-
+    @Transactional
     public AuthResponse login(AuthRequest request) {
         try {
             // 1. Xác thực thông tin
@@ -129,6 +132,7 @@ public class AuthService {
 
         } catch (Exception ex) {
             // 4. Bắt lỗi nếu xác thực thất bại
+            logger.error("Xác thực thất bại cho email {}: {}", request.email(), ex.getMessage());
             throw new IllegalStateException("Sai email hoặc mật khẩu");
         }
     }
