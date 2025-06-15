@@ -39,7 +39,10 @@ public class User implements UserDetails {
 
     @Column(nullable = true)
     private String avatar;
-
+    @Enumerated(EnumType.STRING) // Lưu status dưới dạng chuỗi trong DB (VD: "VERIFIED")
+    @Column(nullable = false)
+    private static final String STATUS_VERIFIED = "VERIFIED";
+    private static final String STATUS_BANNED = "BANNED";
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "status_id", nullable = false)
     private UserStatus status;
@@ -70,7 +73,10 @@ public class User implements UserDetails {
         }
         return List.of(new SimpleGrantedAuthority(role));
     }
-
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
     @Override
     public String getUsername() {
         return this.email;
@@ -95,6 +101,6 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         // Chỉ cho phép login nếu VERIFIED
-        return this.status != null && "VERIFIED".equalsIgnoreCase(this.status.getName());
+        return this.status != null && this.status.getName().equals(STATUS_VERIFIED);
     }
 }
