@@ -25,12 +25,12 @@ export default memo(function RegisterForm() {
         data.phone
       );
       
-      setRegisterSuccess(response.message || 'Đăng ký thành công, vui lòng kiểm tra email để xác thực tài khoản');
+      setRegisterSuccess(response || 'Đăng ký thành công, vui lòng kiểm tra email để xác thực tài khoản');
       
       // Delay navigation to allow user to read the message
       setTimeout(() => {
         navigate('/login');
-      }, 3000);
+      }, 10000);
 
     } catch (error) {
       console.error("Registration failed:", error);
