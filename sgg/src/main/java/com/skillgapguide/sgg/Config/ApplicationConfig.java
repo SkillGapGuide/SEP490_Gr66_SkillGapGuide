@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfig {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
     @Bean
     public UserDetailsService userDetailsService() {
         return email -> userRepository.findByEmail(email)
