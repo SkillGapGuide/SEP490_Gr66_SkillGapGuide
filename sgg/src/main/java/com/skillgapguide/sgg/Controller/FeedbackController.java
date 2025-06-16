@@ -15,8 +15,8 @@ public class FeedbackController {
     public Response<?> getAllFeedback(@RequestParam(defaultValue = "0") int star){
         return new Response<>(EHttpStatus.OK,feedbackService.getFeedbackList(star));
     }
-    @GetMapping("/getDetail/{id}")
-    public Response<?> getDetailFeedback(@PathVariable int id){
-        return new Response<>(EHttpStatus.OK,feedbackService.getFeedbackDetail(id));
+    @GetMapping("/getDetail/{email}")
+    public Response<?> getDetailFeedback(@PathVariable String email){
+        return new Response<>(EHttpStatus.OK,feedbackService.getFeedbackDetail(email));
     }
 }

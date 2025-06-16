@@ -15,6 +15,6 @@ public interface FeedbackRepository extends JpaRepository<Feedback,Integer> {
             " where f.star = :star")
     List<FeedbackListResponse> getAllFeedbackByStar(int star);
     @Query(value = "select u.email as email,f.content as content,f.star as star,u.fullName as name,f.createAt as time from Feedback as f join User as u on f.userId = u.userId" +
-            " where u.userId = :id")
-    FeedbackDetailResponse getFeedbackDetail(int id);
+            " where u.email = :email")
+    FeedbackDetailResponse getFeedbackDetail(String email);
 }
