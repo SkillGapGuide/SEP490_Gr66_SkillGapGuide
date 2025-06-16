@@ -2,6 +2,11 @@ package com.skillgapguide.sgg.Entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.apache.james.mime4j.dom.datetime.DateTime;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @Entity
@@ -20,4 +25,7 @@ public class Feedback {
 
     @Column(nullable = false)
     private Integer star;
+
+    @Column(nullable = false)
+    private Timestamp createAt;
 }
