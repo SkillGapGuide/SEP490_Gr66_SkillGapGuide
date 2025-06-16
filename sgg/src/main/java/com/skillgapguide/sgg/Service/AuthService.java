@@ -122,10 +122,7 @@ public class AuthService {
             if (user.getStatus().getName().equals("NOT_VERIFIED")) {
                 throw new IllegalStateException("Tài khoản chưa được xác thực. Vui lòng liên hệ với quản trị viên");
             }
-            if (user.getProvider().equals("GOOGLE") ) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT,
-                        "Email này đã đăng ký bằng phương thức Google. Vui lòng đăng nhập bằng phương thức Google hoặc liên hệ hỗ trợ.");
-            }
+
             // 3. Tạo JWT
             String jwtToken = jwtUtil.generateToken(user.getUsername());
 
