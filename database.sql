@@ -1,3 +1,4 @@
+-- drop database skill_gap_guide
 Create database skill_gap_guide;
 use skill_gap_guide;
 -- Bảng lưu các vai trò (ví dụ: admin, user)
@@ -81,6 +82,7 @@ CREATE TABLE FeedBack (
     user_id INT NOT NULL,
     content NVARCHAR(255) NOT NULL,
     star INT NOT NULL,
+    createAt DateTime,
     PRIMARY KEY (feedback_id),
     FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
