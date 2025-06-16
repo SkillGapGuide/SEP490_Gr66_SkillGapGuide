@@ -104,6 +104,7 @@ CREATE TABLE Job (
     company NVARCHAR(255) NOT NULL,
     category_id INT NOT NULL,
     status NVARCHAR(255) NOT NULL,
+    source_url nvarchar(512) NOT NULL,
     PRIMARY KEY (job_id),
     FOREIGN KEY (category_id) REFERENCES JobCategory(job_category_id)
 );
