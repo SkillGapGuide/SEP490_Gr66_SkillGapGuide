@@ -21,6 +21,7 @@ import SocialLinksManager from "../pages/admin/SocialLinksManager";
 import TagSkillManager from "../pages/admin/TagSkillManager";
 import HomePageManager from "../pages/admin/HomePageManager";
 import ResetPassword from "../pages/ResetPassword";
+import ChangePassword from "../pages/ChangePassword";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -31,14 +32,15 @@ const router = createBrowserRouter([
       { path: "login", element: <Login /> },
       { path: "register", element: <Register /> },
       { path: "profile", element: <UserProfile /> },
-      { path: "forgot-password", element: <ForgotPassword  isChangePassword={true} /> },
+      { path: "forgot-password", element: <ForgotPassword /> },
       { path: "about-us", element: <AboutSection /> },
       { path: "contact", element: <ContactPage /> }, // Placeholder for forgot password page
       {
         path: "cv-skills",
         element: <CvSkillPage />,
       },
-      {path:"change-password", element:<ResetPassword />}, // Placeholder for change password page
+      { path: "reset-password", element: <ResetPassword /> },
+      {path:"change-password",element:<ChangePassword/>}, // Placeholder for change password page
     ],
   },
   {
@@ -53,15 +55,15 @@ const router = createBrowserRouter([
       // Các route con của admin sẽ được định nghĩa ở đây
       // Ví dụ: { path: "dashboard", element: <AdminDashboard /> },
       { path: "users", element: <ManagerUser /> },
-      {path:"static-content", element:<StaticContentManager/>},
-      {path:"about-us",element:<AboutUsManager/>},
-      {path:"feedback",element:<AdminFeedbackManager/>},
-      {path:"social-link",element:<SocialLinksManager/>},
-      {path:"tag-skills",element:<TagSkillManager/>},
-      {path:"homepage-manage",element:<HomePageManager/>} // Placeholder for static content manager
+      { path: "static-content", element: <StaticContentManager /> },
+      { path: "about-us", element: <AboutUsManager /> },
+      { path: "feedback", element: <AdminFeedbackManager /> },
+      { path: "social-link", element: <SocialLinksManager /> },
+      { path: "tag-skills", element: <TagSkillManager /> },
+      { path: "homepage-manage", element: <HomePageManager /> }, // Placeholder for static content manager
     ],
   },
-  {path:"auth/callback", element:<AuthCallback/>}, // Placeholder for auth callback
+  { path: "auth/callback", element: <AuthCallback /> }, // Placeholder for auth callback
 ]);
 
 export default router;

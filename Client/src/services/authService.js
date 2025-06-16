@@ -14,9 +14,10 @@ async loginWithEmail(email, password) {
         email,
         password,
       });
+     
       
-      if (response.data) {
-        localStorage.setItem('token', response.data.result.token);
+      if (response.result && response.result.token) {
+        localStorage.setItem('token', response.result.token);
         // Dispatch event khi login thành công
         window.dispatchEvent(authStateChange);
         return response.data;
@@ -26,7 +27,7 @@ async loginWithEmail(email, password) {
         throw new Error('Unable to connect to server. Please check if the backend server is running.');
       }
       // Pass the error message from backend
-      throw new Error(error.response?.data?.message || 'Đăng nhập thất bại');
+      throw new Error(error.response?.message || 'Đăng nhập thất bại');
     }
   },
 
@@ -38,7 +39,7 @@ async loginWithEmail(email, password) {
         fullName,
         phone
       });
-      return response.data;
+      return response;
     } catch (error) {
       throw error;
     }
