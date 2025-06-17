@@ -100,7 +100,7 @@ CREATE TABLE CV (
 CREATE TABLE Job (
     job_id INT NOT NULL AUTO_INCREMENT,
     title NVARCHAR(255) NOT NULL,
-    description NVARCHAR(255) NOT NULL,
+    description NVARCHAR(7000) NOT NULL,
     company NVARCHAR(255) NOT NULL,
     category_id INT NOT NULL,
     status NVARCHAR(255) NOT NULL,
