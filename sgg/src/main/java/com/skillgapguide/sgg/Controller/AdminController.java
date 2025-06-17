@@ -12,8 +12,9 @@ public class AdminController {
     @Autowired
     private UserService userService;
     @GetMapping("/getAllUser")
-    public Response<?> getAllUserList(){
-        return new Response<>(EHttpStatus.OK, userService.getAllUser());
+    public Response<?> getAllUserList(@RequestParam(defaultValue = "0") Integer pageNo,
+                                      @RequestParam(defaultValue = "10") Integer pageSize){
+        return new Response<>(EHttpStatus.OK, userService.getAllUser(pageNo,pageSize));
     }
     @PostMapping("/disableAccount/{email}")
     public  Response<?> disableAcc(@PathVariable String email){
