@@ -18,7 +18,7 @@ INSERT INTO user_status (name) VALUES
 -- Bảng lưu các gói đăng ký
 CREATE TABLE Subscription (
     subscription_id INT NOT NULL AUTO_INCREMENT,
-    type NVARCHAR(255) NOT NULL,
+    type int NOT NULL,
     status NVARCHAR(255) NOT NULL,
     PRIMARY KEY (subscription_id)
 );
@@ -215,12 +215,14 @@ CREATE TABLE Audit_Log (
     FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
 
-INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (1,     'Free User',     'OK');
-INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (2,     'Premium User',     'OK');
+INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (1,     1,     'active');
+INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (2,     3,     'active');
+INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (3,     9,     'active');
+INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (4,     12,     'active');
 INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (1,     'System Admin');
 INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (2,     'Business Admin');
 INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (3,     'User');
-INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES(4,'Premium User');
+INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES		(4,'Premium User');
 INSERT INTO JobCategory (name) VALUES('IT'),('Marketing'),('Finance');
 INSERT INTO Skill (name) VALUES('Python'),('Communication'),('Data Analysis'),('Project Management');
 INSERT INTO Course (title, description, provider, url) VALUES
