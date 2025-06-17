@@ -12,6 +12,9 @@ import com.skillgapguide.sgg.Repository.UserStatusRepository;
 import com.skillgapguide.sgg.Repository.VerificationTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -82,8 +85,10 @@ public class  UserService {
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
     }
-    public List<UserListResponse> getAllUser(){
-        return userRepository.getAllUser();
+    public Page<UserListResponse> getAllUser(Integer pageNo, Integer pageSize){
+        Pageable paging = PageRequest.of(pageNo, pageSize);
+
+        return userRepository.getAllUser(paging);
     }
     public String disableAccount(String email){
         try {
