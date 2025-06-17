@@ -12,8 +12,10 @@ public class FeedbackController {
     @Autowired
     private FeedbackService feedbackService;
     @GetMapping("/getAll")
-    public Response<?> getAllFeedback(@RequestParam(defaultValue = "0") int star){
-        return new Response<>(EHttpStatus.OK,feedbackService.getFeedbackList(star));
+    public Response<?> getAllFeedback(@RequestParam(defaultValue = "0") int star,
+                                      @RequestParam(defaultValue = "0") Integer pageNo,
+                                      @RequestParam(defaultValue = "10") Integer pageSize){
+        return new Response<>(EHttpStatus.OK,feedbackService.getFeedbackList(star,pageNo,pageSize));
     }
     @GetMapping("/getDetail/{email}")
     public Response<?> getDetailFeedback(@PathVariable String email){
