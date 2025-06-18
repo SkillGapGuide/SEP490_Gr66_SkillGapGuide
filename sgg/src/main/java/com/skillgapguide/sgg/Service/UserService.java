@@ -1,20 +1,26 @@
 package com.skillgapguide.sgg.Service;
 
 
-import com.skillgapguide.sgg.Dto.AuthRequest;
 import com.skillgapguide.sgg.Dto.ChangePasswordRequest;
 import com.skillgapguide.sgg.Dto.ForgotPasswordRequest;
+import com.skillgapguide.sgg.Dto.UserListResponse;
 import com.skillgapguide.sgg.Entity.User;
+import com.skillgapguide.sgg.Entity.UserStatus;
 import com.skillgapguide.sgg.Entity.VerificationToken;
 import com.skillgapguide.sgg.Repository.UserRepository;
+import com.skillgapguide.sgg.Repository.UserStatusRepository;
 import com.skillgapguide.sgg.Repository.VerificationTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,7 +30,7 @@ public class  UserService {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final VerificationTokenRepository verificationTokenRepository;
-
+    private  final UserStatusRepository userStatusRepository;
     @Value("${application.base-url}")
     private String baseUrl;
     @Value("${application.frontend-url}")
@@ -78,5 +84,36 @@ public class  UserService {
 
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
+    }
+    public Page<UserListResponse> getAllUser(Integer pageNo, Integer pageSize){
+        Pageable paging = PageRequest.of(pageNo, pageSize);
+
+        return userRepository.getAllUser(paging);
+    }
+    public String disableAccount(String email){
+        try {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new IllegalStateException("Người dùng không tồn tại"));
+            UserStatus newStatus = userStatusRepository.findById(3)
+                    .orElseThrow(() -> new IllegalStateException("Trạng thái không tồn tại"));
+            user.setStatus(newStatus);
+            userRepository.save(user);
+            return "Cập nhật thành công";
+        } catch (Exception e){
+            return "Lỗi cập nhật" + e.getMessage();
+        }
+    }
+    public String enableAccount(String email){
+        try {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new IllegalStateException("Người dùng không tồn tại"));
+            UserStatus newStatus = userStatusRepository.findById(2)
+                    .orElseThrow(() -> new IllegalStateException("Trạng thái không tồn tại"));
+            user.setStatus(newStatus);
+            userRepository.save(user);
+            return "Cập nhật thành công";
+        } catch (Exception e){
+            return "Lỗi cập nhật" + e.getMessage();
+        }
     }
 }
