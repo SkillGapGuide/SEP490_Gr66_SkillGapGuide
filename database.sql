@@ -304,3 +304,25 @@ VALUES
 ('Full-time', 'Toàn thời gian');
 INSERT INTO user_subscription_history (user_id, subscription_id, start_date, end_date, status) VALUES (1, 2, '2024-01-01 00:00:00', '2024-12-31 23:59:59', 'EXPIRED');
 INSERT INTO user_subscription_history (user_id, subscription_id, start_date, end_date, status) VALUES (2, 1, '2024-06-01 00:00:00', '2025-05-31 23:59:59', 'ACTIVE');
+INSERT INTO `skill_gap_guide`.`staticpage`
+(`name`,`title`,`content`,`update_at`,`update_by`)
+VALUES
+('Home','Năm Bắt Đầu','2019','2024-06-17',1),
+('Home','Tên trang','SkillGapGuide','2024-06-17',1),
+('Home','Số điện thoại liên hệ','559282 - 978','2024-06-17',1),
+('AboutUs','Về chúng tôi','SkillGapGuide là một dự án nghiên cứu nhằm giải quyết khoảng cách ngày càng tăng giữa những gì người tìm việc cung cấp và những gì nhà tuyển dụng mong đợi. Ra đời từ phản hồi thu thập được trong các chương trình định hướng nghề nghiệp và thực tập, dự án này xem xét lý do tại sao nhiều sinh viên mới tốt nghiệp và những người muốn thay đổi nghề nghiệp gặp khó khăn trong việc đáp ứng các yêu cầu công việc. Bằng cách phân tích các tin đăng tuyển dụng, CV và nhu cầu của ngành, chúng tôi mong muốn cung cấp những hiểu biết rõ ràng về sự không phù hợp của kỹ năng và giúp nâng cao sự sẵn sàng cho nghề nghiệp.','2024-06-17',1),
+('AboutUs','Sứ mệnh','Sứ mệnh của chúng tôi là làm nổi bật những khoảng trống kỹ năng ngăn cản người tìm việc đạt được mục tiêu của họ. Thông qua nghiên cứu dựa trên dữ liệu, chúng tôi mong muốn hỗ trợ sinh viên, nhà giáo dục và cố vấn nghề nghiệp trong việc tìm hiểu nhu cầu thị trường lao động và định hình các hệ thống hướng dẫn tốt hơn. Chúng tôi tin rằng những con đường rõ ràng hơn sẽ dẫn đến những lựa chọn nghề nghiệp mạnh mẽ hơn, tự tin hơn.','2024-06-17',1),
+('SocialLink','Facebook','https://www.facebook.com/yourpage','2024-06-17',1),
+('SocialLink','Instagram','https://www.facebook.com/yourpage','2024-06-17',1),
+('SocialLink','Gmail','https://www.facebook.com/yourpage','2024-06-17',1),
+('Privacy','Thông tin thu thập','Khi bạn sử dụng trang web của chúng tôi, chúng tôi có thể thu thập các loại thông tin sau:
+Họ tên, địa chỉ email
+CV hoặc danh sách kỹ năng bạn cung cấp
+Hành vi sử dụng trang web (ví dụ: khóa học bạn quan tâm, thời gian truy cập)','2024-06-17',1),
+('Privacy','Mục đích sử dụng thông tin','Thông tin của bạn được sử dụng để:
+Phân tích kỹ năng hiện có và xác định kỹ năng còn thiếu
+Đề xuất các khóa học phù hợp để nâng cao kỹ năng
+Cải thiện chất lượng dịch vụ và trải nghiệm người dùng
+Gửi thông báo liên quan đến khóa học, cập nhật hoặc ưu đãi (nếu bạn đồng ý)','2024-06-17',1),
+('Terms','Chấp nhận điều khoản','Bằng cách truy cập và sử dụng website của chúng tôi, bạn đồng ý tuân thủ các điều khoản dưới đây.','2024-06-17',1)
+;
