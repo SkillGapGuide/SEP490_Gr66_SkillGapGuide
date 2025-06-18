@@ -87,7 +87,7 @@ CREATE TABLE FeedBack (
     user_id INT NOT NULL,
     content NVARCHAR(255) NOT NULL,
     star INT NOT NULL,
-        createAt DateTime,
+        create_at DateTime,
     PRIMARY KEY (feedback_id),
     FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
@@ -165,7 +165,7 @@ CREATE TABLE StaticPage (
     id INT NOT NULL AUTO_INCREMENT,
     `name` NVARCHAR(255),
     `title` NVARCHAR(255),
-    `content` NVARCHAR(255),
+    `content` NVARCHAR(1000),
     update_at datetime,
     update_by int,
     PRIMARY KEY (id)
