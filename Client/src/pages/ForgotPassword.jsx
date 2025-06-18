@@ -1,6 +1,8 @@
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { userService } from "../services/userService";
+import { alert } from "../utils/alert";
 
 export default function ForgotPassword() {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -8,13 +10,21 @@ export default function ForgotPassword() {
   const [timer, setTimer] = useState(0);
   const intervalRef = useRef(null);
 
-  const onSubmit = async data => {
-    // Giả lập API kiểm tra email
-    const isExist = await fakeCheckEmail(data.email);
+  useEffect(() => {
+    // Cleanup interval when component unmounts
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
-    if (isExist) {
+  const onSubmit = async data => {
+    try {
+      await userService.forgotPassword(data.email);
+      alert.success('Email đã được gửi! Vui lòng kiểm tra hộp thư của bạn.');
       setSent(true);
-      setTimer(60); // Đếm ngược 60s
+      setTimer(60);
 
       intervalRef.current = setInterval(() => {
         setTimer(prev => {
@@ -26,17 +36,10 @@ export default function ForgotPassword() {
           return prev - 1;
         });
       }, 1000);
-    } else {
-      alert("Email không tồn tại trong hệ thống!");
+    } catch (error) {
+      alert.error(error.response?.data?.message || 'Email không tồn tại trong hệ thống!');
     }
   };
-
-  // Giả lập API check email (thay bằng API thật của bạn)
-  async function fakeCheckEmail(email) {
-    await new Promise(res => setTimeout(res, 1000));
-    // Giả lập email hợp lệ
-    return email === "nguyena@gmail.com" || email === "test@gmail.com";
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-blue-300 via-blue-400 to-blue-200">
