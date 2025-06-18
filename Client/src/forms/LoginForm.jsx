@@ -88,6 +88,12 @@ export default memo(function LoginForm() {
               Đăng ký
             </Link>
           </div>
+           <div className="text-center mt-4 text-sm">
+            Quên mật khẩu ?{" "}
+            <Link to="/forgot-password" className="text-blue-800 font-semibold hover:underline">
+              Lấy lại mật khẩu
+            </Link>
+          </div>
         </div>
         {/* Text Right */}
         <div className="md:ml-10 mt-8 md:mt-0 text-white flex-1 text-center md:text-left flex items-center justify-center">

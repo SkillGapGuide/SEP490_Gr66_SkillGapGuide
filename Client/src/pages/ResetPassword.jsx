@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { Eye, EyeOff, Lock, Check, X } from 'lucide-react';
-
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { userService } from '../services/userService';
+import { alert } from '../utils/alert';
 export default function ResetPassword() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const token = searchParams.get('token');
   const [formData, setFormData] = useState({ password: '', confirmPassword: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -15,11 +20,27 @@ export default function ResetPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setLoading(false);
+    if (formData.password !== formData.confirmPassword) {
+     alert.error ('Mật khẩu không khớp!');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      console.log('Resetting password with token:', token);
+      await userService.resetPassword(token, formData.password);
+      alert.success('Đặt lại mật khẩu thành công!');
+      navigate('/login');
+    } catch (error) {
+      alert.error(error.message || 'Có lỗi xảy ra khi đặt lại mật khẩu!');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (!token) {
+    return <div className="text-center">Token không hợp lệ!</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
