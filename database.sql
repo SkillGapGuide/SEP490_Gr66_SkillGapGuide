@@ -85,7 +85,7 @@ CREATE TABLE FeedBack (
     user_id INT NOT NULL,
     content NVARCHAR(255) NOT NULL,
     star INT NOT NULL,
-        createAt DateTime,
+        create_at DateTime,
     PRIMARY KEY (feedback_id),
     FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
@@ -163,7 +163,7 @@ CREATE TABLE StaticPage (
     id INT NOT NULL AUTO_INCREMENT,
     `name` NVARCHAR(255),
     `title` NVARCHAR(255),
-    `content` NVARCHAR(255),
+    `content` NVARCHAR(1000),
     update_at datetime,
     update_by int,
     PRIMARY KEY (id)
@@ -214,6 +214,19 @@ CREATE TABLE Audit_Log (
     PRIMARY KEY (log_id),
     FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
+CREATE TABLE user_subscription_history (
+    id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    subscription_id INT NOT NULL,
+    start_date DATETIME NOT NULL,
+    end_date DATETIME,
+    status VARCHAR(50) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (subscription_id) REFERENCES Subscription(subscription_id)
+);
 
 INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (1,     1,     'active');
 INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (2,     3,     'active');
@@ -221,7 +234,7 @@ INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`
 INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (4,     12,     'active');
 INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (1,     'System Admin');
 INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (2,     'Business Admin');
-INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (3,     'User');
+INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (3,     'Free User');
 INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES		(4,'Premium User');
 INSERT INTO JobCategory (name) VALUES('IT'),('Marketing'),('Finance');
 INSERT INTO Skill (name) VALUES('Python'),('Communication'),('Data Analysis'),('Project Management');
@@ -232,8 +245,8 @@ INSERT INTO Course (title, description, provider, url) VALUES
 INSERT INTO User (email, password, full_name, role_id, subscription_id, phone, avatar, provider, status_id)
 VALUES
 ('admin@example.com', '123', 'Admin User', 1, 2, '0123456789', NULL, 'LOCAL', 2),
-('user1@example.com', '123', 'Nguyen Van A', 2, 1, '0987654321', NULL, 'LOCAL', 2),
-('user2@example.com', '123', 'Tran Thi B', 2, 1, '0911222333', NULL, 'LOCAL', 1);
+('user1@example.com', '123', 'Nguyen Van A', 4, 1, '0987654321', NULL, 'LOCAL', 2),
+('user2@example.com', '123', 'Tran Thi B', 3, 1, '0911222333', NULL, 'LOCAL', 1);
 INSERT INTO Payment (user_id, amount, date, payment_method, transaction_code, qr_code_url, status)
 VALUES
 (1, 499000, '2024-06-01 10:00:00', 'QR', 'TXN001', 'https://qr.example.com/1', 'SUCCESS'),
@@ -287,5 +300,5 @@ INSERT INTO Tag (name, description)
 VALUES
 ('Remote', 'Công việc từ xa'),
 ('Full-time', 'Toàn thời gian');
-
-
+INSERT INTO user_subscription_history (user_id, subscription_id, start_date, end_date, status) VALUES (1, 2, '2024-01-01 00:00:00', '2024-12-31 23:59:59', 'EXPIRED');
+INSERT INTO user_subscription_history (user_id, subscription_id, start_date, end_date, status) VALUES (2, 1, '2024-06-01 00:00:00', '2025-05-31 23:59:59', 'ACTIVE');
