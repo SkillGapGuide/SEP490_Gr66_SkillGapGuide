@@ -56,7 +56,9 @@ CREATE TABLE User (
     role_id INT NOT NULL,
     subscription_id INT NOT NULL,
     phone NVARCHAR(255) NOT NULL,
-    avatar NVARCHAR(255),
+
+    avatar NVARCHAR(255) DEFAULT NULL,
+
      provider VARCHAR(10) DEFAULT 'LOCAL',
     status_id INT NOT NULL,
 	PRIMARY KEY (user_id),

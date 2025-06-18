@@ -47,3 +47,31 @@ export const alertError = (message, title = "Error") => {
 export const alertSuccess = (message, title = "Success") => {
   alert(`${title}\n${message}`);
 };
+
+export const alert = {
+  success: (message) => {
+    Swal.fire({
+      icon: "success",
+      title: "Thành công",
+      text: message,
+      timer: 2000,
+      showConfirmButton: false,
+    });
+  },
+
+  error: (message) => {
+    Swal.fire({
+      icon: "error",
+      title: "Lỗi",
+      text: message,
+    });
+  },
+
+  info: (message) => {
+    Swal.fire({
+      icon: "info",
+      title: "Thông báo",
+      text: message,
+    });
+  },
+};
