@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table(name = "FeedBack")
+@Table(name = "feedback")
 public class Feedback {
 
     @Id
@@ -26,6 +26,6 @@ public class Feedback {
     @Column(nullable = false)
     private Integer star;
 
-    @Column(nullable = false)
+    @Column(nullable = false,name = "create_at")
     private Timestamp createAt;
 }
