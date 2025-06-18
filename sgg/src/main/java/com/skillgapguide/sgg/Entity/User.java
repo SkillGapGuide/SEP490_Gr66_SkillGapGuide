@@ -39,8 +39,11 @@ public class User implements UserDetails {
 
     @Column(nullable = true)
     private String avatar;
-
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING) // Lưu status dưới dạng chuỗi trong DB (VD: "VERIFIED")
+    @Column(nullable = false)
+    private static final String STATUS_VERIFIED = "VERIFIED";
+    private static final String STATUS_BANNED = "BANNED";
+    @ManyToOne(fetch = FetchType.EAGER) // EAGER để luôn tải thông tin status cùng với User
     @JoinColumn(name = "status_id", nullable = false)
     private UserStatus status;
 
@@ -56,6 +59,8 @@ public class User implements UserDetails {
     // ------ Spring Security ------
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Chuyển đổi roleId thành quyền của Spring Security
+        // Ví dụ: roleId = 1 là "ROLE_USER", roleId = 2 là "ROLE_ADMIN"
         String role;
         if (this.roleId == 1) {
             role = "ROLE_SYSTEM_ADMIN";
@@ -63,18 +68,27 @@ public class User implements UserDetails {
             role = "ROLE_BUSINESS_ADMIN";
         } else if (this.roleId == 3) {
             role = "ROLE_USER";
-        } else if (this.roleId == 4) {
+        }
+        else if (this.roleId == 4) {
             role = "ROLE_PREMIUM_USER";
-        } else {
-            role = "UNKNOWN";
+        }
+        else {
+            role = "UNKNOWN"; // Mặc định nếu không có role hợp lệ
         }
         return List.of(new SimpleGrantedAuthority(role));
     }
-
     @Override
     public String getUsername() {
+        // Spring Security sẽ dùng email làm username để xác thực
         return this.email;
     }
+
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
 
     @Override
     public boolean isAccountNonExpired() {
@@ -94,7 +108,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        // Chỉ cho phép login nếu VERIFIED
-        return this.status != null && "VERIFIED".equalsIgnoreCase(this.status.getName());
+        // Tài khoản có thể đăng nhập nếu status là "VERIFIED"
+        return this.status != null && this.status.getName().equals(STATUS_VERIFIED);
     }
 }
