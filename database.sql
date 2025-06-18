@@ -253,7 +253,7 @@ INSERT INTO Payment (user_id, amount, date, payment_method, transaction_code, qr
 VALUES
 (1, 499000, '2024-06-01 10:00:00', 'QR', 'TXN001', 'https://qr.example.com/1', 'SUCCESS'),
 (2, 0, '2024-06-10 15:30:00', 'FREE', NULL, NULL, 'SUCCESS');
-INSERT INTO FeedBack (user_id, content, star, createAt)
+INSERT INTO FeedBack (user_id, content, star, create_at)
 VALUES
 (2, 'Hệ thống rất hữu ích!', 5, '2024-06-11 12:00:00'),
 (3, 'Cần cải thiện giao diện.', 3, '2024-06-12 09:15:00');
