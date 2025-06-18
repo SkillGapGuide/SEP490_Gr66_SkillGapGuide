@@ -135,4 +135,34 @@ public class  UserService {
             throw new IllegalStateException("Error !êêê! "+e.getMessage());
         }
     }
+    public UserDTO getCurrentUserProfile(){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+        UserDTO userDTO = new UserDTO();
+        userDTO.setEmail(email);
+        userDTO.setFullName(user.getFullName());
+        userDTO.setPhone(user.getPhone());
+        userDTO.setAvatar(user.getAvatar());
+
+        // Role mapping
+        switch (user.getRoleId()) {
+            case 1 -> userDTO.setRole("System Admin");
+            case 2 -> userDTO.setRole("Business Admin");
+            case 3 -> userDTO.setRole("Free User");
+            case 4 -> userDTO.setRole("Premium User");
+            default -> userDTO.setRole("Unknown");
+        }
+        return userDTO;
+    }
+
+    public void updateCurrentUserProfile(UpdateProfileRequest request){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+
+        user.setFullName(request.getFullName());
+        user.setPhone(request.getPhone());
+        user.setAvatar(request.getAvatar());
+
+        userRepository.save(user);
+    }
 }
