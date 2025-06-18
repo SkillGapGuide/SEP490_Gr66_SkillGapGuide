@@ -1,9 +1,7 @@
 package com.skillgapguide.sgg.Service;
 
 
-import com.skillgapguide.sgg.Dto.ChangePasswordRequest;
-import com.skillgapguide.sgg.Dto.ForgotPasswordRequest;
-import com.skillgapguide.sgg.Dto.UserListResponse;
+import com.skillgapguide.sgg.Dto.*;
 import com.skillgapguide.sgg.Entity.User;
 import com.skillgapguide.sgg.Entity.UserStatus;
 import com.skillgapguide.sgg.Entity.VerificationToken;
@@ -20,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -85,10 +82,25 @@ public class  UserService {
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
     }
-    public Page<UserListResponse> getAllUser(Integer pageNo, Integer pageSize){
-        Pageable paging = PageRequest.of(pageNo, pageSize);
-
-        return userRepository.getAllUser(paging);
+    public Page<UserListResponse> getAllUser(UserListRequest userFilterRequest){
+        try{
+            Pageable paging = PageRequest.of(userFilterRequest.getPageNo(), userFilterRequest.getPageSize());
+            if ((userFilterRequest.getSearchText() == null || userFilterRequest.getSearchText().isBlank())
+                    && (userFilterRequest.getRole() == null || userFilterRequest.getRole().isBlank())
+                    && (userFilterRequest.getStatus() == null || userFilterRequest.getStatus().isBlank())) {
+                return userRepository.getAllUser(paging);
+            }
+            Page<UserListResponse> test = userRepository.filterUser(userFilterRequest.getSearchText() == null ? "" : userFilterRequest.getSearchText().toLowerCase(),
+                    userFilterRequest.getRole(),
+                    userFilterRequest.getStatus(),
+                    paging);
+            return userRepository.filterUser(userFilterRequest.getSearchText() == null ? "" : userFilterRequest.getSearchText().toLowerCase(),
+                    userFilterRequest.getRole(),
+                    userFilterRequest.getStatus(),
+                    paging);
+        } catch (Exception e){
+            throw new IllegalStateException("Error !êêê! "+e.getMessage());
+        }
     }
     public String disableAccount(String email){
         try {
@@ -114,6 +126,13 @@ public class  UserService {
             return "Cập nhật thành công";
         } catch (Exception e){
             return "Lỗi cập nhật" + e.getMessage();
+        }
+    }
+    public UserDetailDTO getUserDetail(String email){
+        try{
+            return userRepository.getUserDetail(email);
+        } catch (Exception e){
+            throw new IllegalStateException("Error !êêê! "+e.getMessage());
         }
     }
 }
