@@ -55,7 +55,9 @@ CREATE TABLE User (
     role_id INT NOT NULL,
     subscription_id INT NOT NULL,
     phone NVARCHAR(255) NOT NULL,
+
     avatar NVARCHAR(255) DEFAULT NULL,
+
      provider VARCHAR(10) DEFAULT 'LOCAL',
     status_id INT NOT NULL,
 	PRIMARY KEY (user_id),
@@ -100,10 +102,11 @@ CREATE TABLE CV (
 CREATE TABLE Job (
     job_id INT NOT NULL AUTO_INCREMENT,
     title NVARCHAR(255) NOT NULL,
-    description NVARCHAR(255) NOT NULL,
+    description NVARCHAR(7000) NOT NULL,
     company NVARCHAR(255) NOT NULL,
     category_id INT NOT NULL,
     status NVARCHAR(255) NOT NULL,
+    source_url nvarchar(512) NOT NULL,
     PRIMARY KEY (job_id),
     FOREIGN KEY (category_id) REFERENCES JobCategory(job_category_id)
 );

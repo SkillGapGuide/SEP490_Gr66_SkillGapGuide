@@ -27,5 +27,7 @@ public class Job {
 
     @Column(nullable = false)
     private String status;
+    @Column(name = "source_url", unique = true, nullable = false, length = 512)
+    private String sourceUrl;
 }
 
