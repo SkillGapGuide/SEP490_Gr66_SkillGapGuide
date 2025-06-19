@@ -1,23 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { userAdminService } from "../../services/userAdminService";
 
-// Demo data
-const initUsers = [
-  { name: "Nguyen A", email: "A@example.com", phone: "0345 678 907", role: "Người dùng", status: "active" },
-  { name: "Tran B", email: "B@example.com", phone: "0678 654 356", role: "Admin", status: "active" },
-  { name: "Le C", email: "C@example.com", phone: "0987 609 879", role: "Người dùng", status: "active" },
-  { name: "Dang D", email: "D@example.com", phone: "0987 673 412", role: "Người dùng", status: "inactive" },
-  // Thêm nhiều dòng hơn để test phân trang!
-];
-
-const roles = ["Tất cả", "Admin", "Người dùng"];
-const statuses = ["Tất cả", "active", "inactive"];
+// Update the roles and status constants to match API values
+const roles = ["Tất cả", "System Admin", "Premium User", "Free User"];
+const statuses = ["Tất cả", "VERIFIED", "NOT_VERIFIED","BANNED"];
 
 const statusLabel = {
-  active: { label: "Hoạt động", color: "text-green-600" },
-  inactive: { label: "Vô hiệu hóa", color: "text-red-500" }
+  VERIFIED: { label: "Hoạt động", color: "text-green-600" },
+  NOT_VERIFIED: { label: "Vô hiệu hóa", color: "text-red-500" },
+  BANNED: { label: "Bị cấm", color: "text-red-500" }
 };
 
+const pageSizeOptions = [5, 10, 15];
+
 function ManagerUser() {
+  // Replace users state with API data
+  const [users, setUsers] = useState({ content: [], totalElements: 0 });
+  const [loading, setLoading] = useState(false);
+  
   // Add new states for modals
   const [showDetail, setShowDetail] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
@@ -27,48 +27,62 @@ function ManagerUser() {
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("Tất cả");
   const [status, setStatus] = useState("Tất cả");
-  const [sortBy, setSortBy] = useState({ field: "name", asc: true });
-  const [page, setPage] = useState(1);
-  const pageSize = 3;
+  const [page, setPage] = useState(0); // API uses 0-based indexing
+  const [pageSize, setPageSize] = useState(5); // Replace const pageSize = 5
+  // Remove sortBy state
+  // const [sortBy, setSortBy] = useState({ field: "name", asc: true }); // Add sort state
+  // const pageSize = 5;
 
-  // Lọc
-  let filtered = initUsers.filter(
-    u =>
-      (search === "" ||
-        u.name.toLowerCase().includes(search.toLowerCase()) ||
-        u.email.toLowerCase().includes(search.toLowerCase())) &&
-      (role === "Tất cả" || u.role === role) &&
-      (status === "Tất cả" || u.status === status)
-  );
+  // Fetch users from API
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const data = await userAdminService.getAllUsers({
+          searchText: search,
+          role: role === "Tất cả" ? "" : role,
+          status: status === "Tất cả" ? "" : status,
+          pageNo: page,
+          pageSize: pageSize,
+          // sortField: sortBy.field,
+          // sortDirection: sortBy.asc ? "asc" : "desc"
+        });
+        console.log("Fetched users:", data);
+        
+        setUsers(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+      setLoading(false);
+    };
+    fetchUsers();
+  }, [search, role, status, page, pageSize]); // Update dependencies
 
-  // Sắp xếp
-  filtered.sort((a, b) => {
-    const f = sortBy.field;
-    if (a[f] < b[f]) return sortBy.asc ? -1 : 1;
-    if (a[f] > b[f]) return sortBy.asc ? 1 : -1;
-    return 0;
-  });
-
-  // Phân trang
-  const totalPage = Math.ceil(filtered.length / pageSize);
-  const paged = filtered.slice((page - 1) * pageSize, page * pageSize);
+  // Update view detail handler to fetch user details
+  const handleViewDetail = async (user) => {
+    try {
+      const userDetail = await userAdminService.getUserByEmail(user.email);
+      setSelectedUser(userDetail);
+      setShowDetail(true);
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
 
   // Xử lý sort click
-  function handleSort(field) {
-    setSortBy(prev =>
-      prev.field === field ? { field, asc: !prev.asc } : { field, asc: true }
+  // const handleSort = (field) => {
+  //   setSortBy(prev =>
+  //     prev.field === field ? { field, asc: !prev.asc } : { field, asc: true }
+  //   );
+  // }
+
+  // Update pagination handling for API
+  const totalPages = users.totalPages || 1;
+  
+  function handlePage(to) {
+    if (to >= 0 && to < totalPages) setPage(to
     );
   }
-
-  // Xử lý phân trang
-  function handlePage(to) {
-    if (to >= 1 && to <= totalPage) setPage(to);
-  }
-
-  const handleViewDetail = (user) => {
-    setSelectedUser(user);
-    setShowDetail(true);
-  };
 
   const handleCreateUser = (userData) => {
     // Add API call here
@@ -76,14 +90,25 @@ function ManagerUser() {
     setShowCreate(false);
   };
 
-  const handleStatusChange = (user) => {
-    const newStatus = user.status === 'active' ? 'inactive' : 'active';
-    // Update user status in the list
-    const updatedUsers = initUsers.map(u => 
-      u.email === user.email ? { ...u, status: newStatus } : u
-    );
-    // In real app, make API call here
-    console.log(`Changed status for ${user.email} to ${newStatus}`);
+  const handleStatusChange = async (user) => {
+    try {
+      if (user.status === 'BANNED') {
+        await userAdminService.enableUser(user.email);
+      } else {
+        await userAdminService.disableUser(user.email);
+      }
+      // Refresh the data after status change
+      const data = await userAdminService.getAllUsers({
+        searchText: search,
+        role: role === "Tất cả" ? "" : role,
+        status: status === "Tất cả" ? "" : status,
+        pageNo: page,
+        pageSize: pageSize,
+      });
+      setUsers(data);
+    } catch (error) {
+      console.error("Error changing user status:", error);
+    }
   };
 
   return (
@@ -95,7 +120,7 @@ function ManagerUser() {
           className="bg-blue-200/60 px-4 py-2 rounded-md placeholder-white focus:outline-none w-72"
           placeholder="Nhập tên / email người dùng"
           value={search}
-          onChange={e => { setSearch(e.target.value); setPage(1); }}
+          onChange={e => { setSearch(e.target.value); setPage(0); }} // Changed from 1 to 0
         />
         <button className="bg-blue-200 px-4 py-2 rounded-md ml-[-44px]">
           <svg className="w-5 h-5 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,19 +131,36 @@ function ManagerUser() {
         <select
           className="bg-blue-200/60 px-4 py-2 rounded-md text-blue-900"
           value={role}
-          onChange={e => { setRole(e.target.value); setPage(1); }}
+          onChange={e => { setRole(e.target.value); setPage(0); }} // Changed from 1 to 0
         >
           {roles.map(r => <option key={r}>{r}</option>)}
         </select>
         <select
           className="bg-blue-200/60 px-4 py-2 rounded-md text-blue-900"
           value={status}
-          onChange={e => { setStatus(e.target.value); setPage(1); }}
+          onChange={e => { setStatus(e.target.value); setPage(0); }} // Changed from 1 to 0
         >
           <option value="Tất cả">Tất cả</option>
-          <option value="active">Hoạt động</option>
-          <option value="inactive">Vô hiệu hóa</option>
+          <option value="VERIFIED">Hoạt động</option>
+          <option value="BANNED">Vô hiệu hóa</option>
         </select>
+
+        {/* Add pageSize selector before create button */}
+        <select
+          className="bg-blue-200/60 px-4 py-2 rounded-md text-blue-900"
+          value={pageSize}
+          onChange={e => { 
+            setPageSize(Number(e.target.value));
+            setPage(0);
+          }}
+        >
+          {pageSizeOptions.map(size => (
+            <option key={size} value={size}>
+              {size} dòng/trang
+            </option>
+          ))}
+        </select>
+
         {/* Update Create button */}
         <button 
           onClick={() => setShowCreate(true)}
@@ -128,46 +170,45 @@ function ManagerUser() {
         </button>
       </div>
 
-      {/* Table */}
+      {/* Table - remove sort headers */}
       <div className="bg-white rounded-xl shadow-lg overflow-x-auto">
         <table className="min-w-full border-separate border-spacing-y-2">
           <thead>
             <tr className="text-blue-800 font-bold text-left">
-              <ThSort label="Họ và tên" sortBy={sortBy} field="name" onSort={handleSort} />
-              <ThSort label="Email" sortBy={sortBy} field="email" onSort={handleSort} />
-              <ThSort label="Số điện thoại" sortBy={sortBy} field="phone" onSort={handleSort} />
-              <ThSort label="Vai trò" sortBy={sortBy} field="role" onSort={handleSort} />
+              <th className="px-4 py-2">Họ và tên</th>
+              <th className="px-4 py-2">Email</th>
+              <th className="px-4 py-2">Số điện thoại</th>
+              <th className="px-4 py-2">Vai trò</th>
               <th className="px-4 py-2">Trạng thái</th>
               <th className="px-4 py-2"></th>
             </tr>
           </thead>
           <tbody>
-            {paged.map((u, idx) => (
-              <tr key={u.email} className="border-b border-blue-100 hover:bg-blue-50">
-                <td className="px-4 py-2">{u.name}</td>
-                <td className="px-4 py-2">
-                  <a href={`mailto:${u.email}`} className="text-blue-700 underline">{u.email}</a>
-                </td>
-                <td className="px-4 py-2">{u.phone}</td>
-                <td className="px-4 py-2">{u.role}</td>
-                <td className={`px-4 py-2 font-semibold ${statusLabel[u.status].color}`}>
-                  <button 
-                    onClick={() => handleStatusChange(u)}
-                    className="flex items-center gap-2 hover:opacity-80"
-                  >
-                    <span className={`w-2 h-2 rounded-full ${u.status === 'active' ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                    {statusLabel[u.status].label}
-                  </button>
-                </td>
-                {/* Update eye button in table */}
-                <td className="px-2 py-2 text-blue-600">
-                  <button onClick={() => handleViewDetail(u)}>
-                    <EyeIcon />
-                  </button>
-                </td>
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="text-center py-4">Loading...</td>
               </tr>
-            ))}
-            {paged.length === 0 && (
+            ) : (
+              users.content.map((u) => (
+                <tr key={u.email} className="border-b border-blue-100 hover:bg-blue-50">
+                  <td className="px-4 py-2">{u.name}</td>
+                  <td className="px-4 py-2">
+                    <a href={`mailto:${u.email}`} className="text-blue-700 underline">{u.email}</a>
+                  </td>
+                  <td className="px-4 py-2">{u.phone}</td>
+                  <td className="px-4 py-2">{u.role}</td>
+                  <td className={`px-4 py-2 font-semibold ${statusLabel[u.status].color}`}>
+                    {statusLabel[u.status].label}
+                  </td>
+                  <td className="px-2 py-2 text-blue-600">
+                    <button onClick={() => handleViewDetail(u)}>
+                      <EyeIcon />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+            {!loading && users.content.length === 0 && (
               <tr>
                 <td colSpan={6} className="text-center text-gray-400 py-8">Không tìm thấy dữ liệu</td>
               </tr>
@@ -176,26 +217,45 @@ function ManagerUser() {
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-center items-center gap-2 mt-6">
-        <button className="px-3 py-1 rounded bg-blue-200 text-blue-800" disabled={page === 1} onClick={() => handlePage(page - 1)}>{"<"}</button>
-        {Array.from({ length: totalPage }, (_, i) => (
-          <button
-            key={i + 1}
-            className={`px-3 py-1 rounded ${page === i + 1 ? "bg-blue-600 text-white" : "bg-blue-100 text-blue-800"}`}
-            onClick={() => handlePage(i + 1)}
+      {/* Add total pages info */}
+      <div className="flex justify-between items-center mt-6">
+        <span className="text-gray-600">
+          Tổng số trang: {totalPages}
+        </span>
+        
+        <div className="flex items-center gap-2">
+          <button 
+            className="px-3 py-1 rounded bg-blue-200 text-blue-800" 
+            disabled={page === 0} 
+            onClick={() => handlePage(page - 1)}
           >
-            {i + 1}
+            {"<"}
           </button>
-        ))}
-        <button className="px-3 py-1 rounded bg-blue-200 text-blue-800" disabled={page === totalPage} onClick={() => handlePage(page + 1)}>{">"}</button>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              className={`px-3 py-1 rounded ${page === i ? "bg-blue-600 text-white" : "bg-blue-100 text-blue-800"}`}
+              onClick={() => handlePage(i)}
+            >
+              {i+1}
+            </button>
+          ))}
+          <button 
+            className="px-3 py-1 rounded bg-blue-200 text-blue-800" 
+            disabled={page === totalPages - 1} 
+            onClick={() => handlePage(page + 1)}
+          >
+            {">"}
+          </button>
+        </div>
       </div>
 
       {/* Add Modals */}
       {showDetail && (
         <UserDetailModal 
           user={selectedUser} 
-          onClose={() => setShowDetail(false)} 
+          onClose={() => setShowDetail(false)}
+          onStatusChange={handleStatusChange}  // Add this line
         />
       )}
       
@@ -206,28 +266,6 @@ function ManagerUser() {
         />
       )}
     </div>
-  );
-}
-
-// Th icon sort
-function ThSort({ label, sortBy, field, onSort }) {
-  return (
-    <th
-      className="px-4 py-2 cursor-pointer select-none"
-      onClick={() => onSort(field)}
-    >
-      <span className="flex items-center gap-1">
-        {label}
-        {sortBy.field === field && (
-          <svg
-            className={`w-3 h-3 ml-0.5 inline ${sortBy.asc ? "" : "rotate-180"}`}
-            fill="none" stroke="currentColor" viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        )}
-      </span>
-    </th>
   );
 }
 
@@ -243,7 +281,7 @@ function EyeIcon() {
 }
 
 // Add Modal Components
-function UserDetailModal({ user, onClose }) {
+function UserDetailModal({ user, onClose, onStatusChange }) {  // Add onStatusChange prop
   return (
     <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
       <div className="bg-white/90 backdrop-blur-md rounded-lg p-6 w-full max-w-lg shadow-xl">
@@ -261,20 +299,21 @@ function UserDetailModal({ user, onClose }) {
           <DetailRow label="Số điện thoại" value={user.phone} />
           <DetailRow label="Vai trò" value={user.role} />
           <DetailRow label="Trạng thái" value={statusLabel[user.status].label} />
+          <DetailRow label="Gói đăng ký" value={user.subscription} />
           <div className="flex items-center justify-between pt-4 border-t">
-            <span className="font-medium text-gray-600">Trạng thái:</span>
+            <span className="font-medium text-gray-600">Thao tác:</span>
             <button
-              onClick={() => handleStatusChange(user)}
+              onClick={() => onStatusChange(user)}
               className={`px-4 py-2 rounded-full flex items-center gap-2 ${
-                user.status === 'active' 
-                  ? 'bg-green-100 text-green-700 hover:bg-green-200' 
-                  : 'bg-red-100 text-red-700 hover:bg-red-200'
+                user.status === 'VERIFIED'
+                  ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                  : 'bg-green-100 text-green-700 hover:bg-green-200'
               }`}
             >
               <span className={`w-2 h-2 rounded-full ${
-                user.status === 'active' ? 'bg-green-500' : 'bg-red-500'
+                user.status === 'VERIFIED' ? 'bg-red-500' : 'bg-green-500'
               }`}></span>
-              {statusLabel[user.status].label}
+              {user.status === 'VERIFIED' ? 'Vô hiệu hóa tài khoản' : 'Kích hoạt tài khoản'}
             </button>
           </div>
         </div>
