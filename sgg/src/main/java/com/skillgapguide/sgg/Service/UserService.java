@@ -2,14 +2,8 @@ package com.skillgapguide.sgg.Service;
 
 
 import com.skillgapguide.sgg.Dto.*;
-import com.skillgapguide.sgg.Entity.User;
-import com.skillgapguide.sgg.Entity.UserStatus;
-import com.skillgapguide.sgg.Entity.UserSubscriptionHistory;
-import com.skillgapguide.sgg.Entity.VerificationToken;
-import com.skillgapguide.sgg.Repository.UserRepository;
-import com.skillgapguide.sgg.Repository.UserStatusRepository;
-import com.skillgapguide.sgg.Repository.UserSubscriptionHistoryRepository;
-import com.skillgapguide.sgg.Repository.VerificationTokenRepository;
+import com.skillgapguide.sgg.Entity.*;
+import com.skillgapguide.sgg.Repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -31,6 +25,7 @@ public class  UserService {
     private final VerificationTokenRepository verificationTokenRepository;
     private  final UserStatusRepository userStatusRepository;
     private final UserSubscriptionHistoryRepository userSubscriptionHistoryRepository;
+    private final RoleRepository roleRepository;
     @Value("${application.base-url}")
     private String baseUrl;
     @Value("${application.frontend-url}")
@@ -196,5 +191,18 @@ public class  UserService {
             default -> dto.setRole("Khác");
         }
         return dto;
+    }
+
+    public String updateUserRole(UserRoleUpdateRequest request) {
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+
+        Role role = roleRepository.findById(request.getNewRoleId())
+                .orElseThrow(() -> new RuntimeException("Vai trò không tồn tại"));
+
+        user.setRoleId(role.getRoleId());
+        userRepository.save(user);
+
+        return "Cập nhật Role thành công";
     }
 }
