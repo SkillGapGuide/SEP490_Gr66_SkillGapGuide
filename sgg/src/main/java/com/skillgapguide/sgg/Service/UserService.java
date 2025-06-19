@@ -203,6 +203,6 @@ public class  UserService {
         user.setRoleId(role.getRoleId());
         userRepository.save(user);
 
-        return "Cập nhật vai trò thành công";
+        return "Cập nhật Role thành công";
     }
 }
