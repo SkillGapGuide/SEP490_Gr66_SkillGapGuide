@@ -197,6 +197,10 @@ public class  UserService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
 
+        if(user.getStatus().getStatusId() != 2){
+            return "Chỉ người dùng VERIFIED mới có thể cập nhật vai trò!";
+        }
+
         Role role = roleRepository.findById(request.getNewRoleId())
                 .orElseThrow(() -> new RuntimeException("Vai trò không tồn tại"));
 
