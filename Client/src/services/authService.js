@@ -81,6 +81,7 @@ async loginWithEmail(email, password) {
 
   logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     // Dispatch event khi logout
     window.dispatchEvent(authStateChange);
     return supabase.auth.signOut();
