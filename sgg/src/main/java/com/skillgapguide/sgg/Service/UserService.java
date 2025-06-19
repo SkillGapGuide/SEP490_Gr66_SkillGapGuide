@@ -4,9 +4,11 @@ package com.skillgapguide.sgg.Service;
 import com.skillgapguide.sgg.Dto.*;
 import com.skillgapguide.sgg.Entity.User;
 import com.skillgapguide.sgg.Entity.UserStatus;
+import com.skillgapguide.sgg.Entity.UserSubscriptionHistory;
 import com.skillgapguide.sgg.Entity.VerificationToken;
 import com.skillgapguide.sgg.Repository.UserRepository;
 import com.skillgapguide.sgg.Repository.UserStatusRepository;
+import com.skillgapguide.sgg.Repository.UserSubscriptionHistoryRepository;
 import com.skillgapguide.sgg.Repository.VerificationTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,10 +30,12 @@ public class  UserService {
     private final PasswordEncoder passwordEncoder;
     private final VerificationTokenRepository verificationTokenRepository;
     private  final UserStatusRepository userStatusRepository;
+    private final UserSubscriptionHistoryRepository userSubscriptionHistoryRepository;
     @Value("${application.base-url}")
     private String baseUrl;
     @Value("${application.frontend-url}")
     private String frontendUrl;
+
 
     public String forgotPassword(ForgotPasswordRequest request) {
         User user = userRepository.findByEmail(request.email())
@@ -164,5 +168,33 @@ public class  UserService {
         user.setAvatar(request.getAvatar());
 
         userRepository.save(user);
+    }
+
+    public UserSubscriptionDTO getUserSubscription(){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+
+        UserSubscriptionDTO dto = new UserSubscriptionDTO();
+        dto.setFullName(user.getFullName());
+
+        switch (user.getRoleId()) {
+            case 3 -> {
+                dto.setRole("Free User");
+                dto.setPremium(false);
+            }
+            case 4 -> {
+                dto.setRole("Premium User");
+                dto.setPremium(true);
+
+                // Lấy thông tin đăng ký từ bảng lịch sử
+                userSubscriptionHistoryRepository.findTopByUser_UserIdAndStatusOrderByStartDateDesc(user.getUserId(), "ACTIVE")
+                        .ifPresent(history -> {
+                            dto.setSubscriptionStart(history.getStartDate());
+                            dto.setSubscriptionEnd(history.getEndDate());
+                        });
+            }
+            default -> dto.setRole("Khác");
+        }
+        return dto;
     }
 }
