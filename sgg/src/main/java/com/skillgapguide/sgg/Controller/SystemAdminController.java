@@ -1,5 +1,6 @@
 package com.skillgapguide.sgg.Controller;
 
+import com.skillgapguide.sgg.Dto.CreateAdminRequest;
 import com.skillgapguide.sgg.Dto.UserRoleUpdateRequest;
 import com.skillgapguide.sgg.Service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,12 @@ public class SystemAdminController {
     @PostMapping("/change-role")
     public ResponseEntity<?> updateUserRole(@RequestBody UserRoleUpdateRequest request) {
         String result = userService.updateUserRole(request);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/create-admin")
+    public ResponseEntity<String> createAdmin(@RequestBody CreateAdminRequest request) {
+        String result = userService.createAdmin(request);
         return ResponseEntity.ok(result);
     }
 }
