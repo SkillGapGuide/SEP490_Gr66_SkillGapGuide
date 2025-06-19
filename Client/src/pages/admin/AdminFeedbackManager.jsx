@@ -1,25 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, Search, Star, X } from "lucide-react";
-
-// Dữ liệu giả lập (dùng API thật chỉ cần thay đổi)
-const DUMMY_FEEDBACK = [
-  {
-    id: 1,
-    email: "nguyena@gmail.com",
-    userName: "Nguyen Van A",
-    content: "Tốt, tôi rất thích",
-    rating: 5,
-    createdAt: "08:01:24 11/06/2025",
-  },
-  {
-    id: 2,
-    email: "tranlinh@gmail.com",
-    userName: "Tran Linh",
-    content: "Cũng ổn, tôi muốn nhiều chức năng hơn.",
-    rating: 4,
-    createdAt: "09:15:33 11/06/2025",
-  },
-];
+import { feedbackService } from "../../services/feedbackService";
 
 // Trả về mảng các sao vàng
 function StarRating({ rating }) {
@@ -36,27 +17,60 @@ function StarRating({ rating }) {
   );
 }
 
+const pageSizeOptions = [5, 10, 15];
+
 export default function AdminFeedbackManager() {
   const [search, setSearch] = useState("");
-  const [filterRating, setFilterRating] = useState("");
-  const [feedbacks] = useState(DUMMY_FEEDBACK);
-
-  // Phân trang
-  const pageSize = 2;
-  const [page, setPage] = useState(1);
-
-  // Modal chi tiết
+  const [filterRating, setFilterRating] = useState(0);
+  const [feedbacks, setFeedbacks] = useState({ content: [], totalElements: 0, totalPages: 0 });
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0); // Changed to 0-based for API
+  const [pageSize, setPageSize] = useState(5);
   const [selected, setSelected] = useState(null);
 
-  // Filter & search
-  const filtered = feedbacks.filter(f =>
-    (!search ||
-      f.email.toLowerCase().includes(search.toLowerCase()) ||
-      f.content.toLowerCase().includes(search.toLowerCase()))
-    && (!filterRating || String(f.rating) === filterRating)
-  );
-  const pageCount = Math.ceil(filtered.length / pageSize);
-  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
+  // Add filtered data state
+  const [filteredData, setFilteredData] = useState([]);
+
+  // Fetch feedbacks
+  useEffect(() => {
+    const fetchFeedbacks = async () => {
+      setLoading(true);
+      try {
+        const data = await feedbackService.getAllFeedbacks({
+          star: filterRating,
+          pageNo: page,
+          pageSize: pageSize // Use pageSize from state
+        });
+        setFeedbacks(data.result);
+        
+        // Filter data locally
+        const filtered = data.result.content.filter(f => 
+          !search || 
+          f.email.toLowerCase().includes(search.toLowerCase()) ||
+          f.content.toLowerCase().includes(search.toLowerCase())
+        );
+        
+        // Update filtered data
+        setFilteredData(filtered);
+      } catch (error) {
+        console.error("Error fetching feedbacks:", error);
+      }
+      setLoading(false);
+    };
+    fetchFeedbacks();
+  }, [filterRating, page, pageSize]); // Remove search from dependencies
+
+  // Add effect for handling search
+  useEffect(() => {
+    if (feedbacks.content) {
+      const filtered = feedbacks.content.filter(f => 
+        !search || 
+        f.email.toLowerCase().includes(search.toLowerCase()) ||
+        f.content.toLowerCase().includes(search.toLowerCase())
+      );
+      setFilteredData(filtered);
+    }
+  }, [search, feedbacks.content]);
 
   return (
     <div className="space-y-6">
@@ -64,7 +78,7 @@ export default function AdminFeedbackManager() {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold text-gray-800">Quản lý Feedback</h2>
         <div className="text-sm text-gray-500">
-          Tổng số: {filtered.length} feedback
+          Tổng số: {feedbacks.totalElements} feedback
         </div>
       </div>
 
@@ -76,19 +90,35 @@ export default function AdminFeedbackManager() {
             placeholder="Tìm kiếm theo email hoặc nội dung..."
             className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={search}
-            onChange={e => { setSearch(e.target.value); setPage(1); }}
+            onChange={e => { setSearch(e.target.value); setPage(0); }}
           />
           <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
         </div>
         <select
           className="px-4 py-2 border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-500"
           value={filterRating}
-          onChange={e => { setFilterRating(e.target.value); setPage(1); }}
+          onChange={e => { setFilterRating(Number(e.target.value)); setPage(0); }}
         >
-          <option value="">Tất cả đánh giá</option>
+          <option value={0}>Tất cả đánh giá</option>
           {[5, 4, 3, 2, 1].map(rating => (
             <option key={rating} value={rating}>
               {rating} sao
+            </option>
+          ))}
+        </select>
+
+        {/* Add pageSize selector */}
+        <select
+          className="px-4 py-2 border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-500"
+          value={pageSize}
+          onChange={e => { 
+            setPageSize(Number(e.target.value));
+            setPage(0);
+          }}
+        >
+          {pageSizeOptions.map(size => (
+            <option key={size} value={size}>
+              {size} dòng/trang
             </option>
           ))}
         </select>
@@ -106,11 +136,15 @@ export default function AdminFeedbackManager() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {paginated.map(f => (
-              <tr key={f.id} className="hover:bg-gray-50 transition-colors">
+            {loading ? (
+              <tr>
+                <td colSpan={4} className="px-6 py-4 text-center">Đang tải...</td>
+              </tr>
+            ) : filteredData.map((f) => (
+              <tr key={f.email} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{f.email}</td>
                 <td className="px-6 py-4 text-sm text-gray-500 max-w-md truncate">{f.content}</td>
-                <td className="px-6 py-4"><StarRating rating={f.rating} /></td>
+                <td className="px-6 py-4"><StarRating rating={f.star} /></td>
                 <td className="px-6 py-4">
                   <button
                     onClick={() => setSelected(f)}
@@ -121,6 +155,13 @@ export default function AdminFeedbackManager() {
                 </td>
               </tr>
             ))}
+            {!loading && filteredData.length === 0 && (
+              <tr>
+                <td colSpan={4} className="text-center text-gray-400 py-8">
+                  {search ? "Không tìm thấy kết quả phù hợp" : "Không có dữ liệu"}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -130,18 +171,20 @@ export default function AdminFeedbackManager() {
         <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
           <div>
             <p className="text-sm text-gray-700">
-              Hiển thị <span className="font-medium">{((page - 1) * pageSize) + 1}</span> đến{' '}
-              <span className="font-medium">{Math.min(page * pageSize, filtered.length)}</span> trong{' '}
-              <span className="font-medium">{filtered.length}</span> kết quả
+              Hiển thị <span className="font-medium">{(page * pageSize) + 1}</span> đến{' '}
+              <span className="font-medium">
+                {Math.min((page + 1) * pageSize, feedbacks.totalElements)}
+              </span> trong{' '}
+              <span className="font-medium">{feedbacks.totalElements}</span> kết quả
             </p>
           </div>
           <div className="flex gap-2">
-            {[...Array(pageCount)].map((_, idx) => (
+            {Array.from({ length: feedbacks.totalPages }, (_, idx) => (
               <button
                 key={idx}
-                onClick={() => setPage(idx + 1)}
+                onClick={() => setPage(idx)}
                 className={`px-3 py-1 rounded-md text-sm font-medium ${
-                  page === idx + 1
+                  page === idx
                     ? 'bg-blue-600 text-white'
                     : 'text-gray-700 hover:bg-gray-50'
                 }`}
@@ -169,9 +212,9 @@ export default function AdminFeedbackManager() {
                 <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
                   <span>Chi tiết Feedback</span>
                   <div className={`inline-flex items-center justify-center rounded-full px-2 py-1 text-xs
-                    ${selected.rating >= 4 ? 'bg-green-100 text-green-700' : 
-                      selected.rating >= 3 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
-                    {selected.rating}/5
+                    ${selected.star >= 4 ? 'bg-green-100 text-green-700' : 
+                      selected.star >= 3 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                    {selected.star}/5
                   </div>
                 </h3>
                 <button
@@ -191,12 +234,7 @@ export default function AdminFeedbackManager() {
                     </div>
                   </div>
                   
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Người dùng</label>
-                    <div className="p-3 bg-gray-50 rounded-lg text-gray-800 border border-gray-100">
-                      {selected.userName}
-                    </div>
-                  </div>
+                
                   
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">Nội dung</label>
@@ -215,7 +253,7 @@ export default function AdminFeedbackManager() {
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">Đánh giá</label>
                     <div className="p-3 bg-gray-50 rounded-lg">
-                      <StarRating rating={selected.rating} />
+                      <StarRating rating={selected.star} />
                     </div>
                   </div>
                 </div>
