@@ -31,5 +31,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "u.status = us join Subscription  as sub on u.subscriptionId = sub.subscriptionId " +
             "where u.email = :email")
     UserDetailDTO getUserDetail(String email);
-    
+    Optional<User> findByPhone(String phone);
+
+
 }
