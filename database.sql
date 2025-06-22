@@ -246,9 +246,9 @@ INSERT INTO Course (title, description, provider, url) VALUES
 ('Excel Advanced', 'Kỹ năng Excel nâng cao', 'edX', 'https://edx.org/excel');
 INSERT INTO User (email, password, full_name, role_id, subscription_id, phone, avatar, provider, status_id)
 VALUES
-('admin@example.com', '123', 'Admin User', 1, 2, '0123456789', NULL, 'LOCAL', 2),
-('user1@example.com', '123', 'Nguyen Van A', 4, 1, '0987654321', NULL, 'LOCAL', 2),
-('user2@example.com', '123', 'Tran Thi B', 3, 1, '0911222333', NULL, 'LOCAL', 1);
+('admin@example.com', '$2a$10$ZgjCwtbfKU8YWtJeVjcc8.VVCQIe8XAnCbulK3Su41AFATlQn.cE6', 'Admin User', 1, 2, '0123456789', NULL, 'LOCAL', 2),
+('user1@example.com', '$2a$10$ZgjCwtbfKU8YWtJeVjcc8.VVCQIe8XAnCbulK3Su41AFATlQn.cE6', 'Nguyen Van A', 4, 1, '0987654321', NULL, 'LOCAL', 2),
+('user2@example.com', '$2a$10$ZgjCwtbfKU8YWtJeVjcc8.VVCQIe8XAnCbulK3Su41AFATlQn.cE6', 'Tran Thi B', 3, 1, '0911222333', NULL, 'LOCAL', 1);
 INSERT INTO Payment (user_id, amount, date, payment_method, transaction_code, qr_code_url, status)
 VALUES
 (1, 499000, '2024-06-01 10:00:00', 'QR', 'TXN001', 'https://qr.example.com/1', 'SUCCESS'),
