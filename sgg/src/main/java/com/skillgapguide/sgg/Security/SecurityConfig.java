@@ -29,7 +29,7 @@ public class SecurityConfig {
 
             "/api/feedback/**",
             "/api/admin/**",
-
+            "/api/chat/**",
             "/api/scrape/**"
 
     };
