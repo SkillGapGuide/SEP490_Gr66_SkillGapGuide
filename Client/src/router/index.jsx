@@ -24,6 +24,7 @@ import HomePageManager from "../pages/admin/HomePageManager";
 import ResetPassword from "../pages/ResetPassword";
 import ChangePassword from "../pages/ChangePassword";
 import TestAPI from "../pages/admin/TestAPI";
+import TermsEndUserPage from "../pages/TermsEndUserPage";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -43,6 +44,8 @@ const router = createBrowserRouter([
       },
       { path: "reset-password", element: <ResetPassword /> },
       {path:"change-password",element:<ChangePassword/>},
+      //term of service
+      {path:"terms-of-service", element:<TermsEndUserPage/>}, // Placeholder for terms of service page
       {path:"test" , element:<TestAPI/>} // Placeholder for change password page
     ],
   },
