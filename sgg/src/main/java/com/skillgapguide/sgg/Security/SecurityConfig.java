@@ -26,7 +26,7 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/api/user/**",
-
+            "/api/course/**",
             "/api/feedback/**",
             "/api/admin/**",
             "/api/chat/**",
