@@ -116,46 +116,51 @@ CREATE TABLE Job (
     FOREIGN KEY (category_id) REFERENCES JobCategory(job_category_id)
 );
 CREATE TABLE User_Favorite_Job (
+	id INT NOT NULL auto_increment,
     user_id INT NOT NULL,
     job_id INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id, job_id),
+    PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES User(user_id),
     FOREIGN KEY (job_id) REFERENCES Job(job_id)
 );
 
 -- Bảng User_Skill (bảng nối), liên kết User và Skill
 CREATE TABLE User_Skill (
+	id INT NOT NULL auto_increment,
     user_id INT NOT NULL,
     skill_id INT NOT NULL,
     level NVARCHAR(255) NOT NULL,
-    PRIMARY KEY (user_id, skill_id),
+    PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES User(user_id),
     FOREIGN KEY (skill_id) REFERENCES Skill(skill_id)
 );
 CREATE TABLE User_Favorite_Missing_Skill (
+	id INT NOT NULL auto_increment,
     user_id INT NOT NULL,
     skill_id INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id, skill_id),
+    PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES User(user_id),
     FOREIGN KEY (skill_id) REFERENCES Skill(skill_id)
 );
 
 -- Bảng User_Course (bảng nối), liên kết User và Course
 CREATE TABLE User_Course (
+	id INT NOT NULL auto_increment,
     user_id INT NOT NULL,
     course_id INT NOT NULL,
-    PRIMARY KEY (user_id, course_id),
+    PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES User(user_id),
     FOREIGN KEY (course_id) REFERENCES Course(course_id)
 );
 CREATE TABLE User_Favorite_Course (
+	id INT NOT NULL auto_increment,
     user_id INT NOT NULL,
     course_id INT NOT NULL,
     status NVARCHAR(50) ,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id, course_id),
+    PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES User(user_id),
     FOREIGN KEY (course_id) REFERENCES Course(course_id)
 );
