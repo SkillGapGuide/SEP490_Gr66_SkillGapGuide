@@ -16,7 +16,8 @@ class CorsConfig {
         
         // Allow frontend URL
         config.addAllowedOrigin("http://localhost:5173");
-        
+        config.addAllowedOrigin("http://171.242.240.227:173");
+
         // Allow common HTTP methods
         config.addAllowedMethod("GET");
         config.addAllowedMethod("POST");
