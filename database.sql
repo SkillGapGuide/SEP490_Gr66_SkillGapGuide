@@ -44,6 +44,8 @@ CREATE TABLE Course (
     description NVARCHAR(255) NOT NULL,
     provider NVARCHAR(255) NOT NULL,
     url NVARCHAR(255) NOT NULL,
+    status NVARCHAR(50) ,
+    create_at DateTime,
     PRIMARY KEY (course_id)
 );
 
@@ -140,6 +142,7 @@ CREATE TABLE User_Favorite_Missing_Skill (
     user_id INT NOT NULL,
     skill_id INT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status NVARCHAR(50) ,
     PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES User(user_id),
     FOREIGN KEY (skill_id) REFERENCES Skill(skill_id)
@@ -150,6 +153,7 @@ CREATE TABLE User_Course (
 	id INT NOT NULL auto_increment,
     user_id INT NOT NULL,
     course_id INT NOT NULL,
+    status NVARCHAR(50) ,
     PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES User(user_id),
     FOREIGN KEY (course_id) REFERENCES Course(course_id)
