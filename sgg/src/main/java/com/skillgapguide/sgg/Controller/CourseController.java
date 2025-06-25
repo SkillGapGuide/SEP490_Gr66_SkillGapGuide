@@ -6,14 +6,22 @@ import com.skillgapguide.sgg.Response.EHttpStatus;
 import com.skillgapguide.sgg.Response.Response;
 import com.skillgapguide.sgg.Service.CourseService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequestMapping("/api/courses")
 @RequiredArgsConstructor
 public class CourseController {
     private final CourseService courseService;
-
+    private final OAuth2AuthorizedClientService authorizedClientService;
     @GetMapping("/findById/{courseId}")
     public Response<Course> getCourseById(@PathVariable Integer courseId) {
         return new Response<>(EHttpStatus.OK, "Lấy thông tin khóa học thành công", courseService.getCourseById(courseId));
@@ -56,4 +64,5 @@ public class CourseController {
         courseService.removeAllFavoriteCourses(userId);
         return new Response<>(EHttpStatus.OK, "Xóa tất cả khóa học khỏi danh sách yêu thích thành công", null);
     }
+
 }
