@@ -21,8 +21,11 @@ public class Course {
 
     @Column(nullable = false)
     private String provider;
-
+    @Column(name = "status")
+    private String status;
     @Column(nullable = false)
     private String url;
+    @Column(name = "create_at", nullable = false)
+    private java.sql.Timestamp createdAt;
 }
 
