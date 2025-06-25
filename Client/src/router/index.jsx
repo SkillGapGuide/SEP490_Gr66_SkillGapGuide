@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
+import AdminDashboard from "../pages/admin/AdminDashboard";
 import ErrorBoundary from "../components/ErrorBoundary";
 import UserLayout from "../layouts/UserLayout";
 import NotFound from "../pages/NotFound";
@@ -22,6 +23,8 @@ import TagSkillManager from "../pages/admin/TagSkillManager";
 import HomePageManager from "../pages/admin/HomePageManager";
 import ResetPassword from "../pages/ResetPassword";
 import ChangePassword from "../pages/ChangePassword";
+import TestAPI from "../pages/admin/TestAPI";
+import TermsEndUserPage from "../pages/TermsEndUserPage";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -40,7 +43,10 @@ const router = createBrowserRouter([
         element: <CvSkillPage />,
       },
       { path: "reset-password", element: <ResetPassword /> },
-      {path:"change-password",element:<ChangePassword/>}, // Placeholder for change password page
+      {path:"change-password",element:<ChangePassword/>},
+      //term of service
+      {path:"terms-of-service", element:<TermsEndUserPage/>}, // Placeholder for terms of service page
+      {path:"test" , element:<TestAPI/>} // Placeholder for change password page
     ],
   },
   {
@@ -53,7 +59,7 @@ const router = createBrowserRouter([
     errorElement: <ErrorBoundary />,
     children: [
       // Các route con của admin sẽ được định nghĩa ở đây
-      // Ví dụ: { path: "dashboard", element: <AdminDashboard /> },
+      { path: "dashboard", element: <AdminDashboard /> },
       { path: "users", element: <ManagerUser /> },
       { path: "static-content", element: <StaticContentManager /> },
       { path: "about-us", element: <AboutUsManager /> },

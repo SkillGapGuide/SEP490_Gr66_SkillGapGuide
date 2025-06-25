@@ -1,4 +1,17 @@
+import { authService } from "../services/authService";
+import { Link, useNavigate } from "react-router-dom";
+
 export default function AdminHeader() {
+const navigate = useNavigate();  
+    const handleLogout = async () => {
+      try {
+        await authService.logout();
+      
+        navigate('/login');
+      } catch (error) {
+        console.error('Logout failed:', error);
+      }
+    };
   return (
     <header className="bg-blue-300 flex items-center justify-between px-8 py-3 shadow">
       {/* Logo / Title */}
@@ -9,6 +22,7 @@ export default function AdminHeader() {
       <div className="flex items-center gap-4">
         <button
           className="bg-white text-blue-800 font-semibold px-5 py-1.5 rounded-lg shadow-sm border border-black/30 hover:bg-blue-100 transition"
+          onClick={handleLogout}
         >
           Đăng xuất
         </button>
