@@ -41,7 +41,7 @@ CREATE TABLE Skill (
 CREATE TABLE Course (
     course_id INT NOT NULL AUTO_INCREMENT,
     title NVARCHAR(255) NOT NULL,
-    rating double,
+    rating NVARCHAR(100) NOT NULL,
     difficulty NVARCHAR(100),
     description NVARCHAR(500) NOT NULL,
     provider NVARCHAR(255) NOT NULL,
