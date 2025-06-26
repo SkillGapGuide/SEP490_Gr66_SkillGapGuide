@@ -265,6 +265,12 @@ CREATE TABLE job_specializations (
     FOREIGN KEY (job_id) REFERENCES job(job_id),
     FOREIGN KEY (specialization_id) REFERENCES specializations(id)
 );
+create table user_cv_skills(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    skill nvarchar(100),
+    cv_id int ,
+	FOREIGN KEY (cv_id) REFERENCES CV(id)
+);
 INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (1,     1,     'active');
 INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (2,     3,     'active');
 INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (3,     9,     'active');

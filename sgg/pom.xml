@@ -136,6 +136,16 @@
 			<artifactId>java-dotenv</artifactId>
 			<version>5.2.2</version>
 		</dependency>
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>kernel</artifactId>
+			<version>7.2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>layout</artifactId>
+			<version>7.2.5</version>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
