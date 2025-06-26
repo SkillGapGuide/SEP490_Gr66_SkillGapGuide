@@ -41,7 +41,7 @@ CREATE TABLE Skill (
 CREATE TABLE Course (
     course_id INT NOT NULL AUTO_INCREMENT,
     title NVARCHAR(255) NOT NULL,
-    rating NVARCHAR(100) NOT NULL,
+    rating double,
     difficulty NVARCHAR(100),
     description NVARCHAR(500) NOT NULL,
     provider NVARCHAR(255) NOT NULL,
@@ -271,6 +271,12 @@ CREATE TABLE job_specializations (
     PRIMARY KEY (job_id, specialization_id),
     FOREIGN KEY (job_id) REFERENCES job(job_id),
     FOREIGN KEY (specialization_id) REFERENCES specializations(id)
+);
+create table user_cv_skills(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    skill nvarchar(100),
+    cv_id int ,
+	FOREIGN KEY (cv_id) REFERENCES CV(id)
 );
 INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (1,     1,     'active');
 INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (2,     3,     'active');
