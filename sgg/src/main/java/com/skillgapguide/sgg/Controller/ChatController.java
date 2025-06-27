@@ -36,7 +36,8 @@ public class ChatController {
         );
 
         return webClient.post()
-                .uri("http://26.20.213.66:1234/v1/chat/completions")
+                .uri("http://localhost:1234/v1/chat/completions")
+                .header("Authorization", "Bearer lm-studio")
                 .header("Accept", "application/json")  // Thêm header Accept
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
