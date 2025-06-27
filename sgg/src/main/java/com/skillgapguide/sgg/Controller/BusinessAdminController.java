@@ -1,12 +1,11 @@
 package com.skillgapguide.sgg.Controller;
 
-import com.skillgapguide.sgg.Dto.JobCategoryDTO;
-import com.skillgapguide.sgg.Dto.OccupationGroupDTO;
-import com.skillgapguide.sgg.Dto.SpecializationDTO;
+import com.skillgapguide.sgg.Dto.*;
 import com.skillgapguide.sgg.Response.EHttpStatus;
 import com.skillgapguide.sgg.Response.Response;
 import com.skillgapguide.sgg.Service.JobCategoryService;
 import com.skillgapguide.sgg.Service.OccupationGroupService;
+import com.skillgapguide.sgg.Service.OccupationService;
 import com.skillgapguide.sgg.Service.SpecializationsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +22,7 @@ public class BusinessAdminController {
     private final JobCategoryService jobCategoryService;
     private final SpecializationsService specializationsService;
     private final OccupationGroupService occupationGroupService;
+    private final OccupationService occupationService;
 
     @GetMapping("/view-job-category")
     public Response<List<JobCategoryDTO>> findAll() {
@@ -87,7 +87,7 @@ public class BusinessAdminController {
         }
     }
 
-    @PutMapping("/disable_occipation/{id}")
+    @PutMapping("/disable-occipation-groups/{id}")
     public ResponseEntity<?> toggleOccupationGroupStatus(@PathVariable Integer id) {
         try {
             boolean success = occupationGroupService.toggleOccupationGroupStatus(id);
@@ -101,6 +101,48 @@ public class BusinessAdminController {
         }
     }
 
+    @GetMapping("/view-occupations")
+    public Response<List<OccupationDTO>> getAllOccupations() {
+        return new Response<>(EHttpStatus.OK, "Lấy tất cả ngành nghề thành công", occupationService.getAllOccupations());
+    }
+
+    @GetMapping("/view-occupations-enable")
+    public Response<List<OccupationDTO>> getEnabledOccupations() {
+        return new Response<>(EHttpStatus.OK, "Lấy ngành nghề đang kích hoạt thành công", occupationService.getEnabledOccupations());
+    }
+
+    @PostMapping("/add-occupations")
+    public Response<?> addOccupation(@RequestBody AddOccupationRequestDTO dto) {
+        try {
+            occupationService.addOccupation(dto);
+            return new Response<>(EHttpStatus.OK, "Thêm ngành nghề thành công", null);
+        } catch (IllegalArgumentException e) {
+            return new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+
+    @PutMapping("/edit-occupations/{id}")
+    public Response<?> updateOccupation(@PathVariable Integer id, @RequestBody AddOccupationRequestDTO dto) {
+        try {
+            occupationService.updateOccupation(id, dto);
+            return new Response<>(EHttpStatus.OK, "Cập nhật ngành nghề thành công", null);
+        } catch (IllegalArgumentException e) {
+            return new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+
+    @PutMapping("/disable-occipation/{id}")
+    public ResponseEntity<Response<Boolean>> toggleOccupationStatus(@PathVariable Integer id) {
+        boolean result = occupationService.toggleOccupationStatus(id);
+        if (result) {
+            return ResponseEntity.ok(new Response<>(EHttpStatus.OK, "Thay đổi trạng thái thành công", true));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new Response<>(EHttpStatus.NO_RESULT_FOUND, "Không tìm thấy ngành nghề", false));
+        }
+    }
+
+
     @GetMapping("/view-specializations")
     public Response<List<SpecializationDTO>> getEnabledSpecializations() {
         List<SpecializationDTO> list = specializationsService.getEnabledSpecializations();
@@ -108,6 +150,6 @@ public class BusinessAdminController {
     }
 
 
-
+    
 
 }

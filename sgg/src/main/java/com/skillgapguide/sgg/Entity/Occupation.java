@@ -10,9 +10,15 @@ public class Occupation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Integer id;
 
-    @Column(name = "name", nullable = false)
+    @Column(nullable = false)
     private String name;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "occupation_groups_id", nullable = false)
+    private OccupationGroup occupationGroup;
+
+    @Column(name = "status", nullable = false)
+    private String status;
 }
