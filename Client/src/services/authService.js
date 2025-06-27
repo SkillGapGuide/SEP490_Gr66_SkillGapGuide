@@ -1,4 +1,4 @@
-import { supabase } from '../config/supabase';
+import  {supabase}  from '../config/supabase';
 import axios from 'axios';
 import { ENDPOINTS } from '../constants/apiEndpoints';
 import { apiService } from './api';
@@ -81,6 +81,7 @@ async loginWithEmail(email, password) {
 
   logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     // Dispatch event khi logout
     window.dispatchEvent(authStateChange);
     return supabase.auth.signOut();
