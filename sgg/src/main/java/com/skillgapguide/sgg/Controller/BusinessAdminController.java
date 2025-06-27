@@ -87,7 +87,7 @@ public class BusinessAdminController {
         }
     }
 
-    @PutMapping("/disable-occipation-groups/{id}")
+    @PutMapping("/disable-occupation-groups/{id}")
     public ResponseEntity<?> toggleOccupationGroupStatus(@PathVariable Integer id) {
         try {
             boolean success = occupationGroupService.toggleOccupationGroupStatus(id);
@@ -131,7 +131,7 @@ public class BusinessAdminController {
         }
     }
 
-    @PutMapping("/disable-occipation/{id}")
+    @PutMapping("/disable-occupation/{id}")
     public ResponseEntity<Response<Boolean>> toggleOccupationStatus(@PathVariable Integer id) {
         boolean result = occupationService.toggleOccupationStatus(id);
         if (result) {
@@ -150,6 +150,6 @@ public class BusinessAdminController {
     }
 
 
-    
+
 
 }
