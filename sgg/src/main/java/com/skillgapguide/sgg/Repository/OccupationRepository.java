@@ -9,5 +9,6 @@ import java.util.List;
 public interface OccupationRepository extends JpaRepository<Occupation, Integer>{
     List<Occupation> findByStatusIgnoreCase(String status);
     Optional<Occupation> findByNameIgnoreCase(String name);
+    List<Occupation> findByOccupationGroupId(Integer groupId);
 
 }

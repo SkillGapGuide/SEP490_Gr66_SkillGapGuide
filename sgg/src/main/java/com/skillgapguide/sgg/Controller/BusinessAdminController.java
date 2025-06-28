@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BusinessAdminController {
     private final JobCategoryService jobCategoryService;
-    private final SpecializationsService specializationsService;
+    private final SpecializationsService specializationService;
     private final OccupationGroupService occupationGroupService;
     private final OccupationService occupationService;
 
@@ -142,13 +142,69 @@ public class BusinessAdminController {
         }
     }
 
-
-    @GetMapping("/view-specializations")
-    public Response<List<SpecializationDTO>> getEnabledSpecializations() {
-        List<SpecializationDTO> list = specializationsService.getEnabledSpecializations();
-        return new Response<>(EHttpStatus.OK, "Lấy danh sách chuyên ngành đang hoạt động thành công", list);
+    //specialization
+    @GetMapping("/view-specialization")
+    public ResponseEntity<Response<List<SpecializationDTO>>> getAll() {
+        return ResponseEntity.ok(new Response<>(EHttpStatus.OK, "Thành công", specializationService.getAll()));
     }
 
+    @GetMapping("/view-specialization-enable")
+    public ResponseEntity<Response<List<SpecializationDTO>>> getAllEnable() {
+        return ResponseEntity.ok(new Response<>(EHttpStatus.OK, "Thành công", specializationService.getAllEnable()));
+    }
+
+    @PostMapping("/add-specialization")
+    public ResponseEntity<Response<String>> add(@RequestBody AddSpecializationRequestDTO dto) {
+        try {
+            specializationService.add(dto);
+            return ResponseEntity.ok(new Response<>(EHttpStatus.OK, "Thêm chuyên ngành thành công", null));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null));
+        }
+    }
+
+    @PutMapping("/edit-specialization/{id}")
+    public ResponseEntity<Response<String>> update(@PathVariable Integer id, @RequestBody AddSpecializationRequestDTO dto) {
+        try {
+            specializationService.update(id, dto);
+            return ResponseEntity.ok(new Response<>(EHttpStatus.OK, "Cập nhật chuyên ngành thành công", null));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null));
+        }
+    }
+
+    @PutMapping("/disable-specialization/{id}")
+    public ResponseEntity<Response<String>> toggleStatus(@PathVariable Integer id) {
+        boolean result = specializationService.toggleStatus(id);
+        if (result) {
+            return ResponseEntity.ok(new Response<>(EHttpStatus.OK, "Thay đổi trạng thái thành công", null));
+        } else {
+            return ResponseEntity.ok(new Response<>(EHttpStatus.NO_RESULT_FOUND, "Không tìm thấy chuyên ngành", null));
+        }
+    }
+
+    @GetMapping("/search-specialization")
+    public ResponseEntity<Response<List<SpecializationDTO>>> searchByName(@RequestParam String name) {
+        try {
+            List<SpecializationDTO> result = specializationService.searchByName(name);
+            return ResponseEntity.ok(new Response<>(EHttpStatus.OK, "Tìm kiếm thành công", result));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/filter-occupation-byGroup")
+    public ResponseEntity<List<OccupationDTO>> getOccupations(@RequestParam Integer groupId) {
+        return ResponseEntity.ok(occupationService.getByGroupId(groupId));
+    }
+
+    @GetMapping("/filter-specializations-byOccupation")
+    public ResponseEntity<List<SpecializationDTO>> getSpecializations(
+            @RequestParam(required = false) Integer occupationId,
+            @RequestParam(required = false) Integer groupId) {
+
+        return ResponseEntity.ok(specializationService.getByFilters(occupationId, groupId));
+    }
 
 
 
