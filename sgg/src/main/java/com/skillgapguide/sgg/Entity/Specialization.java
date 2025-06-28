@@ -6,20 +6,19 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "specializations")
-public class Specializations {
+public class Specialization {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id") // Tên cột trong DB
     private Integer id;
 
-    @Column(name = "name", nullable = false)
+    @Column(nullable = false)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "occupation_id", nullable = false)
     private Occupation occupation;
 
-    @Column(name = "status")
+    @Column(nullable = false)
     private String status;
 }

@@ -127,6 +127,22 @@ public class OccupationService {
         return false;
     }
 
+    public List<OccupationDTO> getByGroupId(Integer groupId) {
+        List<Occupation> occupations = occupationRepository.findByOccupationGroupId(groupId);
+        return occupations.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    private OccupationDTO convertToDTO(Occupation o) {
+        return new OccupationDTO(
+                o.getId(),
+                o.getName(),
+                o.getOccupationGroup().getId(),
+                o.getOccupationGroup().getName(),
+                o.getStatus()
+        );
+    }
+
+
 
 
 }
