@@ -8,6 +8,7 @@ import "slick-carousel/slick/slick-theme.css";
 import React from "react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { Link } from "react-router-dom";
 const testimonials = [
   {
     img: "https://cdn-icons-png.flaticon.com/512/4140/4140048.png",
@@ -85,8 +86,14 @@ const Home = () => {
                 setTimeout(() => setUploading(false), 1600); // demo loading
               }}
             >
-              <FiUploadCloud className="w-6 h-6" />
-              {uploading ? "Đang tải lên..." : "Tải lên CV & nhận phân tích"}
+              <Link to="/cv-upload-options">
+      <button
+        className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition-all text-lg font-bold"
+      >
+        <FiUploadCloud className="w-6 h-6" />
+        Tải lên CV & nhận phân tích
+      </button>
+    </Link>
             </motion.button>
           </motion.div>
           <motion.img
