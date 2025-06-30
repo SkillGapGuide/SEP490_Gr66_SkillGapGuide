@@ -25,6 +25,7 @@ import ResetPassword from "../pages/ResetPassword";
 import ChangePassword from "../pages/ChangePassword";
 import TestAPI from "../pages/admin/TestAPI";
 import TermsEndUserPage from "../pages/TermsEndUserPage";
+import JobTablePage from "../pages/admin/JobTablePage";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -66,7 +67,8 @@ const router = createBrowserRouter([
       { path: "feedback", element: <AdminFeedbackManager /> },
       { path: "social-link", element: <SocialLinksManager /> },
       { path: "tag-skills", element: <TagSkillManager /> },
-      { path: "homepage-manage", element: <HomePageManager /> }, // Placeholder for static content manager
+      { path: "homepage-manage", element: <HomePageManager /> },
+      {path:"job-manage",element:<JobTablePage/>} // Placeholder for static content manager
     ],
   },
   { path: "auth/callback", element: <AuthCallback /> }, // Placeholder for auth callback
