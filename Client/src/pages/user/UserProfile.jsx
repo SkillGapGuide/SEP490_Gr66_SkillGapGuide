@@ -71,6 +71,10 @@ const handleAvatarChange = (e) => {
         return;
       }
     }
+    if (!/^\d{10}$/.test(user.phone)) {
+    showError("Số điện thoại phải gồm đúng 10 chữ số.");
+    return;
+  }
     let imageUrl = user.avatar;
 if (fileAvatar) {
   try {
