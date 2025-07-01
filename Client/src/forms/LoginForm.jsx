@@ -38,24 +38,20 @@ export default memo(function LoginForm() {
   const handleGoogleLogin = useCallback(async () => {
     try {
       await authService.loginWithGoogle();
-      const userData = await userService.viewProfile();
       
-      if (!userData || !userData.email) {
-        throw new Error("Lỗi tải thông tin người dùng");
-      }
       
+     
       // First set in context
-      setUser(userData);
+     
       // Then explicitly store in localStorage
-      localStorage.setItem('user', JSON.stringify(userData));
+    
       
-      console.log('🔐 User saved:', userData);
       navigate('/'); // or wherever you want to redirect
     } catch (error) {
       console.error("Google login failed:", error);
-      setLoginError("Đăng nhập thất bại");
+      setLoginError("Đăng nhập thất bại: " + error.message);
     }
-  }, [navigate, setUser]);
+  }, [navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-blue-200 via-blue-300 to-blue-500">

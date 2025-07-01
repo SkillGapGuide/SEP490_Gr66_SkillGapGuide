@@ -43,7 +43,7 @@ public class SpecializationsService {
                 .collect(Collectors.toList());
     }
 
-    public void add(AddSpecializationRequestDTO dto) {
+    public Specialization add(AddSpecializationRequestDTO dto) {
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Tên chuyên ngành không được để trống.");
         }
@@ -65,8 +65,9 @@ public class SpecializationsService {
         specialization.setStatus(dto.getStatus().trim());
         specialization.setOccupation(occupation);
 
-        specializationRepository.save(specialization);
+        return specializationRepository.save(specialization); // Return the saved Specialization object
     }
+
 
     public void update(Integer id, AddSpecializationRequestDTO dto) {
         Specialization specialization = specializationRepository.findById(id)
@@ -93,7 +94,7 @@ public class SpecializationsService {
         specialization.setStatus(dto.getStatus().trim());
         specialization.setOccupation(occupation);
 
-        specializationRepository.save(specialization);
+         specializationRepository.save(specialization);
     }
 
     public boolean toggleStatus(Integer id) {

@@ -37,6 +37,8 @@ import ChangePassword from "../pages/ChangePassword";
 import TestAPI from "../pages/admin/TestAPI";
 
 import TermsEndUserPage from "../pages/TermsEndUserPage";
+import JobTablePage from "../pages/admin/JobTablePage";
+
 const router = createBrowserRouter([
   {
     path: "/",

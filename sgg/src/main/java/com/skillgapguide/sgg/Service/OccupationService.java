@@ -41,7 +41,7 @@ public class OccupationService {
         }).collect(Collectors.toList());
     }
 
-    public void addOccupation(AddOccupationRequestDTO dto) {
+    public Occupation addOccupation(AddOccupationRequestDTO dto) {
         // Check null
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Tên ngành nghề không được để trống.");
@@ -59,7 +59,7 @@ public class OccupationService {
 
         // Check occupation group tồn tại
         OccupationGroup group = occupationGroupsRepository.findById(dto.getOccupationGroupId())
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Occupation Group" + dto.getOccupationGroupId()));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Occupation Group với ID: " + dto.getOccupationGroupId()));
 
         // Save
         Occupation occupation = new Occupation();
@@ -67,8 +67,9 @@ public class OccupationService {
         occupation.setStatus(dto.getStatus());
         occupation.setOccupationGroup(group);
 
-        occupationRepository.save(occupation);
+        return occupationRepository.save(occupation); // Return the saved Occupation object
     }
+
 
     public void updateOccupation(Integer id, AddOccupationRequestDTO dto) {
         // Check null
