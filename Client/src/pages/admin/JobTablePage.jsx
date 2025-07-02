@@ -21,8 +21,8 @@ export default function JobSkillAdmin() {
   const [form, setForm] = useState({
     name: "",
     status: "Enable",
-    occupationGroupId: null, 
-    occupationId:null// For occupation
+    occupationGroupId: null,
+    occupationId: null, // For occupation
   });
 
   // Fetch data on mount
@@ -106,23 +106,21 @@ export default function JobSkillAdmin() {
     try {
       const response = await careerService.addOccupations(data);
       if (response.status === 400) {
-        throw new Error(
-          response?.message || "Đã xảy ra lỗi khi thêm nghề 2."  
-        );
+        throw new Error(response?.message || "Đã xảy ra lỗi khi thêm nghề 2.");
       }
-      const {id,name,status,occupationGroup} = response.result;
+      const { id, name, status, occupationGroup } = response.result;
 
-     const newOccupation = {
+      const newOccupation = {
         id,
         name,
         status,
         groupId: occupationGroup.id,
-        groupName : occupationGroup.name,
+        groupName: occupationGroup.name,
       };
       setOccupations([...occupations, newOccupation]);
-       showSuccess("Thêm nghề thành công!");
+      showSuccess("Thêm nghề thành công!");
     } catch (error) {
-      showError(error.message||"Đã xảy ra lỗi khi thêm nghề.");
+      showError(error.message || "Đã xảy ra lỗi khi thêm nghề.");
     }
   };
 
@@ -132,11 +130,14 @@ export default function JobSkillAdmin() {
       if (response.status === 400) {
         throw new Error(
           response?.message || "Đã xảy ra lỗi khi cập nhật nghề."
-        );}
+        );
+      }
       showSuccess("Cập nhật nghề thành công!");
       setOccupations(
         occupations.map((occ) =>
-          occ.id === id ? { ...occ, ...data ,groupId: data.occupationGroupId} : occ
+          occ.id === id
+            ? { ...occ, ...data, groupId: data.occupationGroupId }
+            : occ
         )
       );
     } catch (error) {
@@ -159,7 +160,13 @@ export default function JobSkillAdmin() {
       showSuccess("Thêm vị trí chuyên môn thành công!");
       setSpecializations([...specializations, response.result]);
     } catch (error) {
-      showError("Đã xảy ra lỗi khi thêm vị trí chuyên môn.");
+      // Kiểm tra lỗi từ response của backend
+      if (error.response && error.response.status === 400) {
+        showError(
+          error.response.data.message ||
+            "Đã xảy ra lỗi khi thêm vị trí chuyên môn."
+        );
+      }
     }
   };
 
@@ -169,7 +176,9 @@ export default function JobSkillAdmin() {
       showSuccess("Cập nhật vị trí chuyên môn thành công!");
       setSpecializations(
         specializations.map((spec) =>
-          spec.id === id ? { ...spec, ...response.result } : spec
+          spec.id === id
+            ? { ...spec, ...response.result, occupationId: data.occupationId }
+            : spec
         )
       );
     } catch (error) {
@@ -199,7 +208,7 @@ export default function JobSkillAdmin() {
     const formData = {
       name: form.name,
       status: form.status || "Enable",
-       // Mặc định giá trị là "Enable" nếu không có
+      // Mặc định giá trị là "Enable" nếu không có
     };
 
     try {
@@ -211,13 +220,22 @@ export default function JobSkillAdmin() {
         }
       } else if (modal.type === "occupation") {
         if (modal.data) {
-           await handleEditOccupation(modal.data.id, { ...formData, occupationGroupId: form.occupationGroupId });
+          await handleEditOccupation(modal.data.id, {
+            ...formData,
+            occupationGroupId: form.occupationGroupId,
+          });
         } else {
-          await handleAddOccupation({ ...formData, occupationGroupId: modal.parent.id });
+          await handleAddOccupation({
+            ...formData,
+            occupationGroupId: modal.parent.id,
+          });
         }
       } else if (modal.type === "specialization") {
         if (modal.data) {
-         await handleEditSpecialization(modal.data.id, { ...formData, occupationId: form.occupationId });
+          await handleEditSpecialization(modal.data.id, {
+            ...formData,
+            occupationId: form.occupationId,
+          });
         } else {
           await handleAddSpecialization({
             ...formData,
@@ -621,6 +639,7 @@ export default function JobSkillAdmin() {
             )}
 
             {/* Specialization form */}
+            {/* Specialization form */}
             {modal.type === "specialization" && (
               <form className="p-8" onSubmit={handleSubmit}>
                 <div className="mb-4">
@@ -665,11 +684,13 @@ export default function JobSkillAdmin() {
                       required
                     >
                       <option value="">Chọn nghề</option>
-                      {occupations.map((occ) => (
-                        <option key={occ.id} value={occ.id}>
-                          {occ.name}
-                        </option>
-                      ))}
+                      {occupations
+                        .filter((occ) => occ.groupId === modal.parent.groupId) // Chỉ lọc những nghề có cùng groupId
+                        .map((occ) => (
+                          <option key={occ.id} value={occ.id}>
+                            {occ.name}
+                          </option>
+                        ))}
                     </select>
                   )}
                   {/* Chọn trạng thái */}
