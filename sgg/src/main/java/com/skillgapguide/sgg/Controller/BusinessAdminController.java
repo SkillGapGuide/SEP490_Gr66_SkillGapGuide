@@ -159,23 +159,27 @@ public class BusinessAdminController {
     }
 
     @PostMapping("/add-specialization")
-    public ResponseEntity<Response<Specialization>> add(@RequestBody AddSpecializationRequestDTO dto) {
+    public ResponseEntity<Response<?>> addSpecialization(@RequestBody AddSpecializationRequestDTO dto) {
         try {
-            Specialization newSpecialization = specializationService.add(dto); // Get the saved Specialization object
-            return ResponseEntity.ok(new Response<>(EHttpStatus.OK, "Thêm chuyên ngành thành công", newSpecialization)); // Return the new object
+            SpecializationDTO specializationDTO = specializationService.add(dto);
+            return ResponseEntity.ok(new Response<>(EHttpStatus.OK, "Thêm chuyên ngành thành công", specializationDTO));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null));
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null));
         }
     }
 
 
     @PutMapping("/edit-specialization/{id}")
-    public ResponseEntity<Response<String>> update(@PathVariable Integer id, @RequestBody AddSpecializationRequestDTO dto) {
+    public ResponseEntity<Response<?>> editSpecialization(@PathVariable Integer id, @RequestBody AddSpecializationRequestDTO dto) {
         try {
-            specializationService.update(id, dto);
+            specializationService.update(id, dto); // Cập nhật chuyên ngành
             return ResponseEntity.ok(new Response<>(EHttpStatus.OK, "Cập nhật chuyên ngành thành công", null));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null));
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null));
         }
     }
 
