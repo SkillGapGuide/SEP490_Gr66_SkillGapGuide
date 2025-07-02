@@ -4,6 +4,7 @@ import com.skillgapguide.sgg.Filter.JWTAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -40,12 +41,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Các endpoint không cần xác thực
                         .requestMatchers(url).permitAll()
+                        // Cho phép tất cả người dùng đã đăng nhập truy cập các method GET trong businessadmin
+                        .requestMatchers(HttpMethod.GET, "/api/businessadmin/**").authenticated()
                         // Ví dụ phân quyền: Endpoint này chỉ dành cho ADMIN (roleId=2)
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         // Ví dụ phân quyền: Endpoint này chỉ dành cho SYSTEMADMIN (roleId=1)
                         .requestMatchers("/api/systemadmin/**").hasAuthority("ROLE_SYSTEM_ADMIN")
-                        // Tất cả các request khác đều cần xác thực
-                        .requestMatchers("/api/businessadmin/**").hasAuthority("ROLE_BUSINESS_ADMIN")
+                        // Chỉ BUSINESS_ADMIN được phép dùng POST, PUT, DELETE
+                        .requestMatchers(HttpMethod.POST, "/api/businessadmin/**").hasAuthority("ROLE_BUSINESS_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/businessadmin/**").hasAuthority("ROLE_BUSINESS_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/businessadmin/**").hasAuthority("ROLE_BUSINESS_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Không tạo session
