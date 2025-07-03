@@ -41,7 +41,7 @@ public class CourseService {
     }
 
     public Page<UserFavoriteCourse> getFavoriteCoursesByUserId(Integer userId, int pageNo, int pageSize) {
-        Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNo);
+        Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNo - 1);
         return favoriteCourseRepository.findByUserId(userId, pageable); // Hoặc findByIdUserId nếu dùng composite key
     }
     public UserFavoriteCourse addCourseToFavorites(Integer userId, Integer courseId) {
@@ -61,7 +61,7 @@ public class CourseService {
         UserFavoriteCourse favoriteCourse = new UserFavoriteCourse();
         favoriteCourse.setUserId(userId);
         favoriteCourse.setCourse(course);
-        favoriteCourse.setStatus("ACTIVE");
+        favoriteCourse.setStatus("Not Started");
         favoriteCourse.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 
         // Lưu vào cơ sở dữ liệu
@@ -116,7 +116,13 @@ public class CourseService {
     }
     // At the top of the class
     private static final Logger logger = LoggerFactory.getLogger(CourseService.class);
-
+    public void changeFavoriteCourseStatus(Integer courseId,Integer userId, String status) {
+        UserFavoriteCourse favoriteCourse = favoriteCourseRepository.findByUserIdAndCourseId(userId, courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Favorite course not found"));
+        favoriteCourse.setStatus(status);
+        favoriteCourseRepository.save(favoriteCourse);
+        logger.info("Changed status of favorite course: userId={}, courseId={}, status={}", userId, courseId, status);
+    }
     public void removeFavoriteCourse(Integer userId, Integer courseId) {
         Optional<UserFavoriteCourse> existingFavorite = favoriteCourseRepository.findByUserIdAndCourseId(userId, courseId);
         if (existingFavorite.isEmpty()) {

@@ -29,35 +29,17 @@ const AddCVFromTOPCVLink = () => {
           />
         </div>
 
-        {/* Cột tải lên CV và xem kết quả */}
-        <div className="border rounded-lg p-6 flex flex-col items-center justify-start bg-white shadow relative min-h-[500px]">
-          <label htmlFor="cv-upload" className="text-center cursor-pointer mb-4">
-            <FiUploadCloud className="text-yellow-500 text-3xl mx-auto mb-1" />
-            <p className="text-indigo-600 font-semibold underline">Tải lên CV của bạn (pdf)</p>
-          </label>
-          <input id="cv-upload" type="file" accept="application/pdf" onChange={handleUpload} className="hidden" />
 
-          {file ? (
-            <div className="mt-4 w-52 h-[300px] border rounded overflow-hidden shadow">
-              <iframe
-                title="CV Preview"
-                src={URL.createObjectURL(file)}
-                className="w-full h-full"
-              ></iframe>
-            </div>
-          ) : (
-            <p className="text-gray-500 italic mt-4">Chưa được tải lên</p>
-          )}
-
-           <button
+           
+        </div>
+        <button
         className="mt-6 px-6 py-2 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
         onClick={() => navigate("/analysislinkingjob")}
       >
         → Xem kết quả
       </button>
-        </div>
       </div>
-    </div>
+   
   );
 };
 

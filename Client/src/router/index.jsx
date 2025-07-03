@@ -25,6 +25,7 @@ import AnalysisLinkingJob from "../pages/user/AnalysisLinkingJob";
 import AnalysisJobDescription from "../pages/user/AnalysisJobDescription";
 import FavoriteSkills from "../pages/user/FavoriteSkills";
 import FavoriteCourses from "../pages/user/FavouriteCourses";
+import AddCVWriteJobDescription1 from "../pages/user/AddCVWriteJobDescription1";
 import AuthCallback from "../components/AuthCallback";
 import StaticContentManager from "../pages/admin/StaticContentManager";
 import AboutUsManager from "../pages/admin/AboutUsManager";
@@ -88,6 +89,9 @@ const router = createBrowserRouter([
       },
       {path: "favouriteCourses",
         element: <FavoriteCourses/>
+      },
+      {path: "addcvwritejobdescription1",
+        element: <AddCVWriteJobDescription1/>
       },
       { path: "reset-password", element: <ResetPassword /> },
       {path:"change-password",element:<ChangePassword/>},
