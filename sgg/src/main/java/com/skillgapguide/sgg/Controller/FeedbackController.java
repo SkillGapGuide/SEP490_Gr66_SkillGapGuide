@@ -1,8 +1,11 @@
 package com.skillgapguide.sgg.Controller;
 
+import com.skillgapguide.sgg.Dto.FeedbackDTO;
+import com.skillgapguide.sgg.Entity.Feedback;
 import com.skillgapguide.sgg.Response.EHttpStatus;
 import com.skillgapguide.sgg.Response.Response;
 import com.skillgapguide.sgg.Service.FeedbackService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,5 +23,9 @@ public class FeedbackController {
     @GetMapping("/getDetail/{email}")
     public Response<?> getDetailFeedback(@PathVariable String email){
         return new Response<>(EHttpStatus.OK,feedbackService.getFeedbackDetail(email));
+    }
+    @PostMapping("/createFeedback")
+    public Response<?> createFeedback(@Valid @RequestBody FeedbackDTO feedback) {
+        return new Response<>(EHttpStatus.OK, feedbackService.createFeedback(feedback) );
     }
 }

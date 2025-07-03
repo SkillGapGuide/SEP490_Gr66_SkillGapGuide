@@ -66,6 +66,11 @@ public class CourseController {
         courseService.removeAllFavoriteCourses(userId);
         return new Response<>(EHttpStatus.OK, "Xóa tất cả khóa học khỏi danh sách yêu thích thành công", null);
     }
+    @PostMapping("/changeFavoriteCourseStatus/{courseId}/{userId}/{status}")
+    public Response<?> changeFavoriteCourseStatus(@PathVariable Integer courseId,@PathVariable Integer userId, @PathVariable String status) {
+        courseService.changeFavoriteCourseStatus(courseId,userId, status);
+        return new Response<>(EHttpStatus.OK, "Thay đổi trạng thái khóa học thành công", null);
+    }
     @PostMapping("/scrape")
     public ResponseEntity<String> scrapeCourses(@RequestParam(defaultValue = "1") int numPages,
                                                @RequestParam(defaultValue = "9") int numItems) {
