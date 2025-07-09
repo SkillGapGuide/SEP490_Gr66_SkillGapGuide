@@ -15,8 +15,13 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CourseController {
     private final CourseService courseService;
-
-
+    @GetMapping("/getAllCourses")
+    public Response<?> getAllCourses(
+            @RequestParam(defaultValue = "1") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        return new Response<>(EHttpStatus.OK, "Lấy danh sách tất cả khóa học thành công",
+                courseService.getAllCourses(pageNo, pageSize));
+    }
     @GetMapping("/findById/{courseId}")
     public Response<Course> getCourseById(@PathVariable Integer courseId) {
         return new Response<>(EHttpStatus.OK, "Lấy thông tin khóa học thành công", courseService.getCourseById(courseId));
