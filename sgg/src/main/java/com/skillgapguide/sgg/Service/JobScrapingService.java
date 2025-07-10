@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class JobScrapingService {
     private final JobRepository jobRepository;
-    private final JobCategoryRepository jobCategoryRepository;
+//    private final JobCategoryRepository jobCategoryRepository;
     @Transactional // Đảm bảo các thao tác DB được thực hiện trong một giao dịch
     public void scrapeAndSaveJob(String jobDetailUrl) {
         if (jobRepository.existsBySourceUrl(jobDetailUrl)) {

@@ -7,6 +7,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 public class LMStudioService {
@@ -19,7 +20,16 @@ public class LMStudioService {
                 .build();
     }
 
-    public Mono<String> callLMApi(Map<String, Object> requestBody) {
+    public Mono<String> callLMApi(String prompt) {
+        Map<String, Object> requestBody = Map.of(
+                "model", "mistralai/mistral-7b-instruct-v0.3",
+                "messages", List.of(
+                        Map.of("role", "user", "content", prompt)
+                ),
+                "temperature", 0.7,
+                "max_tokens", 2048,
+                "stream", false
+        );
         return webClient.post()
                 .uri("/v1/chat/completions")
                 .header("Authorization", "Bearer lm-studio")

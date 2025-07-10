@@ -11,25 +11,19 @@ import com.skillgapguide.sgg.Entity.UserCvSkills;
 import com.skillgapguide.sgg.Repository.CVRepository;
 import com.skillgapguide.sgg.Repository.UserCvSkillsRepository;
 import com.skillgapguide.sgg.Repository.UserRepository;
-import com.skillgapguide.sgg.Response.AIResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class CVService {
@@ -39,13 +33,9 @@ public class CVService {
     private UserRepository userRepository;
     @Autowired
     private UserCvSkillsRepository userCvSkillsRepository;
+    @Autowired
+    private EmbedService embedService;
     private final String UPLOAD_DIR = "D:/CvData/";
-    private final WebClient webClient;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    public CVService(WebClient webClient) {
-        this.webClient = webClient;
-    }
 
     public String uploadCv(String fileName,String fileExtension, MultipartFile file){
         try {
@@ -56,18 +46,30 @@ public class CVService {
             Files.createDirectories(Paths.get(UPLOAD_DIR));
             Path path = Paths.get(UPLOAD_DIR + fileName);
             Files.write(path, file.getBytes());
-
-            Cv cvMetadata = new Cv();
-            cvMetadata.setUserId(userId);
-            cvMetadata.setFileName(fileName);
-            cvMetadata.setFilePath(path.toAbsolutePath().toString());
-            cvMetadata.setFileType(fileExtension);
-            cvMetadata.setUploadDate(LocalDateTime.now());
-            cvRepository.save(cvMetadata);
+            Cv cv = cvRepository.findByUserId(userId);
+            int finalCvId;
+            if(cv != null){
+                cv.setFileName(fileName);
+                cv.setFilePath(path.toAbsolutePath().toString());
+                cv.setFileType(fileExtension);
+                cv.setUploadDate(LocalDateTime.now());
+                cvRepository.save(cv);
+                finalCvId = cv.getId();
+            }
+            else {
+                Cv cvMetadata = new Cv();
+                cvMetadata.setUserId(userId);
+                cvMetadata.setFileName(fileName);
+                cvMetadata.setFilePath(path.toAbsolutePath().toString());
+                cvMetadata.setFileType(fileExtension);
+                cvMetadata.setUploadDate(LocalDateTime.now());
+                cvRepository.save(cvMetadata);
+                finalCvId = cvMetadata.getId();
+            }
             // Chạy extract skill trong thread riêng
             new Thread(() -> {
                 try {
-                    extractSkill(path.toAbsolutePath().toString(),cvMetadata.getId());
+                    extractSkill(path.toAbsolutePath().toString(), finalCvId);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -95,18 +97,17 @@ public class CVService {
     }
     public void extractSkill(String filePath, int cvId) throws IOException {
         String text = extractTextFromPdf(filePath);
-        String prompt = "kể tên các kỹ năng chính từ CV sau:\n" + text;
-        Map<String, Object> requestBody = Map.of(
-                "model", "mistralai/mistral-7b-instruct-v0.3",
-                "messages", List.of(
-                        Map.of("role", "user", "content", prompt)
-                ),
-                "temperature", 0.7,
-                "max_tokens", 2048,
-                "stream", false
-        );
+        String prompt = "Hãy phân tích CV dưới đây và trích xuất tất cả các kỹ năng chính của ứng viên. Chỉ trả về kết quả dưới dạng JSON theo mẫu sau, không thêm bất kỳ nội dung nào khác:\n" +
+                "\n" +
+                "{\n" +
+                "  \"skills\": [\n" +
+                "  ]\n" +
+                "}\n" +
+                "\n" +
+                "CV:\n" + text ;
+
         LMStudioService service = new LMStudioService(WebClient.builder());
-        service.callLMApi(requestBody)
+        service.callLMApi(prompt)
                 .subscribe(content -> {
                     try {
                         saveCvSkillsToDb(content, cvId);
@@ -124,7 +125,7 @@ public class CVService {
             userCvSkill.setSkill(skill);
             userCvSkill.setCvId(cvId);
             userCvSkillsRepository.save(userCvSkill);
-            System.out.println("Skill:-----  "+skill);
+            embedService.getCvSkillEmbedding(skill);
         }
     }
 }

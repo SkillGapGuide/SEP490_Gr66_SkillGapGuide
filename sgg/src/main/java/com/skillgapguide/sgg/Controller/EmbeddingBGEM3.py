@@ -1,28 +1,23 @@
 from FlagEmbedding import BGEM3FlagModel
 import mysql.connector
 import json
+from fastapi import FastAPI
+from pydantic import BaseModel
 
-# Kết nối MySQL
-conn = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="12345678",
-    database="skill_gap_guide"
-)
-cursor = conn.cursor()
+app = FastAPI()
 
 # Nhúng văn bản thành vector
-model = BGEM3FlagModel('BAAI/bge-m3', use_fp16=False)
-text = "kỹ năng lập trình Java"
-output = model.encode([text], return_dense=True)
-vector = output['dense_vecs'][0].tolist()  # Chuyển numpy array thành list
+model = BGEM3FlagModel('BAAI/bge-m3', use_fp16=True)
+class TextInput(BaseModel):
+    text: str
 
-# Lưu vào MySQL
-sql = "INSERT INTO text_embeddings (text_content, embedding_json) VALUES (%s, %s)"
-val = (text, json.dumps(vector))
-cursor.execute(sql, val)
-conn.commit()
+@app.post("/embed")
+def get_embedding(input: TextInput):
+    output = model.encode([input.text], return_dense=True)
+    vector = output['dense_vecs'][0].tolist()
+    return {"embedding": vector}
 
-# Đóng kết nối
-cursor.close()
-conn.close()
+# Chạy server
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
