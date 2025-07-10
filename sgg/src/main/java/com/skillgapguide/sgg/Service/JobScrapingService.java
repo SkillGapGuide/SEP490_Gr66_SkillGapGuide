@@ -323,36 +323,6 @@ public class JobScrapingService {
         System.out.println("Hoàn thành cào job từ danh mục Sales Logistics!");
     }
     /**
-     * Tự động cào 10 job từ danh mục Sales Bất động sản/Xây dựng  trên TopCV
-     */
-    @Transactional
-    public void scrapeTop10RealEstateSalesConstructionJobs() {
-        String url = "https://www.topcv.vn/tim-viec-lam-sales-bat-dong-san-xay-dung-cr1cb6?type_keyword=0&sba=1&category_family=r1~b6";
-        System.out.println("Bắt đầu cào 10 job từ danh mục Sales Bất động sản/Xây dựng...");
-        scrapeAndSaveTop10JobsByCategory(url);
-        System.out.println("Hoàn thành cào job từ danh mục Sales Bất động sản/Xây dựng!");
-    }
-    /**
-     * Tự động cào 10 job từ danh mục Sales Giáo dục/Khoá học  trên TopCV
-     */
-    @Transactional
-    public void scrapeTop10SalesEducationCoursesJobs() {
-        String url = "https://www.topcv.vn/tim-viec-lam-sales-giao-duc-khoa-hoc-cr1cb3?type_keyword=0&sba=1&category_family=r1~b3";
-        System.out.println("Bắt đầu cào 10 job từ danh mục Sales Giáo dục/Khoá học...");
-        scrapeAndSaveTop10JobsByCategory(url);
-        System.out.println("Hoàn thành cào job từ danh mục Sales Giáo dục/Khoá học!");
-    }
-    /**
-     * Tự động cào 10 job từ danh mục Sales Admin/Sales Support  trên TopCV
-     */
-    @Transactional
-    public void scrapeTop10SalesAdminSalesSupportJobs() {
-        String url = "https://www.topcv.vn/tim-viec-lam-sales-admin-sales-support-cr1cb8?type_keyword=0&sba=1&category_family=r1~b8";
-        System.out.println("Bắt đầu cào 10 job từ danh mục Sales Admin/Sales Support...");
-        scrapeAndSaveTop10JobsByCategory(url);
-        System.out.println("Hoàn thành cào job từ danh mục Sales Admin/Sales Support!");
-    }
-    /**
      * Tự động cào job từ nhiều danh mục được định nghĩa sẵn
      */
     @Transactional
