@@ -23,13 +23,6 @@ CREATE TABLE Subscription (
     PRIMARY KEY (subscription_id)
 );
 
--- Bảng lưu danh mục công việc
-CREATE TABLE JobCategory (
-    job_category_id INT NOT NULL AUTO_INCREMENT,
-    name NVARCHAR(255) NOT NULL,
-    PRIMARY KEY (job_category_id)
-);
-
 -- Bảng lưu các kỹ năng chung
 CREATE TABLE Skill (
     skill_id INT NOT NULL AUTO_INCREMENT,
@@ -104,7 +97,6 @@ CREATE TABLE CV (
     file_path varchar(255) NOT NULL,
     file_type varchar(255) NOT NULL,
     upload_date datetime NOT NULL,
-
     PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
@@ -112,14 +104,14 @@ CREATE TABLE CV (
 -- Bảng Công việc (Job), liên kết đến JobCategory
 CREATE TABLE Job (
     job_id INT NOT NULL AUTO_INCREMENT,
+    cv_id int,
     title NVARCHAR(255) NOT NULL,
     description NVARCHAR(7000) NOT NULL,
     company NVARCHAR(255) NOT NULL,
-    category_id INT NOT NULL,
     status NVARCHAR(255) NOT NULL,
     source_url nvarchar(512) NOT NULL,
     PRIMARY KEY (job_id),
-    FOREIGN KEY (category_id) REFERENCES JobCategory(job_category_id)
+    FOREIGN KEY (cv_id) REFERENCES CV(id)
 );
 CREATE TABLE User_Favorite_Job (
 	id INT NOT NULL auto_increment,
@@ -129,6 +121,18 @@ CREATE TABLE User_Favorite_Job (
     PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES User(user_id),
     FOREIGN KEY (job_id) REFERENCES Job(job_id)
+);
+CREATE TABLE job_des_file (
+    id INT NOT NULL AUTO_INCREMENT,
+    user_id int,
+    job_id int,
+    file_name varchar(255) NOT NULL,
+    file_path varchar(255) NOT NULL,
+    file_type varchar(255) NOT NULL,
+    upload_date datetime NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (job_id) REFERENCES job(job_id)
 );
 
 -- Bảng User_Skill (bảng nối), liên kết User và Skill
@@ -244,7 +248,7 @@ CREATE TABLE user_subscription_history (
 );
 
 -- job category
-CREATE TABLE occupation_groups (
+CREATE TABLE occupation_groups(  -- domain or aria
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     status nvarchar(100)
@@ -263,6 +267,7 @@ CREATE TABLE specializations (
     name VARCHAR(100) NOT NULL,
     occupation_id INT NOT NULL,
     status nvarchar(100),
+    url_topcv varchar(200),
     FOREIGN KEY (occupation_id) REFERENCES occupation(id)
 );
 CREATE TABLE job_specializations (
@@ -272,6 +277,36 @@ CREATE TABLE job_specializations (
     FOREIGN KEY (job_id) REFERENCES job(job_id),
     FOREIGN KEY (specialization_id) REFERENCES specializations(id)
 );
+create table user_cv_skills(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    skill nvarchar(100),
+    cv_id int ,
+	FOREIGN KEY (cv_id) REFERENCES CV(id)
+);
+create table user_cv_skills_embedding(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    skill nvarchar(100),
+    embedding_json JSON
+);
+create table job_des_skills(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    skill nvarchar(100),
+    job_id int ,
+	FOREIGN KEY (job_id) REFERENCES job(job_id)
+);
+create table job_des_skills_embedding(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    skill nvarchar(100),
+    embedding_json JSON
+);
+create table job_cv_skills_score(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    job_skill int ,
+    cv_skill int ,
+    score double,
+	FOREIGN KEY (job_skill) REFERENCES job_des_skills(id),
+	FOREIGN KEY (cv_skill) REFERENCES user_cv_skills(id)
+);
 INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (1,     1,     'active');
 INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (2,     3,     'active');
 INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (3,     9,     'active');
@@ -280,7 +315,6 @@ INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (1,     'System
 INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (2,     'Business Admin');
 INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (3,     'Free User');
 INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES		(4,'Premium User');
-INSERT INTO JobCategory (name) VALUES('IT'),('Marketing'),('Finance');
 INSERT INTO Skill (name) VALUES('Python'),('Communication'),('Data Analysis'),('Project Management');
 INSERT INTO Course (title, rating, difficulty, description, provider, url, status, create_at)
 VALUES
@@ -308,10 +342,10 @@ VALUES
 (2, 'Hệ thống rất hữu ích!', 5, '2024-06-11 12:00:00'),
 (3, 'Cần cải thiện giao diện.', 3, '2024-06-12 09:15:00');
 
-INSERT INTO Job (title, description, company, category_id, status, source_url)
+INSERT INTO Job (title, description, company, status, source_url)
 VALUES
-('Data Analyst', 'Phân tích dữ liệu cho công ty A', 'Company A', 1, 'OPEN', 'https://jobs.com/a'),
-('Marketing Specialist', 'Chuyên viên marketing cho công ty B', 'Company B', 2, 'OPEN', 'https://jobs.com/b');
+('Data Analyst', 'Phân tích dữ liệu cho công ty A', 'Company A',  'OPEN', 'https://jobs.com/a'),
+('Marketing Specialist', 'Chuyên viên marketing cho công ty B', 'Company B', 'OPEN', 'https://jobs.com/b');
 INSERT INTO User_Favorite_Job (user_id, job_id, created_at)
 VALUES
 (2, 1, NOW()),

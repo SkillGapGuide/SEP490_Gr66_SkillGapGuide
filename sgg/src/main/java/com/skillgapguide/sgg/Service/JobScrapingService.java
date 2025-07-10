@@ -1,6 +1,5 @@
 package com.skillgapguide.sgg.Service;
 
-import com.skillgapguide.sgg.Repository.JobCategoryRepository;
 import com.skillgapguide.sgg.Repository.JobRepository;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.By;
@@ -9,7 +8,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Service;
 import com.skillgapguide.sgg.Entity.Job;
-import com.skillgapguide.sgg.Entity.JobCategory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import java.io.IOException;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class JobScrapingService {
     private final JobRepository jobRepository;
-    private final JobCategoryRepository jobCategoryRepository;
+//    private final JobCategoryRepository jobCategoryRepository;
     @Transactional // Đảm bảo các thao tác DB được thực hiện trong một giao dịch
     public void scrapeAndSaveJob(String jobDetailUrl) {
         if (jobRepository.existsBySourceUrl(jobDetailUrl)) {
@@ -68,14 +66,6 @@ public class JobScrapingService {
             String title = doc.selectFirst("h1.job-detail__info--title").text();
             String company = doc.selectFirst("a.name").text();
             String categoryName = doc.selectFirst("div.job-detail__company--information-item.company-field div.company-value").text();
-
-            JobCategory category = jobCategoryRepository.findByName(categoryName)
-                    .orElseGet(() -> {
-                        JobCategory newCategory = new JobCategory();
-                        newCategory.setName(categoryName);
-                        return jobCategoryRepository.save(newCategory);
-                    });
-
             StringBuilder descriptionBuilder = new StringBuilder();
             Elements descriptionItems = doc.select("div.job-description__item--content p, div.job-description__item--content div");
             for (Element item : descriptionItems) {
@@ -88,7 +78,6 @@ public class JobScrapingService {
             job.setTitle(title);
             job.setCompany(company);
             job.setDescription(fullDescription);
-            job.setCategoryId(category.getJobCategoryId());
             job.setStatus("ACTIVE"); // Đặt trạng thái mặc định
             job.setSourceUrl(jobDetailUrl);
             jobRepository.save(job); // Lưu job vào database [5][6][8]
