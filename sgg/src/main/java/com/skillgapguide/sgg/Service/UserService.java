@@ -138,6 +138,7 @@ public class  UserService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
         UserDTO userDTO = new UserDTO();
+        userDTO.setId(user.getUserId());
         userDTO.setEmail(email);
         userDTO.setFullName(user.getFullName());
         userDTO.setPhone(user.getPhone());

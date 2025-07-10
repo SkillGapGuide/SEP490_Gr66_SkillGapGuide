@@ -37,7 +37,7 @@ api.interceptors.response.use(
           break;
         case 403:
           // Handle forbidden
-          alert('Access denied. You do not have permission to perform this action.');
+         
           break;
         case 404:
           // Handle not found

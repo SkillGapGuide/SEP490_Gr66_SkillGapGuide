@@ -38,24 +38,20 @@ export default memo(function LoginForm() {
   const handleGoogleLogin = useCallback(async () => {
     try {
       await authService.loginWithGoogle();
-      const userData = await userService.viewProfile();
       
-      if (!userData || !userData.email) {
-        throw new Error("Lỗi tải thông tin người dùng");
-      }
       
+     
       // First set in context
-      setUser(userData);
+     
       // Then explicitly store in localStorage
-      localStorage.setItem('user', JSON.stringify(userData));
+    
       
-      console.log('🔐 User saved:', userData);
       navigate('/'); // or wherever you want to redirect
     } catch (error) {
       console.error("Google login failed:", error);
-      setLoginError("Đăng nhập thất bại");
+      setLoginError("Đăng nhập thất bại: " + error.message);
     }
-  }, [navigate, setUser]);
+  }, [navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-blue-200 via-blue-300 to-blue-500">
@@ -71,12 +67,18 @@ export default memo(function LoginForm() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <label className="block text-gray-700 font-medium mb-1">Email</label>
-              <input
-                {...register("email", { required: "Email không được bỏ trống" })}
-                placeholder="nguyena@gmail.com"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
-                autoComplete="email"
-              />
+             <input
+  {...register("email", { 
+    required: "Email không được bỏ trống",
+    pattern: {
+      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      message: "Email không hợp lệ"
+    }
+  })}
+  placeholder="nguyena@gmail.com"
+  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+  autoComplete="email"
+/>
               {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
             </div>
             <div>

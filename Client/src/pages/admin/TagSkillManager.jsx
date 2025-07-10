@@ -1,18 +1,29 @@
 import { useState } from 'react';
 import { Search, Plus, Pencil, Trash2, X, Save, Tag } from 'lucide-react';
+import { careerService } from "../../services/career";
 
+const formatNestedData = (occupationGroups, occupations, specializations) =>
+  occupationGroups.map(group => ({
+    ...group,
+    occupations: occupations
+      .filter(occ => occ.groupId === group.id)
+      .map(occ => ({
+        ...occ,
+        specializations: specializations.filter(spec => spec.occupationId === occ.id)
+      })),
+  }));
 // Dummy data - replace with API call
-const DUMMY_TAGS = [
-  { id: 1, name: 'Frontend', description: 'Frontend development skills', count: 15 },
-  { id: 2, name: 'Backend', description: 'Backend development technologies', count: 12 },
-  { id: 3, name: 'Database', description: 'Database management skills', count: 8 },
-];
+
 
 export default function TagSkillManager() {
   const [tags, setTags] = useState(DUMMY_TAGS);
   const [search, setSearch] = useState('');
   const [selectedTag, setSelectedTag] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+const [specializations, setSpecializations] = useState([]);
+  const [occupations, setOccupations] = useState([]);
+  const [occupationGroups, setOccupationGroups] = useState([]);
+  const [nestedCareerData, setNestedCareerData] = useState([]);
 
   // Filter tags based on search
   const filteredTags = tags.filter(tag =>
@@ -29,6 +40,59 @@ export default function TagSkillManager() {
     setIsModalOpen(false);
     setSelectedTag(null);
   };
+  const testViewSpecialization = async () => {
+      try {
+        const result = await careerService.viewSpecialization();
+        return Array.isArray(result) ? result : result?.data || [];
+      } catch (error) {
+        console.error("viewSpecialization error:", error);
+        return [];
+      }
+    };
+  
+    const testViewOccupations = async () => {
+      try {
+        const result = await careerService.viewOccupations();
+        return Array.isArray(result) ? result : result?.data || [];
+      } catch (error) {
+        console.error("viewOccupations error:", error);
+        return [];
+      }
+    };
+  
+    const testViewOccupationGroups = async () => {
+      try {
+        const result = await careerService.viewOccupationGroups();
+        return Array.isArray(result) ? result : result?.data || [];
+      } catch (error) {
+        console.error("viewOccupationGroups error:", error);
+        return [];
+      }
+    };
+  
+    // Auto fetch and format nested data
+    useEffect(() => {
+      const fetchInitialData = async () => {
+        try {
+          const [specs, occs, groups] = await Promise.all([
+            testViewSpecialization(),
+            testViewOccupations(),
+            testViewOccupationGroups(),
+          ]);
+          setSpecializations(specs);
+          setOccupations(occs);
+          setOccupationGroups(groups);
+  
+          const nested = formatNestedData(groups, occs, specs);
+          setNestedCareerData(nested);
+          console.log("Nested Career Data:", nested);
+        } catch (error) {
+          console.error("Error fetching initial data:", error);
+        }
+      };
+      fetchInitialData();
+    }, []);
+  
 
   return (
     <div className="space-y-6">

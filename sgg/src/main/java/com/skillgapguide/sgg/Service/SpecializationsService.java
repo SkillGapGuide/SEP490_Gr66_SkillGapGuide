@@ -43,18 +43,18 @@ public class SpecializationsService {
                 .collect(Collectors.toList());
     }
 
-    public void add(AddSpecializationRequestDTO dto) {
+    public SpecializationDTO add(AddSpecializationRequestDTO dto) {
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Tên chuyên ngành không được để trống.");
         }
 
-        if (dto.getStatus() == null ||
-                (!dto.getStatus().equalsIgnoreCase("enable") && !dto.getStatus().equalsIgnoreCase("disable"))) {
-            throw new IllegalArgumentException("Trạng thái chỉ được là 'enable' hoặc 'disable'.");
+        // Kiểm tra trạng thái hợp lệ
+        if (!dto.getStatus().equalsIgnoreCase("Enable") && !dto.getStatus().equalsIgnoreCase("Disable")) {
+            throw new IllegalArgumentException("Trạng thái chỉ được là Enable hoặc Disable");
         }
 
         if (specializationRepository.findByNameIgnoreCase(dto.getName().trim()).isPresent()) {
-            throw new IllegalArgumentException("Tên chuyên ngành đã tồn tại.");
+            throw new IllegalArgumentException("Tên chuyên ngành đã tồn tại");
         }
 
         Occupation occupation = occupationRepository.findById(dto.getOccupationId())
@@ -65,8 +65,18 @@ public class SpecializationsService {
         specialization.setStatus(dto.getStatus().trim());
         specialization.setOccupation(occupation);
 
-        specializationRepository.save(specialization);
+        Specialization saved = specializationRepository.save(specialization);
+
+        SpecializationDTO result = new SpecializationDTO();
+        result.setId(saved.getId());
+        result.setName(saved.getName());
+        result.setStatus(saved.getStatus());
+        result.setOccupationId(occupation.getId());
+        result.setOccupationName(occupation.getName());
+
+        return result;
     }
+
 
     public void update(Integer id, AddSpecializationRequestDTO dto) {
         Specialization specialization = specializationRepository.findById(id)
@@ -93,7 +103,7 @@ public class SpecializationsService {
         specialization.setStatus(dto.getStatus().trim());
         specialization.setOccupation(occupation);
 
-        specializationRepository.save(specialization);
+         specializationRepository.save(specialization);
     }
 
     public boolean toggleStatus(Integer id) {

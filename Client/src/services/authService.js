@@ -45,43 +45,35 @@ async loginWithEmail(email, password) {
     }
   },
 
- async loginWithGoogle() {
-  try {
-    // Kiểm tra khởi tạo Supabase
-    if (!supabase) {
-      throw new Error('Supabase client not initialized');
-    }
+// authService.js
+async loginWithGoogle() {
+  if (!supabase) throw new Error('Supabase client not initialized');
 
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        // Đảm bảo URL callback chính xác
-        redirectTo: `${window.location.origin}/auth/callback`,
-        // Thêm các scopes cần thiết
-        scopes: 'email profile',
-        // Thêm cấu hình queryParams
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'select_account'
-        }
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+      scopes: 'email profile',
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'select_account'
       }
-    });
-
-    if (error) {
-      console.error('Supabase OAuth error:', error);
-      throw error;
     }
+  });
 
-    return data;
-  } catch (error) {
-    console.error('Google login error:', error);
+  if (error) {
+    // Chỉ log khi thực sự có error
+    console.error('Supabase OAuth error:', error.message);
     throw error;
   }
-},
+
+  // Không log gì nếu thành công!
+  return data;
+}
+,
 
   logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.clear();
     // Dispatch event khi logout
     window.dispatchEvent(authStateChange);
     return supabase.auth.signOut();

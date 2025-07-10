@@ -35,7 +35,7 @@ public class OccupationGroupService {
         ).collect(Collectors.toList());
     }
 
-    public void addOccupationGroup(OccupationGroupDTO dto) {
+    public OccupationGroup  addOccupationGroup(OccupationGroupDTO dto) {
         //Check co null khong
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Tên nhóm nghề nghiệp không được để trống");
@@ -61,7 +61,7 @@ public class OccupationGroupService {
         OccupationGroup newGroup = new OccupationGroup();
         newGroup.setName(dto.getName().trim());
         newGroup.setStatus(status);
-        occupationGroupRepository.save(newGroup);
+       return  occupationGroupRepository.save(newGroup);
     }
 
     public void editOccupationGroup(OccupationGroupDTO dto) {

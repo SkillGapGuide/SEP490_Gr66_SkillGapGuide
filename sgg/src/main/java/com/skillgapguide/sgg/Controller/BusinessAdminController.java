@@ -1,6 +1,9 @@
 package com.skillgapguide.sgg.Controller;
 
 import com.skillgapguide.sgg.Dto.*;
+import com.skillgapguide.sgg.Entity.Occupation;
+import com.skillgapguide.sgg.Entity.OccupationGroup;
+import com.skillgapguide.sgg.Entity.Specialization;
 import com.skillgapguide.sgg.Response.EHttpStatus;
 import com.skillgapguide.sgg.Response.Response;
 import com.skillgapguide.sgg.Service.JobCategoryService;
@@ -70,12 +73,13 @@ public class BusinessAdminController {
     @PostMapping("/add-occupation-groups")
     public Response<?> addOccupationGroup(@RequestBody OccupationGroupDTO dto) {
         try {
-            occupationGroupService.addOccupationGroup(dto);
-            return new Response<>(EHttpStatus.OK, "Thêm nhóm nghề nghiệp thành công", null);
+            OccupationGroup newGroup = occupationGroupService.addOccupationGroup(dto); // Get the saved group
+            return new Response<>(EHttpStatus.OK, "Thêm nhóm nghề nghiệp thành công", newGroup); // Return the new group object
         } catch (IllegalArgumentException e) {
             return new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
+
 
     @PutMapping("/edit-occupation-groups")
     public ResponseEntity<?> editOccupationGroup(@RequestBody OccupationGroupDTO dto) {
@@ -114,12 +118,13 @@ public class BusinessAdminController {
     @PostMapping("/add-occupations")
     public Response<?> addOccupation(@RequestBody AddOccupationRequestDTO dto) {
         try {
-            occupationService.addOccupation(dto);
-            return new Response<>(EHttpStatus.OK, "Thêm ngành nghề thành công", null);
+            Occupation newOccupation = occupationService.addOccupation(dto); // Get the saved Occupation object
+            return new Response<>(EHttpStatus.OK, "Thêm ngành nghề thành công", newOccupation); // Return the new object
         } catch (IllegalArgumentException e) {
             return new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
+
 
     @PutMapping("/edit-occupations/{id}")
     public Response<?> updateOccupation(@PathVariable Integer id, @RequestBody AddOccupationRequestDTO dto) {
@@ -154,22 +159,27 @@ public class BusinessAdminController {
     }
 
     @PostMapping("/add-specialization")
-    public ResponseEntity<Response<String>> add(@RequestBody AddSpecializationRequestDTO dto) {
+    public ResponseEntity<Response<?>> addSpecialization(@RequestBody AddSpecializationRequestDTO dto) {
         try {
-            specializationService.add(dto);
-            return ResponseEntity.ok(new Response<>(EHttpStatus.OK, "Thêm chuyên ngành thành công", null));
+            SpecializationDTO specializationDTO = specializationService.add(dto);
+            return ResponseEntity.ok(new Response<>(EHttpStatus.OK, "Thêm chuyên ngành thành công", specializationDTO));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null));
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null));
         }
     }
 
+
     @PutMapping("/edit-specialization/{id}")
-    public ResponseEntity<Response<String>> update(@PathVariable Integer id, @RequestBody AddSpecializationRequestDTO dto) {
+    public ResponseEntity<Response<?>> editSpecialization(@PathVariable Integer id, @RequestBody AddSpecializationRequestDTO dto) {
         try {
-            specializationService.update(id, dto);
+            specializationService.update(id, dto); // Cập nhật chuyên ngành
             return ResponseEntity.ok(new Response<>(EHttpStatus.OK, "Cập nhật chuyên ngành thành công", null));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null));
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null));
         }
     }
 

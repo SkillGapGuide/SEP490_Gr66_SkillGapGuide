@@ -15,9 +15,17 @@ export default function ResetPassword() {
     { label: 'Ít nhất 8 ký tự', met: formData.password.length >= 8 },
     { label: 'Chữ hoa & thường', met: /(?=.*[a-z])(?=.*[A-Z])/.test(formData.password) },
     { label: 'Số', met: /\d/.test(formData.password) },
-    { label: 'Ký tự đặc biệt', met: /[!@#$%^&*(),.?":{}|<>]/.test(formData.password) },
+   
   ];
-
+   if (
+    formData.password.length < 8 ||
+    !/(?=.*[a-z])(?=.*[A-Z])/.test(formData.password) ||
+    !/\d/.test(formData.password) 
+    
+  ) {
+    alert.error('Mật khẩu chưa đáp ứng đủ yêu cầu!');
+    return;
+  }
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
