@@ -36,7 +36,7 @@ public class JobScrapingService {
             System.out.println(">>> CÔNG VIỆC ĐÃ TỒN TẠI, BỎ QUA: " + jobDetailUrl);
             return; // Dừng thực thi phương thức ngay lập tức.
         }
-        System.setProperty("webdriver.chrome.driver", "sgg/drivers/chromedriver.exe"); // Cập nhật đường dẫn đến chromedriver
+        System.setProperty("webdriver.chrome.driver", "drivers/chromedriver.exe"); // Cập nhật đường dẫn đến chromedriver
         // Cấu hình Chrome để tránh bị phát hiện là bot
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
