@@ -191,18 +191,10 @@ public class JobScrapingService {
             // === 4. Lưu vào database nếu có đủ thông tin ===
             if (!title.isEmpty() && !company.isEmpty()) {
                 String finalCategoryName = categoryName;
-                JobCategory category = jobCategoryRepository.findByName(categoryName)
-                        .orElseGet(() -> {
-                            JobCategory newCategory = new JobCategory();
-                            newCategory.setName(finalCategoryName);
-                            return jobCategoryRepository.save(newCategory);
-                        });
-
                 Job job = new Job();
                 job.setTitle(title);
                 job.setCompany(company);
                 job.setDescription(fullDescription);
-                job.setCategoryId(category.getJobCategoryId());
                 job.setStatus("ACTIVE");
                 job.setSourceUrl(jobDetailUrl);
                 jobRepository.save(job);
