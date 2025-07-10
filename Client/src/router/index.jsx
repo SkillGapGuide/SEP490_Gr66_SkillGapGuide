@@ -14,6 +14,18 @@ import AdminLayout from "../layouts/AdminLayout";
 import AboutSection from "../pages/AboutSection";
 import ContactPage from "../pages/ContactPage";
 import CvSkillPage from "../pages/user/CvSkillPage";
+import CVUploadOptions from "../pages/user/CVUploadOptions";
+import AddCVChooseAvailableCareer from "../pages/user/AddCVChooseAvailableCareer";
+import AddCVWriteJobDescription from "../pages/user/AddCVWriteJobDescription";
+import AddCVFromTOPCVLink from "../pages/user/AddCVFromTOPCVLink";
+import AnalysisCVAvailableJob1 from "../pages/user/AnalysisCVAvailableJob1";
+import AnalysisCVAvailableJob2 from "../pages/user/AnalysisCVAvailableJob2";
+import AnalysisCVAvailableJob3 from "../pages/user/AnalysisCVAvailableJob3";
+import AnalysisLinkingJob from "../pages/user/AnalysisLinkingJob";
+import AnalysisJobDescription from "../pages/user/AnalysisJobDescription";
+import FavoriteSkills from "../pages/user/FavoriteSkills";
+import FavoriteCourses from "../pages/user/FavouriteCourses";
+import AddCVWriteJobDescription1 from "../pages/user/AddCVWriteJobDescription1";
 import AuthCallback from "../components/AuthCallback";
 import StaticContentManager from "../pages/admin/StaticContentManager";
 import AboutUsManager from "../pages/admin/AboutUsManager";
@@ -26,6 +38,7 @@ import ChangePassword from "../pages/ChangePassword";
 import TestAPI from "../pages/admin/TestAPI";
 
 import TermsEndUserPage from "../pages/TermsEndUserPage";
+import JobTablePage from "../pages/admin/JobTablePage";
 
 const router = createBrowserRouter([
   {
@@ -43,6 +56,42 @@ const router = createBrowserRouter([
       {
         path: "cv-skills",
         element: <CvSkillPage />,
+      },
+      {path: "cv-upload-options",
+        element: <CVUploadOptions/>
+      },
+      {path: "addCVchooseavailablecareer",
+        element: <AddCVChooseAvailableCareer/>
+      },
+      {path: "addCVwritejobdescription",
+        element: <AddCVWriteJobDescription/>
+      },
+      {path: "addCVfromTOPCVLink",
+        element: <AddCVFromTOPCVLink/>
+      },
+      {path: "analysisCVAvailableJob1",
+        element: <AnalysisCVAvailableJob1/>
+      },
+      {path: "analysisCVAvailableJob2",
+        element: <AnalysisCVAvailableJob2/>
+      },
+      {path: "analysisCVAvailableJob3",
+        element: <AnalysisCVAvailableJob3/>
+      },
+      {path: "analysislinkingjob",
+        element: <AnalysisLinkingJob/>
+      },
+      {path: "analysisjobdescription",
+        element: <AnalysisJobDescription/>
+      },
+      {path: "favouriteskills",
+        element: <FavoriteSkills/>
+      },
+      {path: "favouriteCourses",
+        element: <FavoriteCourses/>
+      },
+      {path: "addcvwritejobdescription1",
+        element: <AddCVWriteJobDescription1/>
       },
       { path: "reset-password", element: <ResetPassword /> },
       {path:"change-password",element:<ChangePassword/>},
@@ -70,7 +119,8 @@ const router = createBrowserRouter([
       { path: "feedback", element: <AdminFeedbackManager /> },
       { path: "social-link", element: <SocialLinksManager /> },
       { path: "tag-skills", element: <TagSkillManager /> },
-      { path: "homepage-manage", element: <HomePageManager /> }, // Placeholder for static content manager
+      { path: "homepage-manage", element: <HomePageManager /> },
+      {path:"job-manage",element:<JobTablePage/>} // Placeholder for static content manager
     ],
   },
   { path: "auth/callback", element: <AuthCallback /> }, // Placeholder for auth callback

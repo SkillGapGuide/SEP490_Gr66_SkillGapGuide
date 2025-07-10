@@ -15,7 +15,7 @@ function AuthCallback() {
         await new Promise(resolve => setTimeout(resolve, 100));
         const { data: { session }, error } = await supabase.auth.getSession();
 
-        if (error) throw error;
+        // if (error) throw error;
 
         if (session) {
           // 1. Gửi session về backend lấy JWT
@@ -24,7 +24,7 @@ function AuthCallback() {
           if (response.status === 200 && response.result?.token) {
             localStorage.setItem('token', response.result.token);
             window.dispatchEvent(new Event('authStateChanged'));
-            console.log('Google login successful');
+         
 
             // 2. Gọi tiếp API lấy profile
             const userData = await userService.viewProfile();
@@ -38,7 +38,7 @@ function AuthCallback() {
             localStorage.setItem('user', JSON.stringify(userData));
 
             // 4. Điều hướng
-            navigate('/profile');
+            navigate('/');
           } else {
             throw new Error('Invalid response format from server');
           }

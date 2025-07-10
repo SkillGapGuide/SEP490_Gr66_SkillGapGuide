@@ -1,11 +1,15 @@
 package com.skillgapguide.sgg.Controller;
 
+import com.skillgapguide.sgg.Response.EHttpStatus;
+import com.skillgapguide.sgg.Response.Response;
+import com.skillgapguide.sgg.Service.CVService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +20,9 @@ public class ChatController {
 
     @Autowired
     private WebClient webClient;
+    @Autowired
+    private CVService cvService;
+
 
     @PostMapping
     public Mono<String> chat(@RequestBody Map<String, String> payload) {
@@ -39,4 +46,10 @@ public class ChatController {
                 .timeout(Duration.ofSeconds(120))
                 .onErrorResume(e -> Mono.just("Lỗi: " + e.getMessage()));  // Xử lý lỗi
     }
+//    @PostMapping("getSkill")
+//    public Mono<Response<String>> getSkill(@RequestParam String filePath) throws IOException {
+//        return cvService.extractSkill(filePath)
+//                .map(skill -> new Response<>(EHttpStatus.OK, skill))
+//                .onErrorResume(e -> Mono.just(new Response<>(EHttpStatus.INTERNAL_SERVER_ERROR, "Lỗi: " + e.getMessage())));
+//    }
 }

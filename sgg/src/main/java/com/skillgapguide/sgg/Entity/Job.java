@@ -12,6 +12,8 @@ public class Job {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "job_id")
     private Integer jobId;
+    @Column(name = "cv_id")
+    private Integer cvId;
 
     @Column(nullable = false)
     private String title;
@@ -21,10 +23,6 @@ public class Job {
 
     @Column(nullable = false)
     private String company;
-
-    @Column(name = "category_id", nullable = false)
-    private Integer categoryId;
-
     @Column(nullable = false)
     private String status;
     @Column(name = "source_url", unique = true, nullable = false, length = 512)
