@@ -39,7 +39,10 @@ public class CourseService {
     public Course getCourseById(Integer courseId) {
         return courseRepository.findCourseByCourseId(courseId);
     }
-
+    public Page<Course> getAllCourses(int pageNo, int pageSize) {
+        Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNo - 1);
+        return courseRepository.findAll(pageable);
+    }
     public Page<UserFavoriteCourse> getFavoriteCoursesByUserId(Integer userId, int pageNo, int pageSize) {
         Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNo - 1);
         return favoriteCourseRepository.findByUserId(userId, pageable); // Hoặc findByIdUserId nếu dùng composite key
