@@ -21,4 +21,6 @@ public class Specialization {
 
     @Column(nullable = false)
     private String status;
+    @Column(name = "url_topcv")
+    private String url;
 }
