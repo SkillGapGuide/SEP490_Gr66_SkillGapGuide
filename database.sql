@@ -23,6 +23,7 @@ CREATE TABLE Subscription (
     PRIMARY KEY (subscription_id)
 );
 
+
 -- Bảng lưu các kỹ năng chung
 CREATE TABLE Skill (
     skill_id INT NOT NULL AUTO_INCREMENT,
@@ -97,6 +98,7 @@ CREATE TABLE CV (
     file_path varchar(255) NOT NULL,
     file_type varchar(255) NOT NULL,
     upload_date datetime NOT NULL,
+
     PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
@@ -104,6 +106,7 @@ CREATE TABLE CV (
 -- Bảng Công việc (Job), liên kết đến JobCategory
 CREATE TABLE Job (
     job_id INT NOT NULL AUTO_INCREMENT,
+
     cv_id int,
     title NVARCHAR(255) NOT NULL,
     description NVARCHAR(7000) NOT NULL,
@@ -112,6 +115,7 @@ CREATE TABLE Job (
     source_url nvarchar(512) NOT NULL,
     PRIMARY KEY (job_id),
     FOREIGN KEY (cv_id) REFERENCES CV(id)
+
 );
 CREATE TABLE User_Favorite_Job (
 	id INT NOT NULL auto_increment,
@@ -122,6 +126,7 @@ CREATE TABLE User_Favorite_Job (
     FOREIGN KEY (user_id) REFERENCES User(user_id),
     FOREIGN KEY (job_id) REFERENCES Job(job_id)
 );
+
 CREATE TABLE job_des_file (
     id INT NOT NULL AUTO_INCREMENT,
     user_id int,
@@ -134,6 +139,7 @@ CREATE TABLE job_des_file (
     FOREIGN KEY (user_id) REFERENCES User(user_id),
     FOREIGN KEY (job_id) REFERENCES job(job_id)
 );
+
 
 -- Bảng User_Skill (bảng nối), liên kết User và Skill
 CREATE TABLE User_Skill (
@@ -217,8 +223,10 @@ CREATE TABLE verification_token (
     user_id INT NOT NULL,
     expiry_date DATETIME NOT NULL,
 
+
     CONSTRAINT fk_verification_token_user
         FOREIGN KEY (user_id)
+
         REFERENCES user(user_id)
         ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -248,7 +256,9 @@ CREATE TABLE user_subscription_history (
 );
 
 -- job category
+
 CREATE TABLE occupation_groups(  -- domain or aria
+
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     status nvarchar(100)
@@ -267,7 +277,9 @@ CREATE TABLE specializations (
     name VARCHAR(100) NOT NULL,
     occupation_id INT NOT NULL,
     status nvarchar(100),
+
     url_topcv varchar(200),
+
     FOREIGN KEY (occupation_id) REFERENCES occupation(id)
 );
 CREATE TABLE job_specializations (
@@ -283,6 +295,7 @@ create table user_cv_skills(
     cv_id int ,
 	FOREIGN KEY (cv_id) REFERENCES CV(id)
 );
+
 create table user_cv_skills_embedding(
     id INT AUTO_INCREMENT PRIMARY KEY,
     skill nvarchar(100),
@@ -307,6 +320,7 @@ create table job_cv_skills_score(
 	FOREIGN KEY (job_skill) REFERENCES job_des_skills(id),
 	FOREIGN KEY (cv_skill) REFERENCES user_cv_skills(id)
 );
+
 INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (1,     1,     'active');
 INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (2,     3,     'active');
 INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (3,     9,     'active');
@@ -315,6 +329,7 @@ INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (1,     'System
 INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (2,     'Business Admin');
 INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (3,     'Free User');
 INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES		(4,'Premium User');
+
 INSERT INTO Skill (name) VALUES('Python'),('Communication'),('Data Analysis'),('Project Management');
 INSERT INTO Course (title, rating, difficulty, description, provider, url, status, create_at)
 VALUES
@@ -346,6 +361,7 @@ INSERT INTO Job (title, description, company, status, source_url)
 VALUES
 ('Data Analyst', 'Phân tích dữ liệu cho công ty A', 'Company A',  'OPEN', 'https://jobs.com/a'),
 ('Marketing Specialist', 'Chuyên viên marketing cho công ty B', 'Company B', 'OPEN', 'https://jobs.com/b');
+
 INSERT INTO User_Favorite_Job (user_id, job_id, created_at)
 VALUES
 (2, 1, NOW()),

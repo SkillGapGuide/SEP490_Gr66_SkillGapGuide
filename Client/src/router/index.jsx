@@ -39,6 +39,7 @@ import TestAPI from "../pages/admin/TestAPI";
 
 import TermsEndUserPage from "../pages/TermsEndUserPage";
 import JobTablePage from "../pages/admin/JobTablePage";
+import CourseTable from "../pages/admin/CourseTable";
 
 const router = createBrowserRouter([
   {
@@ -120,6 +121,7 @@ const router = createBrowserRouter([
       { path: "social-link", element: <SocialLinksManager /> },
       { path: "tag-skills", element: <TagSkillManager /> },
       { path: "homepage-manage", element: <HomePageManager /> },
+      {path:"course-manage", element: <CourseTable />}, // Placeholder for course manager
       {path:"job-manage",element:<JobTablePage/>} // Placeholder for static content manager
     ],
   },
