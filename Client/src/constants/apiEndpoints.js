@@ -103,6 +103,7 @@ export const ENDPOINTS = {
   findAllFavoriteCourses: "/api/courses/findAllFavoriteCourses/{userId}",
   deleteFavoriteCourse: "/api/courses/deleteFavoriteCourse/{userId}/{courseId}",
   deleteAllFavoriteCourse: "/api/courses/deleteAllFavoriteCourse/{userId}",
+  getAllCourses: "/api/courses/getAllCourses",
 }
 ,
   chat :{
