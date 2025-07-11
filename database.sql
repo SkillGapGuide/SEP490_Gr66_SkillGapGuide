@@ -34,7 +34,7 @@ CREATE TABLE Skill (
 CREATE TABLE Course (
     course_id INT NOT NULL AUTO_INCREMENT,
     title NVARCHAR(255) NOT NULL,
-    rating double,
+    rating NVARCHAR(255),
     difficulty NVARCHAR(100),
     description NVARCHAR(500) NOT NULL,
     provider NVARCHAR(255) NOT NULL,
@@ -109,7 +109,7 @@ CREATE TABLE Job (
     description NVARCHAR(7000) NOT NULL,
     company NVARCHAR(255) NOT NULL,
     status NVARCHAR(255) NOT NULL,
-    source_url nvarchar(512) NOT NULL,
+    source_url nvarchar(512) NULL,
     PRIMARY KEY (job_id),
     FOREIGN KEY (cv_id) REFERENCES CV(id)
 );
