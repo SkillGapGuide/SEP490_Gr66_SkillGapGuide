@@ -8,6 +8,7 @@ import com.skillgapguide.sgg.Dto.ExtractCvSkillDTO;
 import com.skillgapguide.sgg.Dto.ExtractJDSkillDTO;
 import com.skillgapguide.sgg.Entity.*;
 import com.skillgapguide.sgg.Repository.*;
+import org.bouncycastle.tsp.TSPUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -29,27 +30,29 @@ public class JobService {
     private UserRepository userRepository;
     @Autowired
     private JobDesSkillsRepository jobDesSkillsRepository;
+    @Autowired
+    private CVRepository cvRepository;
+    @Autowired
+    private JobRepository jobRepository;
+    @Autowired
+    private EmbedService embedService;
     private final String UPLOAD_DIR = "D:/JdData/";
-
     public String uploadJd(String fileName, String fileExtension, MultipartFile file) {
         try {
             String email = SecurityContextHolder.getContext().getAuthentication().getName(); // lấy từ JWT
             Integer userId = userRepository.findByEmail(email).map(User::getUserId).orElseThrow(() -> new RuntimeException("User not found"));
+            Cv cv = cvRepository.findByUserId(userId);
+            if(cv == null){
+                throw new IllegalStateException("Chưa upload cv");
+            }
             Files.createDirectories(Paths.get(UPLOAD_DIR));
             Path path = Paths.get(UPLOAD_DIR + fileName);
             Files.write(path, file.getBytes());
 
-            JobDesFile jobMetadata = new JobDesFile();
-            jobMetadata.setUserId(userId);
-            jobMetadata.setFileName(fileName);
-            jobMetadata.setFilePath(path.toAbsolutePath().toString());
-            jobMetadata.setFileType(fileExtension);
-            jobMetadata.setUploadDate(LocalDateTime.now());
-            jobDesFileRepository.save(jobMetadata);
             // Chạy extract skill trong thread riêng
             new Thread(() -> {
                 try {
-                    extractSkill(path.toAbsolutePath().toString(), jobMetadata.getId()); // sai id
+                    extractJd(path.toAbsolutePath().toString(), userId,fileName,fileExtension);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -77,7 +80,7 @@ public class JobService {
         }
     }
 
-    public void extractSkill(String filePath, int jobId) throws IOException {
+    public void extractJd(String filePath, int userId, String fileName,String fileExtension) throws IOException {
         String text = extractTextFromPdf(filePath);
         String prompt = "Hãy phân tích job description dưới đây và trích xuất tất cả các yêu cầu kỹ năng của ứng viên, title, description, company. Chỉ trả về kết quả dưới dạng JSON theo mẫu sau, không thêm bất kỳ nội dung nào khác:\n" +
                 "{\n" +
@@ -92,23 +95,42 @@ public class JobService {
         LMStudioService service = new LMStudioService(WebClient.builder());
         service.callLMApi(prompt).subscribe(content -> {
             try {
-                saveCvSkillsToDb(content);
+                saveJobSkillsToDb(content, userId,fileName,fileExtension,filePath);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         });
     }
 
-    public void saveCvSkillsToDb(String aiResponseJson) throws Exception {
+    public void saveJobSkillsToDb(String aiResponseJson, int userId, String fileName,String fileExtension, String path) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         ExtractJDSkillDTO response = mapper.readValue(aiResponseJson, ExtractJDSkillDTO.class);
-
-//        List<String> skills = response.getSkills();
-//        for (String skill : skills) {
-//            JobDesSkills jobDesSkills = new JobDesSkills();
-//            jobDesSkills.setSkill(skill);
-//            jobDesSkills.setJobId(jobId);
-//            jobDesSkillsRepository.save(jobDesSkills);
-//        }
+        Cv cv = cvRepository.findByUserId(userId);
+        Job job = new Job();
+        job.setTitle(response.getTitle());
+        job.setCompany(response.getCompany());
+        job.setDescription(response.getDescription());
+        job.setStatus("ACTIVE");
+        job.setCvId(cv.getId());
+        jobRepository.save(job);
+        List<String> skills = response.getSkills();
+        for (String skill : skills) {
+            JobDesSkills jobDesSkills = new JobDesSkills();
+            jobDesSkills.setSkill(skill);
+            jobDesSkills.setJobId(job.getJobId());
+            jobDesSkillsRepository.save(jobDesSkills);
+            embedService.getJobDesSkillEmbedding(skill);
+        }
+        JobDesFile jobMetadata = new JobDesFile();
+        jobMetadata.setUserId(userId);
+        jobMetadata.setJobId(job.getJobId());
+        jobMetadata.setFileName(fileName);
+        jobMetadata.setFilePath(path);
+        jobMetadata.setFileType(fileExtension);
+        jobMetadata.setUploadDate(LocalDateTime.now());
+        jobDesFileRepository.save(jobMetadata);
+    }
+    public List<JobDesSkills> getJobSkill(int jobId){
+        return jobDesSkillsRepository.findByJobId(jobId);
     }
 }
