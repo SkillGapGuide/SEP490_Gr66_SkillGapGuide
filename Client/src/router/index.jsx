@@ -15,6 +15,7 @@ import AboutSection from "../pages/AboutSection";
 import ContactPage from "../pages/ContactPage";
 import CvSkillPage from "../pages/user/CvSkillPage";
 import CVUploadOptions from "../pages/user/CVUploadOptions";
+import SuggestedCourses from "../pages/user/SuggestedCourses";
 import AddCVChooseAvailableCareer from "../pages/user/AddCVChooseAvailableCareer";
 import AddCVWriteJobDescription from "../pages/user/AddCVWriteJobDescription";
 import AddCVFromTOPCVLink from "../pages/user/AddCVFromTOPCVLink";
@@ -25,7 +26,7 @@ import AnalysisLinkingJob from "../pages/user/AnalysisLinkingJob";
 import AnalysisJobDescription from "../pages/user/AnalysisJobDescription";
 import FavoriteSkills from "../pages/user/FavoriteSkills";
 import FavoriteCourses from "../pages/user/FavouriteCourses";
-import AddCVWriteJobDescription1 from "../pages/user/AddCVWriteJobDescription1";
+import MatchingJobs from "../pages/user/JobMatches";
 import AuthCallback from "../components/AuthCallback";
 import StaticContentManager from "../pages/admin/StaticContentManager";
 import AboutUsManager from "../pages/admin/AboutUsManager";
@@ -36,11 +37,7 @@ import HomePageManager from "../pages/admin/HomePageManager";
 import ResetPassword from "../pages/ResetPassword";
 import ChangePassword from "../pages/ChangePassword";
 import TestAPI from "../pages/admin/TestAPI";
-
 import TermsEndUserPage from "../pages/TermsEndUserPage";
-import JobTablePage from "../pages/admin/JobTablePage";
-import CourseTable from "../pages/admin/CourseTable";
-
 const router = createBrowserRouter([
   {
     path: "/",
@@ -70,6 +67,12 @@ const router = createBrowserRouter([
       {path: "addCVfromTOPCVLink",
         element: <AddCVFromTOPCVLink/>
       },
+      {path: "matchingjobs",
+        element: <MatchingJobs/>
+      },
+      {path: "suggestedcourses",
+        element: <SuggestedCourses/>
+      },
       {path: "analysisCVAvailableJob1",
         element: <AnalysisCVAvailableJob1/>
       },
@@ -91,15 +94,10 @@ const router = createBrowserRouter([
       {path: "favouriteCourses",
         element: <FavoriteCourses/>
       },
-      {path: "addcvwritejobdescription1",
-        element: <AddCVWriteJobDescription1/>
-      },
       { path: "reset-password", element: <ResetPassword /> },
       {path:"change-password",element:<ChangePassword/>},
-
       //term of service
       {path:"terms-of-service", element:<TermsEndUserPage/>}, // Placeholder for terms of service page
-
       {path:"test" , element:<TestAPI/>} // Placeholder for change password page
     ],
   },
@@ -120,9 +118,7 @@ const router = createBrowserRouter([
       { path: "feedback", element: <AdminFeedbackManager /> },
       { path: "social-link", element: <SocialLinksManager /> },
       { path: "tag-skills", element: <TagSkillManager /> },
-      { path: "homepage-manage", element: <HomePageManager /> },
-      {path:"course-manage", element: <CourseTable />}, // Placeholder for course manager
-      {path:"job-manage",element:<JobTablePage/>} // Placeholder for static content manager
+      { path: "homepage-manage", element: <HomePageManager /> }, // Placeholder for static content manager
     ],
   },
   { path: "auth/callback", element: <AuthCallback /> }, // Placeholder for auth callback
