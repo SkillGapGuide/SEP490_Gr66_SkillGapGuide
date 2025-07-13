@@ -217,7 +217,7 @@ public class JobScrapingService {
         }
     }
     public List<String> scrapeJobLinksFromListPage(String listPageUrl) {
-        System.setProperty("webdriver.chrome.driver", "sgg/drivers/chromedriver.exe"); // Đường dẫn chromedriver của bạn
+        System.setProperty("webdriver.chrome.driver", "drivers/chromedriver.exe"); // Đường dẫn chromedriver của bạn
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
         options.addArguments("--disable-gpu");
@@ -315,6 +315,9 @@ public class JobScrapingService {
         System.out.println("Hoàn thành cào job từ danh mục Sales Logistics!");
     }
 
+/*
+     * Tự động cào job từ nhiều danh mục được định nghĩa sẵn
+     */
 
     @Transactional
     public void scrapeJobsFromPredefinedCategories() {
