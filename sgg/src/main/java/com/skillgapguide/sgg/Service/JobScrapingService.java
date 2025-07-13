@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class JobScrapingService {
     private final JobRepository jobRepository;
-    private final JobCategoryRepository jobCategoryRepository;
+//    private final JobCategoryRepository jobCategoryRepository;
     @Transactional // Đảm bảo các thao tác DB được thực hiện trong một giao dịch
     public void scrapeAndSaveJob(String jobDetailUrl) {
         if (jobRepository.existsBySourceUrl(jobDetailUrl)) {
@@ -191,18 +191,10 @@ public class JobScrapingService {
             // === 4. Lưu vào database nếu có đủ thông tin ===
             if (!title.isEmpty() && !company.isEmpty()) {
                 String finalCategoryName = categoryName;
-                JobCategory category = jobCategoryRepository.findByName(categoryName)
-                        .orElseGet(() -> {
-                            JobCategory newCategory = new JobCategory();
-                            newCategory.setName(finalCategoryName);
-                            return jobCategoryRepository.save(newCategory);
-                        });
-
                 Job job = new Job();
                 job.setTitle(title);
                 job.setCompany(company);
                 job.setDescription(fullDescription);
-                job.setCategoryId(category.getJobCategoryId());
                 job.setStatus("ACTIVE");
                 job.setSourceUrl(jobDetailUrl);
                 jobRepository.save(job);
@@ -322,9 +314,11 @@ public class JobScrapingService {
         scrapeAndSaveTop10JobsByCategory(url);
         System.out.println("Hoàn thành cào job từ danh mục Sales Logistics!");
     }
+
 /*
      * Tự động cào job từ nhiều danh mục được định nghĩa sẵn
      */
+
     @Transactional
     public void scrapeJobsFromPredefinedCategories() {
         // Danh sách các URL danh mục được định nghĩa sẵn
