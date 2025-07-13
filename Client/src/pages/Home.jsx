@@ -9,6 +9,7 @@ import React from "react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Link } from "react-router-dom";
+import innovation from "../assets/innovation.png";
 const testimonials = [
   {
     img: "https://cdn-icons-png.flaticon.com/512/4140/4140048.png",
@@ -100,7 +101,7 @@ const Home = () => {
             initial={{ scale: 0.88, opacity: 0, rotate: 10 }}
             animate={{ scale: 1, opacity: 1, rotate: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            src="https://cdn-icons-png.flaticon.com/512/4139/4139981.png"
+            src={innovation}
             alt="CV upload"
             className="w-56 mt-10 md:mt-0 drop-shadow-xl"
           />
