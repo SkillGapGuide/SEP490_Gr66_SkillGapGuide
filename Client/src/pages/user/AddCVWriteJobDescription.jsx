@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 
 import TopMenu from "./TopMenu";
-const [showPopup, setShowPopup] = useState(false);
-const [links, setLinks] = useState([]);
-const [newLink, setNewLink] = useState("");
 
 
 const AnalysisResult = () => {
+  const [showPopup, setShowPopup] = useState(false);
+const [links, setLinks] = useState([]);
+const [newLink, setNewLink] = useState("");
+
   return (
     <>
       <div className="max-w-7xl mx-auto">

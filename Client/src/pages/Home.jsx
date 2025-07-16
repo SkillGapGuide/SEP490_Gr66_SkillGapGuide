@@ -9,6 +9,7 @@ import React from "react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Link } from "react-router-dom";
+import ImageCarousel from "./ImageCarousel";
 const testimonials = [
   {
     img: "https://cdn-icons-png.flaticon.com/512/4140/4140048.png",
@@ -51,10 +52,16 @@ const settings = {
 
 const Home = () => {
   const [uploading, setUploading] = useState(false);
+  const images = [
+    "/images/slide1.png",
+    "/images/slide2.png",
+    "/images/slide3.png",
+  ];
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-50 via-white to-indigo-50">
       {/* Hero Section */}
+      <div><ImageCarousel images={images} interval={3000}/></div>
       <section className="relative overflow-hidden py-14 px-4 bg-gradient-to-tr from-indigo-50 via-blue-100 to-indigo-50">
         {/* Vệt gradient trang trí */}
         <motion.div
@@ -63,6 +70,7 @@ const Home = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2 }}
         />
+        
         <div className="relative flex flex-col md:flex-row items-center justify-between max-w-6xl mx-auto z-10">
           <motion.div
             className="text-left max-w-xl"
@@ -70,6 +78,7 @@ const Home = () => {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
+            
             <h2 className="text-3xl md:text-4xl font-extrabold leading-snug text-indigo-900 drop-shadow-sm">
               Khám phá năng lực nghề nghiệp từ <span className="text-indigo-600">CV</span> của bạn
             </h2>
