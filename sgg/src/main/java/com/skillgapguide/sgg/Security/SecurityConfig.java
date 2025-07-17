@@ -32,6 +32,7 @@ public class SecurityConfig {
             "/api/admin/**",
             "/api/chat/**",
             "/api/job/**",
+            "/api/gap/**",
             "/api/scrape/**"
 
     };

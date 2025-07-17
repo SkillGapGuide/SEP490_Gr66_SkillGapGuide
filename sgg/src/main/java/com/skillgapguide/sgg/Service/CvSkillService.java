@@ -21,17 +21,14 @@ public class CvSkillService {
     public void saveCvSkillsToDb(String aiResponseJson, int cvId) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         ExtractCvSkillDTO dto = mapper.readValue(aiResponseJson, ExtractCvSkillDTO.class);
-
         // Xoá cũ
         userCvSkillsRepository.deleteAllByCvId(cvId);
-
         // Lưu mới
         for (String skill : dto.getSkills()) {
             UserCvSkills entity = new UserCvSkills();
             entity.setCvId(cvId);
             entity.setSkill(skill);
             userCvSkillsRepository.save(entity);
-
             embedService.getCvSkillEmbedding(skill);   // OK nếu service này không cần transaction
         }
     }

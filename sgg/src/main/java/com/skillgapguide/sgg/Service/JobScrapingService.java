@@ -314,7 +314,7 @@ public class JobScrapingService {
         scrapeAndSaveTop10JobsByCategory(url);
         System.out.println("Hoàn thành cào job từ danh mục Sales Logistics!");
     }
-
+    /**
      * Tự động cào job từ nhiều danh mục được định nghĩa sẵn
      */
     @Transactional

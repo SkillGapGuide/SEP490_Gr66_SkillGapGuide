@@ -65,5 +65,9 @@ public class JobController {
     public Response<?> getCvSkill(@RequestParam int jobId){
         return new Response<>(EHttpStatus.OK, jobService.getJobSkill(jobId));
     }
+    @GetMapping("/getJobList")
+    public Response<?> getJobList(){
+        return new Response<>(EHttpStatus.OK, jobService.getJobList());
+    }
 
 }
