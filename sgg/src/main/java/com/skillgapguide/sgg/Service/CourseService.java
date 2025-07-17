@@ -6,6 +6,8 @@ import com.skillgapguide.sgg.Entity.Course;
 import com.skillgapguide.sgg.Entity.UserFavoriteCourse;
 import com.skillgapguide.sgg.Repository.CourseRepository;
 import com.skillgapguide.sgg.Repository.FavoriteCourseRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.github.javafaker.Faker;
 import com.github.mabinogi233.undetected_chromedriver.ChromeDriverBuilder;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -40,18 +43,23 @@ import java.util.*;
 public class CourseService {
     private final CourseRepository courseRepository;
     private final FavoriteCourseRepository favoriteCourseRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public Course getCourseById(Integer courseId) {
         return courseRepository.findCourseByCourseId(courseId);
     }
+
     public Page<Course> getAllCourses(int pageNo, int pageSize) {
         Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNo - 1);
         return courseRepository.findAll(pageable);
     }
+
     public Page<UserFavoriteCourse> getFavoriteCoursesByUserId(Integer userId, int pageNo, int pageSize) {
         Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNo - 1);
         return favoriteCourseRepository.findByUserId(userId, pageable); // Hoặc findByIdUserId nếu dùng composite key
     }
+
     public UserFavoriteCourse addCourseToFavorites(Integer userId, Integer courseId) {
         // Kiểm tra xem khóa học có tồn tại không
         Course course = courseRepository.findCourseByCourseId(courseId);
@@ -75,6 +83,7 @@ public class CourseService {
         // Lưu vào cơ sở dữ liệu
         return favoriteCourseRepository.save(favoriteCourse);
     }
+
     public void hideCourse(Integer courseId) {
         Course course = courseRepository.findCourseByCourseId(courseId);
         if (course == null) {
@@ -83,6 +92,7 @@ public class CourseService {
         course.setStatus("HIDDEN");
         courseRepository.save(course);
     }
+
     public void showCourse(Integer courseId) {
         Course course = courseRepository.findCourseByCourseId(courseId);
         if (course == null) {
@@ -91,6 +101,7 @@ public class CourseService {
         course.setStatus("AVAILABLE");
         courseRepository.save(course);
     }
+
     public Course addCourseManually(CourseDTO course) {
         Logger logger = LoggerFactory.getLogger(CourseService.class);
 
@@ -122,15 +133,18 @@ public class CourseService {
         logger.info("Adding new course: {}", newCourse.getTitle());
         return courseRepository.save(newCourse);
     }
+
     // At the top of the class
     private static final Logger logger = LoggerFactory.getLogger(CourseService.class);
-    public void changeFavoriteCourseStatus(Integer courseId,Integer userId, String status) {
+
+    public void changeFavoriteCourseStatus(Integer courseId, Integer userId, String status) {
         UserFavoriteCourse favoriteCourse = favoriteCourseRepository.findByUserIdAndCourseId(userId, courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Favorite course not found"));
         favoriteCourse.setStatus(status);
         favoriteCourseRepository.save(favoriteCourse);
         logger.info("Changed status of favorite course: userId={}, courseId={}, status={}", userId, courseId, status);
     }
+
     public void removeFavoriteCourse(Integer userId, Integer courseId) {
         Optional<UserFavoriteCourse> existingFavorite = favoriteCourseRepository.findByUserIdAndCourseId(userId, courseId);
         if (existingFavorite.isEmpty()) {
@@ -146,45 +160,49 @@ public class CourseService {
         favoriteCourseRepository.deleteAll(favoriteCourses.getContent());
         logger.info("Removed all favorite courses for userId={}", userId);
     }
+
     @Transactional
-    public void scrapeAndSaveCourses(int numPages, int numItems) {
-        Logger logger = LoggerFactory.getLogger(this.getClass());
+    public void scrapeAndSaveCoursesByCvId(int numPages, int numItems, Integer cvId) {
+        List<String> jobSkills = courseRepository.findJobSkillsByCvId(cvId);
+        if (jobSkills == null || jobSkills.isEmpty()) {
+            logger.warn("Không tìm thấy jobSkill nào cho cvId={}", cvId);
+            return;
+        }
+
         WebDriver driver = createChromeDriver();
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
-
-            for (int page = 1; page <= numPages; page++) {
-                logger.info("Đang cào trang {}/{}", page, numPages);
-
-                if (scrapePage(driver, wait, page, numItems, logger)) {
-                    randomSleep(PAGE_DELAY_MIN, PAGE_DELAY_MAX);
+            for (String keyword : jobSkills) {
+                logger.info("Bắt đầu cào với từ khóa: {}", keyword);
+                for (int page = 1; page <= numPages; page++) {
+                    logger.info("Đang cào trang {}/{} với từ khóa '{}'", page, numPages, keyword);
+                    try {
+                        if (scrapePage(driver, wait, page, numItems, keyword, logger)) {
+                            randomSleep(PAGE_DELAY_MIN, PAGE_DELAY_MAX);
+                        }
+                    } catch (Exception e) {
+                        logger.error("Lỗi khi xử lý trang {}: {}", page, e.getMessage());
+                        entityManager.clear(); // Clear persistence context after error
+                    }
                 }
             }
-        } catch (Exception e) {
-            logger.error("Lỗi khi cào dữ liệu từ Udemy: {}", e.getMessage(), e);
-            throw new RuntimeException("Không thể cào dữ liệu khóa học", e);
         } finally {
-            if (driver != null) {
-                driver.quit();
-                logger.info("Trình duyệt đã được đóng");
-            }
+            if (driver != null) driver.quit();
         }
     }
 
-    private boolean scrapePage(WebDriver driver, WebDriverWait wait, int page, int numItems, Logger logger) {
+    // Sửa lại hàm scrapePage để nhận keyword động
+    private boolean scrapePage(WebDriver driver, WebDriverWait wait, int page, int numItems, String keyword, Logger logger) {
         try {
-            String pageUrl = buildSearchUrl(page, SEARCH_KEYWORD);
+            String pageUrl = buildSearchUrl(page, keyword);
             loadPageAndWait(driver, wait, pageUrl, logger);
-
             List<String> courseUrls = extractCourseUrls(driver, numItems, logger);
             if (courseUrls.isEmpty()) {
                 logger.warn("Không tìm thấy khóa học trên trang {}", page);
                 return false;
             }
-
             processCourses(driver, wait, courseUrls, logger);
             return true;
-
         } catch (Exception e) {
             logger.error("Lỗi khi xử lý trang {}: {}", page, e.getMessage());
             return false;
@@ -241,20 +259,25 @@ public class CourseService {
     }
 
     private void processCourses(WebDriver driver, WebDriverWait wait, List<String> courseUrls, Logger logger) {
-        for (String courseUrl : courseUrls) {
+        for (int i = 0; i < courseUrls.size(); i++) {
+            String courseUrl = courseUrls.get(i);
             try {
                 Course course = scrapeCourseDetails(driver, wait, courseUrl, logger);
                 if (course != null) {
                     courseRepository.save(course);
                     logger.info("Đã lưu khóa học: {}", course.getTitle());
                 }
-                randomSleep(COURSE_DELAY_MIN, COURSE_DELAY_MAX);
+                // Chỉ sleep nếu chưa phải là course cuối cùng
+                if (i < courseUrls.size() - 1) {
+                    randomSleep(COURSE_DELAY_MIN, COURSE_DELAY_MAX);
+                }
             } catch (Exception e) {
                 logger.error("Lỗi khi xử lý khóa học {}: {}", courseUrl, e.getMessage());
             }
         }
     }
-
+    private static final int DESCRIPTION_MAX_LENGTH = 6000;
+    private static final int DIFFICULTY_MAX_LENGTH = 2000;
     private Course scrapeCourseDetails(WebDriver driver, WebDriverWait wait, String courseUrl, Logger logger) {
         driver.get(courseUrl);
 
@@ -271,11 +294,22 @@ public class CourseService {
 
         Course course = new Course();
         course.setTitle(title);
-        course.setDescription(extractText(doc, DESCRIPTION_SELECTORS));
+
+        String description = extractText(doc, DESCRIPTION_SELECTORS);
+        if (description.length() > DESCRIPTION_MAX_LENGTH) {
+            description = description.substring(0, DESCRIPTION_MAX_LENGTH);
+        }
+        course.setDescription(description);
+
+        String difficulty = extractText(doc, DIFFICULTY_SELECTORS);
+        if (difficulty.length() > DIFFICULTY_MAX_LENGTH) {
+            difficulty = difficulty.substring(0, DIFFICULTY_MAX_LENGTH);
+        }
+        course.setDifficulty(difficulty);
+
         course.setRating(extractText(doc, RATING_SELECTORS));
         course.setProvider(extractText(doc, INSTRUCTOR_SELECTORS));
         course.setUrl(courseUrl);
-        course.setDifficulty(extractText(doc, DIFFICULTY_SELECTORS));
         course.setStatus("AVAILABLE");
         course.setCreatedAt(Timestamp.from(Instant.now()));
 
@@ -334,15 +368,15 @@ public class CourseService {
 
     // Constants
     private static final String BASE_URL = "https://www.udemy.com";
-    private static final String SEARCH_KEYWORD = "Java";
+    //    private static final String SEARCH_KEYWORD = "Java";
     private static final String DEFAULT_CHROME_DRIVER_PATH = "sgg/drivers/chromedriver.exe";
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
 
-    private static final int TIMEOUT_SECONDS = 120;
+    private static final int TIMEOUT_SECONDS = 30;
     private static final int SCROLL_ITERATIONS = 10;
     private static final int SCROLL_DELAY = 3000;
-    private static final int PAGE_DELAY_MIN = 10000;
-    private static final int PAGE_DELAY_MAX = 15000;
+    private static final int PAGE_DELAY_MIN = 2000;
+    private static final int PAGE_DELAY_MAX = 5000;
     private static final int COURSE_DELAY_MIN = 2000;
     private static final int COURSE_DELAY_MAX = 5000;
 
