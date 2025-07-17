@@ -1,14 +1,13 @@
 package com.skillgapguide.sgg.Controller;
 
 import com.skillgapguide.sgg.Dto.*;
-import com.skillgapguide.sgg.Entity.Occupation;
-import com.skillgapguide.sgg.Entity.OccupationGroup;
-import com.skillgapguide.sgg.Entity.Specialization;
+import com.skillgapguide.sgg.Entity.JobGroup;
+import com.skillgapguide.sgg.Entity.MainJobCategory;
 import com.skillgapguide.sgg.Response.EHttpStatus;
 import com.skillgapguide.sgg.Response.Response;
 import com.skillgapguide.sgg.Service.JobCategoryService;
-import com.skillgapguide.sgg.Service.OccupationGroupService;
-import com.skillgapguide.sgg.Service.OccupationService;
+import com.skillgapguide.sgg.Service.MainJobCategoryService;
+import com.skillgapguide.sgg.Service.JobGroupService;
 import com.skillgapguide.sgg.Service.SpecializationsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,8 +23,8 @@ import java.util.List;
 public class BusinessAdminController {
     private final JobCategoryService jobCategoryService;
     private final SpecializationsService specializationService;
-    private final OccupationGroupService occupationGroupService;
-    private final OccupationService occupationService;
+    private final MainJobCategoryService occupationGroupService;
+    private final JobGroupService occupationService;
 
     @GetMapping("/view-job-category")
     public Response<List<JobCategoryDTO>> findAll() {
@@ -59,21 +58,21 @@ public class BusinessAdminController {
     }
 
     @GetMapping("/view-occupation-groups")
-    public Response<List<OccupationGroupDTO>> getAllOccupationGroups() {
-        List<OccupationGroupDTO> list = occupationGroupService.getAllOccupationGroups();
+    public Response<List<MainJobCategoryDTO>> getAllOccupationGroups() {
+        List<MainJobCategoryDTO> list = occupationGroupService.getAllMainJobCategory();
         return new Response<>(EHttpStatus.OK, "Lấy danh sách nhóm nghề nghiệp thành công", list);
     }
 
     @GetMapping("/view-occupation-groups-enable")
-    public Response<List<OccupationGroupDTO>> getEnabledOccupationGroups() {
-        List<OccupationGroupDTO> list = occupationGroupService.getEnabledOccupationGroups();
+    public Response<List<MainJobCategoryDTO>> getEnabledOccupationGroups() {
+        List<MainJobCategoryDTO> list = occupationGroupService.getEnabledOccupationGroups();
         return new Response<>(EHttpStatus.OK, "Lấy danh sách nhóm nghề nghiệp đang hoạt động thành công", list);
     }
 
     @PostMapping("/add-occupation-groups")
-    public Response<?> addOccupationGroup(@RequestBody OccupationGroupDTO dto) {
+    public Response<?> addOccupationGroup(@RequestBody MainJobCategoryDTO dto) {
         try {
-            OccupationGroup newGroup = occupationGroupService.addOccupationGroup(dto); // Get the saved group
+            MainJobCategory newGroup = occupationGroupService.addMainJobCategory(dto); // Get the saved group
             return new Response<>(EHttpStatus.OK, "Thêm nhóm nghề nghiệp thành công", newGroup); // Return the new group object
         } catch (IllegalArgumentException e) {
             return new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null);
@@ -82,9 +81,9 @@ public class BusinessAdminController {
 
 
     @PutMapping("/edit-occupation-groups")
-    public ResponseEntity<?> editOccupationGroup(@RequestBody OccupationGroupDTO dto) {
+    public ResponseEntity<?> editOccupationGroup(@RequestBody MainJobCategoryDTO dto) {
         try {
-            occupationGroupService.editOccupationGroup(dto);
+            occupationGroupService.editMainJobCategory(dto);
             return ResponseEntity.ok(new Response<>(EHttpStatus.OK, "Cập nhật nhóm nghề nghiệp thành công", null));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null));
@@ -106,19 +105,19 @@ public class BusinessAdminController {
     }
 
     @GetMapping("/view-occupations")
-    public Response<List<OccupationDTO>> getAllOccupations() {
-        return new Response<>(EHttpStatus.OK, "Lấy tất cả ngành nghề thành công", occupationService.getAllOccupations());
+    public Response<List<JobGroupDTO>> getAllOccupations() {
+        return new Response<>(EHttpStatus.OK, "Lấy tất cả ngành nghề thành công", occupationService.getAllJobGroup());
     }
 
     @GetMapping("/view-occupations-enable")
-    public Response<List<OccupationDTO>> getEnabledOccupations() {
+    public Response<List<JobGroupDTO>> getEnabledOccupations() {
         return new Response<>(EHttpStatus.OK, "Lấy ngành nghề đang kích hoạt thành công", occupationService.getEnabledOccupations());
     }
 
     @PostMapping("/add-occupations")
-    public Response<?> addOccupation(@RequestBody AddOccupationRequestDTO dto) {
+    public Response<?> addOccupation(@RequestBody AddJobGroupRequestDTO dto) {
         try {
-            Occupation newOccupation = occupationService.addOccupation(dto); // Get the saved Occupation object
+            JobGroup newOccupation = occupationService.addJobGroup(dto); // Get the saved Occupation object
             return new Response<>(EHttpStatus.OK, "Thêm ngành nghề thành công", newOccupation); // Return the new object
         } catch (IllegalArgumentException e) {
             return new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null);
@@ -127,9 +126,9 @@ public class BusinessAdminController {
 
 
     @PutMapping("/edit-occupations/{id}")
-    public Response<?> updateOccupation(@PathVariable Integer id, @RequestBody AddOccupationRequestDTO dto) {
+    public Response<?> updateOccupation(@PathVariable Integer id, @RequestBody AddJobGroupRequestDTO dto) {
         try {
-            occupationService.updateOccupation(id, dto);
+            occupationService.updateJobGroup(id, dto);
             return new Response<>(EHttpStatus.OK, "Cập nhật ngành nghề thành công", null);
         } catch (IllegalArgumentException e) {
             return new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null);
@@ -204,7 +203,7 @@ public class BusinessAdminController {
     }
 
     @GetMapping("/filter-occupation-byGroup")
-    public ResponseEntity<List<OccupationDTO>> getOccupations(@RequestParam Integer groupId) {
+    public ResponseEntity<List<JobGroupDTO>> getOccupations(@RequestParam Integer groupId) {
         return ResponseEntity.ok(occupationService.getByGroupId(groupId));
     }
 
