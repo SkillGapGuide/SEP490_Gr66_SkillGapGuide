@@ -143,7 +143,7 @@ public class CourseService {
     }
     @Transactional
     public void scrapeAndSaveCourses(int numPages, int numItems) {
-        System.setProperty("webdriver.chrome.driver", "sgg/drivers/chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "drivers/chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
         options.addArguments("--disable-gpu");

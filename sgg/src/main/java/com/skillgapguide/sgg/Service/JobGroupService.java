@@ -1,11 +1,11 @@
 package com.skillgapguide.sgg.Service;
 
-import com.skillgapguide.sgg.Dto.AddOccupationRequestDTO;
-import com.skillgapguide.sgg.Dto.OccupationDTO;
-import com.skillgapguide.sgg.Entity.Occupation;
-import com.skillgapguide.sgg.Entity.OccupationGroup;
-import com.skillgapguide.sgg.Repository.OccupationGroupRepository;
-import com.skillgapguide.sgg.Repository.OccupationRepository;
+import com.skillgapguide.sgg.Dto.AddJobGroupRequestDTO;
+import com.skillgapguide.sgg.Dto.JobGroupDTO;
+import com.skillgapguide.sgg.Entity.JobGroup;
+import com.skillgapguide.sgg.Entity.MainJobCategory;
+import com.skillgapguide.sgg.Repository.MainJobCategoryRepository;
+import com.skillgapguide.sgg.Repository.JobGroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,23 +15,23 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class OccupationService {
-    private final OccupationRepository occupationRepository;
-    private final OccupationGroupRepository occupationGroupsRepository;
+public class JobGroupService {
+    private final JobGroupRepository occupationRepository;
+    private final MainJobCategoryRepository occupationGroupsRepository;
 
-    public List<OccupationDTO> getAllOccupations() {
-        List<Occupation> occupations = occupationRepository.findAll();
+    public List<JobGroupDTO> getAllJobGroup() {
+        List<JobGroup> occupations = occupationRepository.findAll();
         return mapToDTOList(occupations);
     }
 
-    public List<OccupationDTO> getEnabledOccupations() {
-        List<Occupation> occupations = occupationRepository.findByStatusIgnoreCase("Enable");
+    public List<JobGroupDTO> getEnabledOccupations() {
+        List<JobGroup> occupations = occupationRepository.findByStatusIgnoreCase("Enable");
         return mapToDTOList(occupations);
     }
 
-    private List<OccupationDTO> mapToDTOList(List<Occupation> occupations) {
+    private List<JobGroupDTO> mapToDTOList(List<JobGroup> occupations) {
         return occupations.stream().map(o -> {
-            OccupationDTO dto = new OccupationDTO();
+            JobGroupDTO dto = new JobGroupDTO();
             dto.setId(o.getId());
             dto.setName(o.getName());
             dto.setStatus(o.getStatus());
@@ -41,7 +41,7 @@ public class OccupationService {
         }).collect(Collectors.toList());
     }
 
-    public Occupation addOccupation(AddOccupationRequestDTO dto) {
+    public JobGroup addJobGroup(AddJobGroupRequestDTO dto) {
         // Check null
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Tên ngành nghề không được để trống.");
@@ -58,11 +58,11 @@ public class OccupationService {
         }
 
         // Check occupation group tồn tại
-        OccupationGroup group = occupationGroupsRepository.findById(dto.getOccupationGroupId())
+        MainJobCategory group = occupationGroupsRepository.findById(dto.getOccupationGroupId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Occupation Group với ID: " + dto.getOccupationGroupId()));
 
         // Save
-        Occupation occupation = new Occupation();
+        JobGroup occupation = new JobGroup();
         occupation.setName(dto.getName());
         occupation.setStatus(dto.getStatus());
         occupation.setOccupationGroup(group);
@@ -71,7 +71,7 @@ public class OccupationService {
     }
 
 
-    public void updateOccupation(Integer id, AddOccupationRequestDTO dto) {
+    public void updateJobGroup(Integer id, AddJobGroupRequestDTO dto) {
         // Check null
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Tên ngành nghề không được để trống.");
@@ -83,15 +83,15 @@ public class OccupationService {
         }
 
         // Check tồn tại occupation
-        Occupation occupation = occupationRepository.findById(id)
+        JobGroup occupation = occupationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy ngành nghề với ID: " + id));
 
         // Check tồn tại occupation group
-        OccupationGroup group = occupationGroupsRepository.findById(dto.getOccupationGroupId())
+        MainJobCategory group = occupationGroupsRepository.findById(dto.getOccupationGroupId())
                 .orElseThrow(() -> new IllegalArgumentException("Occupation group không tồn tại với ID: " + dto.getOccupationGroupId()));
 
         // Check duplicate name
-        Optional<Occupation> duplicate = occupationRepository.findByNameIgnoreCase(dto.getName().trim());
+        Optional<JobGroup> duplicate = occupationRepository.findByNameIgnoreCase(dto.getName().trim());
         if (duplicate.isPresent() && !duplicate.get().getId().equals(id)) {
             throw new IllegalArgumentException("Tên ngành nghề đã tồn tại.");
         }
@@ -105,9 +105,9 @@ public class OccupationService {
     }
 
     public boolean toggleOccupationStatus(Integer id) {
-        Optional<Occupation> optional = occupationRepository.findById(id);
+        Optional<JobGroup> optional = occupationRepository.findById(id);
         if (optional.isPresent()) {
-            Occupation occupation = optional.get();
+            JobGroup occupation = optional.get();
             String currentStatus = occupation.getStatus();
 
             if (currentStatus == null) {
@@ -128,13 +128,13 @@ public class OccupationService {
         return false;
     }
 
-    public List<OccupationDTO> getByGroupId(Integer groupId) {
-        List<Occupation> occupations = occupationRepository.findByOccupationGroupId(groupId);
+    public List<JobGroupDTO> getByGroupId(Integer groupId) {
+        List<JobGroup> occupations = occupationRepository.findByOccupationGroupId(groupId);
         return occupations.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    private OccupationDTO convertToDTO(Occupation o) {
-        return new OccupationDTO(
+    private JobGroupDTO convertToDTO(JobGroup o) {
+        return new JobGroupDTO(
                 o.getId(),
                 o.getName(),
                 o.getOccupationGroup().getId(),

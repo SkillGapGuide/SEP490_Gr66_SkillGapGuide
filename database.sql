@@ -333,16 +333,16 @@ INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES		(4,'Premium User'
 INSERT INTO Skill (name) VALUES('Python'),('Communication'),('Data Analysis'),('Project Management');
 INSERT INTO Course (title, rating, difficulty, description, provider, url, status, create_at)
 VALUES
-('Introduction to Python', 4.5, 'Beginner', 'Learn the basics of Python programming.', 'Coursera', 'https://www.coursera.org/python', 'Active', '2025-06-25 10:00:00'),
-('Data Structures and Algorithms', 4.8, 'Intermediate', 'Deep dive into data structures and algorithms.', 'Udemy', 'https://www.udemy.com/dsa', 'Active', '2025-06-20 15:30:00'),
-('Machine Learning Fundamentals', 4.7, 'Advanced', 'Understand the concepts of machine learning.', 'edX', 'https://www.edx.org/ml', 'Active', '2025-06-15 09:00:00'),
-('Web Development Bootcamp', 4.6, 'Beginner', 'Comprehensive guide to web development.', 'Pluralsight', 'https://www.pluralsight.com/webdev', 'Active', '2025-06-10 14:20:00'),
-('Cloud Computing Basics', 4.4, 'Beginner', 'Introduction to cloud computing technologies.', 'AWS', 'https://www.aws.training/cloud', 'Inactive', '2025-06-05 11:10:00'),
-('Deep Learning Specialization', 4.9, 'Advanced', 'Master deep learning with hands-on projects.', 'Coursera', 'https://www.coursera.org/dl', 'Active', '2025-06-01 08:50:00'),
-('Cybersecurity Essentials', 4.3, 'Intermediate', 'Learn the key concepts of cybersecurity.', 'Microsoft', 'https://learn.microsoft.com/cybersecurity', 'Inactive', '2025-05-30 12:00:00'),
-('Digital Marketing 101', 4.2, 'Beginner', 'Basics of digital marketing strategies.', 'LinkedIn Learning', 'https://www.linkedin.com/digitalmarketing', 'Active', '2025-05-25 13:30:00'),
-('Artificial Intelligence Overview', 4.6, 'Intermediate', 'Overview of artificial intelligence concepts.', 'Google', 'https://ai.google/ai-overview', 'Active', '2025-05-20 16:40:00'),
-('Blockchain for Developers', 4.5, 'Advanced', 'Comprehensive guide to blockchain development.', 'IBM', 'https://developer.ibm.com/blockchain', 'Active', '2025-05-15 18:10:00');
+('Introduction to Python', 4.5, 'Beginner', 'Learn the basics of Python programming.', 'Coursera', 'https://www.coursera.org/python', 'ACTIVE', '2025-06-25 10:00:00'),
+('Data Structures and Algorithms', 4.8, 'Intermediate', 'Deep dive into data structures and algorithms.', 'Udemy', 'https://www.udemy.com/dsa', 'ACTIVE', '2025-06-20 15:30:00'),
+('Machine Learning Fundamentals', 4.7, 'Advanced', 'Understand the concepts of machine learning.', 'edX', 'https://www.edx.org/ml', 'ACTIVE', '2025-06-15 09:00:00'),
+('Web Development Bootcamp', 4.6, 'Beginner', 'Comprehensive guide to web development.', 'Pluralsight', 'https://www.pluralsight.com/webdev', 'ACTIVE', '2025-06-10 14:20:00'),
+('Cloud Computing Basics', 4.4, 'Beginner', 'Introduction to cloud computing technologies.', 'AWS', 'https://www.aws.training/cloud', 'INACTIVE', '2025-06-05 11:10:00'),
+('Deep Learning Specialization', 4.9, 'Advanced', 'Master deep learning with hands-on projects.', 'Coursera', 'https://www.coursera.org/dl', 'ACTIVE', '2025-06-01 08:50:00'),
+('Cybersecurity Essentials', 4.3, 'Intermediate', 'Learn the key concepts of cybersecurity.', 'Microsoft', 'https://learn.microsoft.com/cybersecurity', 'INACTIVE', '2025-05-30 12:00:00'),
+('Digital Marketing 101', 4.2, 'Beginner', 'Basics of digital marketing strategies.', 'LinkedIn Learning', 'https://www.linkedin.com/digitalmarketing', 'ACTIVE', '2025-05-25 13:30:00'),
+('Artificial Intelligence Overview', 4.6, 'Intermediate', 'Overview of artificial intelligence concepts.', 'Google', 'https://ai.google/ai-overview', 'ACTIVE', '2025-05-20 16:40:00'),
+('Blockchain for Developers', 4.5, 'Advanced', 'Comprehensive guide to blockchain development.', 'IBM', 'https://developer.ibm.com/blockchain', 'ACTIVE', '2025-05-15 18:10:00');
 INSERT INTO User (email, password, full_name, role_id, subscription_id, phone, avatar, provider, status_id)
 VALUES
 ('admin@example.com', '$2a$10$ZgjCwtbfKU8YWtJeVjcc8.VVCQIe8XAnCbulK3Su41AFATlQn.cE6', 'Admin User', 1, 2, '0123456789', NULL, 'LOCAL', 2),
