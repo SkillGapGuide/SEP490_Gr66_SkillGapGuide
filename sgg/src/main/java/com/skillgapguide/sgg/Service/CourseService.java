@@ -9,10 +9,15 @@ import com.skillgapguide.sgg.Repository.FavoriteCourseRepository;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.devtools.DevTools;
+import org.openqa.selenium.devtools.v136.network.Network;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,14 +26,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-
+import com.github.javafaker.Faker;
+import com.github.mabinogi233.undetected_chromedriver.ChromeDriverBuilder;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -143,60 +148,225 @@ public class CourseService {
     }
     @Transactional
     public void scrapeAndSaveCourses(int numPages, int numItems) {
-        System.setProperty("webdriver.chrome.driver", "sgg/drivers/chromedriver.exe");
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new");
-        options.addArguments("--disable-gpu");
-        options.addArguments("--window-size=1920,1080");
-        options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36");
-
-        WebDriver driver = null;
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+        WebDriver driver = createChromeDriver();
         try {
-            driver = new ChromeDriver(options);
-            for (int i = 1; i <= numPages; i++) {
-                String url = "https://www.coursera.org/courses?page=" + i + "&index=prod_all_products_term_optimization";
-                driver.get(url);
-                String pageSource = driver.getPageSource();
-                Document doc = Jsoup.parse(pageSource);
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
 
-                Elements titles = doc.select("h3.cds-CommonCard-title.css-6ecy9b");
-                Elements providers = doc.select("p.cds-ProductCard-partnerNames.css-vac8rf");
-                Elements ratings = doc.select("div.cds-RatingStat-sizeLabel.css-1i7bybc");
-                Elements diffs = doc.select("div.cds-CommonCard-metadata");
-                Elements links = doc.select("a.cds-CommonCard-titleLink");
-                Elements des = doc.select("div.cds-CommonCard-bodyContent");
-                int count = Math.min(numItems, titles.size());
-                for (int j = 0; j < count; j++) {
-                    String courseTitle = titles.get(j).text();
-                    String courseProvider = providers.size() > j ? providers.get(j).text() : "";
-                    String courseRating = ratings.size() > j ? ratings.get(j).text() : "";
-                    String courseDiff = diffs.size() > j ? diffs.get(j).text() : "";
-                    String courseUrl = links.size() > j ? "https://www.coursera.org" + links.get(j).attr("href") : "";
-                    String description = des.size() > j ? des.get(j).text() : "";
-                    if (courseRepository.existsCourseByUrl(courseUrl)) {
-                        logger.info("Khóa học đã tồn tại: {}", courseTitle);
-                        continue; // Bỏ qua khóa học đã tồn tại
-                    };
+            for (int page = 1; page <= numPages; page++) {
+                logger.info("Đang cào trang {}/{}", page, numPages);
 
-                    Course course = new Course();
-                    course.setTitle(courseTitle);
-                    course.setProvider(courseProvider);
-                    course.setRating(courseRating);
-                    course.setDifficulty(courseDiff);
-                    course.setDescription(description);
-                    course.setStatus("ACTIVE");
-                    course.setUrl(courseUrl);
-                    course.setCreatedAt(Timestamp.from(Instant.now()));
-
-                    courseRepository.save(course);
+                if (scrapePage(driver, wait, page, numItems, logger)) {
+                    randomSleep(PAGE_DELAY_MIN, PAGE_DELAY_MAX);
                 }
-                 Thread.sleep(1000); // Nếu cần sleep giữa các lần lặp
             }
         } catch (Exception e) {
-            // Nên dùng logger thay vì printStackTrace trong production
-            e.printStackTrace();
+            logger.error("Lỗi khi cào dữ liệu từ Udemy: {}", e.getMessage(), e);
+            throw new RuntimeException("Không thể cào dữ liệu khóa học", e);
         } finally {
-            if (driver != null) driver.quit();
+            if (driver != null) {
+                driver.quit();
+                logger.info("Trình duyệt đã được đóng");
+            }
         }
     }
+
+    private boolean scrapePage(WebDriver driver, WebDriverWait wait, int page, int numItems, Logger logger) {
+        try {
+            String pageUrl = buildSearchUrl(page, SEARCH_KEYWORD);
+            loadPageAndWait(driver, wait, pageUrl, logger);
+
+            List<String> courseUrls = extractCourseUrls(driver, numItems, logger);
+            if (courseUrls.isEmpty()) {
+                logger.warn("Không tìm thấy khóa học trên trang {}", page);
+                return false;
+            }
+
+            processCourses(driver, wait, courseUrls, logger);
+            return true;
+
+        } catch (Exception e) {
+            logger.error("Lỗi khi xử lý trang {}: {}", page, e.getMessage());
+            return false;
+        }
+    }
+
+    private void loadPageAndWait(WebDriver driver, WebDriverWait wait, String url, Logger logger) {
+        long startTime = System.currentTimeMillis();
+        driver.get(url);
+
+        wait.until(d -> ((JavascriptExecutor) d).executeScript("return document.readyState").equals("complete"));
+
+        // Đợi course cards xuất hiện
+        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+                By.cssSelector("h3.ud-heading-lg.card-title-module--title--bv1rZ.ud-custom-focus-visible")));
+
+        // Cuộn trang để load dynamic content
+        scrollToLoadContent(driver);
+
+        logger.info("Tải trang mất {} ms", System.currentTimeMillis() - startTime);
+    }
+
+    private void scrollToLoadContent(WebDriver driver) {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        for (int i = 0; i < SCROLL_ITERATIONS; i++) {
+            js.executeScript("window.scrollBy(0, 1000);");
+            sleep(SCROLL_DELAY);
+        }
+    }
+
+    private List<String> extractCourseUrls(WebDriver driver, int numItems, Logger logger) {
+        Document doc = Jsoup.parse(driver.getPageSource());
+        Elements links = doc.select("a[href^='/course/']");
+
+        if (links.isEmpty()) {
+            links = doc.select("a.ud-link-neutral.ud-custom-focus-visible");
+        }
+
+        List<String> courseUrls = new ArrayList<>();
+        int count = Math.min(numItems, links.size());
+
+        for (int i = 0; i < count; i++) {
+            String href = links.get(i).attr("href");
+            if (href.startsWith("/course/")) {
+                String courseUrl = BASE_URL + href.split("\\?")[0];
+                if (!courseRepository.existsCourseByUrl(courseUrl)) {
+                    courseUrls.add(courseUrl);
+                }
+            }
+        }
+
+        logger.info("Tìm thấy {} khóa học mới trên trang", courseUrls.size());
+        return courseUrls;
+    }
+
+    private void processCourses(WebDriver driver, WebDriverWait wait, List<String> courseUrls, Logger logger) {
+        for (String courseUrl : courseUrls) {
+            try {
+                Course course = scrapeCourseDetails(driver, wait, courseUrl, logger);
+                if (course != null) {
+                    courseRepository.save(course);
+                    logger.info("Đã lưu khóa học: {}", course.getTitle());
+                }
+                randomSleep(COURSE_DELAY_MIN, COURSE_DELAY_MAX);
+            } catch (Exception e) {
+                logger.error("Lỗi khi xử lý khóa học {}: {}", courseUrl, e.getMessage());
+            }
+        }
+    }
+
+    private Course scrapeCourseDetails(WebDriver driver, WebDriverWait wait, String courseUrl, Logger logger) {
+        driver.get(courseUrl);
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("h1[data-purpose='lead-title'], .clp-lead__title, .course-title, h1.ud-heading")));
+
+        Document doc = Jsoup.parse(driver.getPageSource());
+
+        String title = extractText(doc, TITLE_SELECTORS);
+        if (title.isEmpty()) {
+            logger.warn("Bỏ qua khóa học thiếu tiêu đề: {}", courseUrl);
+            return null;
+        }
+
+        Course course = new Course();
+        course.setTitle(title);
+        course.setDescription(extractText(doc, DESCRIPTION_SELECTORS));
+        course.setRating(extractText(doc, RATING_SELECTORS));
+        course.setProvider(extractText(doc, INSTRUCTOR_SELECTORS));
+        course.setUrl(courseUrl);
+        course.setDifficulty(extractText(doc, DIFFICULTY_SELECTORS));
+        course.setStatus("AVAILABLE");
+        course.setCreatedAt(Timestamp.from(Instant.now()));
+
+        return course;
+    }
+
+    private WebDriver createChromeDriver() {
+        String chromeDriverPath = System.getProperty("webdriver.chrome.driver.path", DEFAULT_CHROME_DRIVER_PATH);
+        System.setProperty("webdriver.chrome.driver", chromeDriverPath);
+
+        ChromeOptions options = buildChromeOptions();
+        return new ChromeDriverBuilder().build(options, chromeDriverPath);
+    }
+
+    private ChromeOptions buildChromeOptions() {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments(
+                "--headless=new",
+                "--disable-gpu",
+                "--window-size=1920,1080",
+                "--disable-blink-features=AutomationControlled",
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-extensions",
+                "--user-agent=" + USER_AGENT
+        );
+        return options;
+    }
+
+    private String buildSearchUrl(int page, String keyword) {
+        return String.format("%s/courses/search/?src=ukw&p=%d&q=%s", BASE_URL, page, keyword);
+    }
+
+    private String extractText(Document doc, String... selectors) {
+        return Arrays.stream(selectors)
+                .map(doc::selectFirst)
+                .filter(Objects::nonNull)
+                .map(Element::text)
+                .map(String::trim)
+                .filter(text -> !text.isEmpty())
+                .findFirst()
+                .orElse("");
+    }
+
+    private void randomSleep(int min, int max) {
+        sleep(min + (int) (Math.random() * (max - min)));
+    }
+
+    private void sleep(int milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    // Constants
+    private static final String BASE_URL = "https://www.udemy.com";
+    private static final String SEARCH_KEYWORD = "Java";
+    private static final String DEFAULT_CHROME_DRIVER_PATH = "sgg/drivers/chromedriver.exe";
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
+
+    private static final int TIMEOUT_SECONDS = 120;
+    private static final int SCROLL_ITERATIONS = 10;
+    private static final int SCROLL_DELAY = 3000;
+    private static final int PAGE_DELAY_MIN = 10000;
+    private static final int PAGE_DELAY_MAX = 15000;
+    private static final int COURSE_DELAY_MIN = 2000;
+    private static final int COURSE_DELAY_MAX = 5000;
+
+    private static final String[] TITLE_SELECTORS = {
+            "h1[data-purpose='lead-title']",
+            "h1.ud-heading-xxl",
+            ".clp-lead__title",
+            "h1.ud-heading"
+    };
+    private static final String[] DIFFICULTY_SELECTORS = {
+            "ul.styles--audience__list----YbP"
+    };
+    private static final String[] DESCRIPTION_SELECTORS = {
+            "div.what-you-will-learn--content-spacing--6eP1j"
+    };
+
+    private static final String[] RATING_SELECTORS = {
+            "[data-purpose='rating-number']"
+    };
+
+    private static final String[] INSTRUCTOR_SELECTORS = {
+            "a.ud-btn.ud-btn-medium.ud-btn-link.ud-heading-sm.ud-text-sm.ud-instructor-links"
+//            "span.ud-btn-label"
+
+    };
+
 }

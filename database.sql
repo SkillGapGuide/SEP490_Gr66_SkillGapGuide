@@ -36,7 +36,7 @@ CREATE TABLE Course (
                         title NVARCHAR(255) NOT NULL,
                         rating NVARCHAR(255),
                         difficulty NVARCHAR(100),
-                        description NVARCHAR(500) NOT NULL,
+                        description NVARCHAR(2000) NOT NULL,
                         provider NVARCHAR(255) NOT NULL,
                         url NVARCHAR(500),
                         status NVARCHAR(50) ,
