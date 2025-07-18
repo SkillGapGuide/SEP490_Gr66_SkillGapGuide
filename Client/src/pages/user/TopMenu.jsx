@@ -6,9 +6,9 @@ const menuItems = [
   { label: "Phân tích kỹ năng", path: "/addCVwritejobdescription" },
   { label: "Công việc phù hợp", path: "/matchingjobs" },
   { label: "Gợi ý khóa học", path: "/suggestedcourses" },
-  { label: "Theo dõi tiến độ", path: "#" },
-  { label: "Đánh giá", path: "#" },
-  { label: "Đăng ký gói dịch vụ", path: "#" },
+  { label: "Theo dõi tiến độ", path: "/coursetracking" },
+  { label: "Đánh giá", path: "/servicerating" },
+  { label: "Đăng ký gói dịch vụ", path: "/servicepayment" },
 ];
 
 const TopMenu = () => {
