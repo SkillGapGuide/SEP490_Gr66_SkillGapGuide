@@ -32,7 +32,8 @@ public class SecurityConfig {
             "/api/admin/**",
             "/api/chat/**",
             "/api/job/**",
-            "/api/scrape/**"
+            "/api/scrape/**",
+            "/api/payment/**",
 
     };
     @Bean
