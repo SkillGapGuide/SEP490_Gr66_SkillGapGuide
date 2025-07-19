@@ -372,13 +372,13 @@ public class CourseService {
     private static final String DEFAULT_CHROME_DRIVER_PATH = "sgg/drivers/chromedriver.exe";
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
 
-    private static final int TIMEOUT_SECONDS = 30;
-    private static final int SCROLL_ITERATIONS = 10;
-    private static final int SCROLL_DELAY = 3000;
+    private static final int TIMEOUT_SECONDS = 1;
+    private static final int SCROLL_ITERATIONS = 1;
+    private static final int SCROLL_DELAY = 1;
     private static final int PAGE_DELAY_MIN = 2000;
-    private static final int PAGE_DELAY_MAX = 5000;
+    private static final int PAGE_DELAY_MAX = 3000;
     private static final int COURSE_DELAY_MIN = 2000;
-    private static final int COURSE_DELAY_MAX = 5000;
+    private static final int COURSE_DELAY_MAX = 3000;
 
     private static final String[] TITLE_SELECTORS = {
             "h1[data-purpose='lead-title']",
