@@ -40,4 +40,16 @@ public class JobScraperController {
             return ResponseEntity.internalServerError().body("Lỗi xảy ra khi cào dữ liệu: " + e.getMessage());
         }
     }
+    @PostMapping("/crawl-10-jobs-by-specialization")
+    public ResponseEntity<String> scrapeTop10JobsBySpecialization(@RequestBody ScrapeRequest request) {
+        if (request.getUrl() == null || request.getUrl().isEmpty()) {
+            return ResponseEntity.badRequest().body("Vị trí chuyên môn không được để trống.");
+        }
+        try {
+            jobScrapingService.scrapeAndSaveTop10JobsBySpecialization(request.getUrl());
+            return ResponseEntity.ok("Đã cào và lưu 10 công việc đầu tiên từ URL: : " + request.getUrl());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+        }
+    }
 }

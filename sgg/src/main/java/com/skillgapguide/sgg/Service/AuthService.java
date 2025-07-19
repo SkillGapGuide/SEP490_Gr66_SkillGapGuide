@@ -111,6 +111,12 @@ public class AuthService {
     @Transactional
     public AuthResponse login(AuthRequest request) {
         try {
+            var user = userRepository.findByEmail(request.email())
+                    .orElseThrow(() -> new IllegalStateException("Người dùng không tồn tại"));
+
+            if (user.getStatus().getName().equals("NOT_VERIFIED")) {
+                throw new IllegalStateException("Tài khoản chưa được xác thực. Vui lòng liên hệ với quản trị viên");
+            }
             // 1. Xác thực thông tin
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -120,20 +126,20 @@ public class AuthService {
             );
 
             // 2. Tìm user
-            var user = userRepository.findByEmail(request.email())
-                    .orElseThrow(() -> new IllegalStateException("Người dùng không tồn tại"));
-            if (user.getStatus().getName().equals("NOT_VERIFIED")) {
-                throw new IllegalStateException("Tài khoản chưa được xác thực. Vui lòng liên hệ với quản trị viên");
-            }
+
+
             // 3. Tạo JWT
             String jwtToken = jwtUtil.generateToken(user.getUsername());
 
             return new AuthResponse(jwtToken);
 
         } catch (Exception ex) {
+            if (ex instanceof ResponseStatusException) {
+                throw ex; // ném lại để Spring xử lý đúng HTTP status
+            }
             // 4. Bắt lỗi nếu xác thực thất bại
             logger.error("Xác thực thất bại cho email {}: {}", request.email(), ex.getMessage());
-            throw new IllegalStateException("Sai email hoặc mật khẩu");
+            throw new IllegalStateException("Xác thực thất bại cho email " + request.email()+ ex.getMessage());
         }
     }
     public AuthResponse processGoogleLogin(GoogleLoginRequest request) {
