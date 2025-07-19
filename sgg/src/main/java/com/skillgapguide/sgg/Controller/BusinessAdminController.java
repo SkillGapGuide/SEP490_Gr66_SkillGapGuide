@@ -3,7 +3,6 @@ package com.skillgapguide.sgg.Controller;
 import com.skillgapguide.sgg.Dto.*;
 import com.skillgapguide.sgg.Entity.Occupation;
 import com.skillgapguide.sgg.Entity.OccupationGroup;
-import com.skillgapguide.sgg.Entity.Specialization;
 import com.skillgapguide.sgg.Response.EHttpStatus;
 import com.skillgapguide.sgg.Response.Response;
 import com.skillgapguide.sgg.Service.JobCategoryService;
