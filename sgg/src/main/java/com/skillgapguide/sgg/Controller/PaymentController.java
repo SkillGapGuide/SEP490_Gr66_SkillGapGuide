@@ -55,7 +55,14 @@ public class PaymentController {
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize
     ) {
-        return new Response<>(EHttpStatus.OK,"Lọc Status bằng: " + status,paymentService.getPaymentsByStatus(status, PageRequest.of(pageNo - 1, pageSize)));
+        if (status == null || status.isEmpty()) {
+            return new Response<>(EHttpStatus.INVALID_INFORMATION, "Trạng thái không được để trống", null);
+        }
+        Page<PaymentDTO> payment = paymentService.getPaymentsByStatus(status, PageRequest.of(pageNo - 1, pageSize));
+        if (payment.isEmpty()) {
+            return new Response<>(EHttpStatus.INVALID_INFORMATION, "Không tìm thấy Payments với trạng thái: " + status, null);
+        }
+        return new Response<>(EHttpStatus.OK,"Lọc Status bằng: " + status, payment);
     }
     @GetMapping("/filter/byDatesRange")
     public Response<Page<PaymentDTO>> filterPaymentsByDatesRange(
@@ -64,8 +71,17 @@ public class PaymentController {
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize
     ) {
-        return new Response<>(EHttpStatus.OK, "Lọc Payments giữa khoảng thời gian: " + startDate + " và " + endDate,
-                paymentService.getPaymentsBetweenDates(startDate, endDate, PageRequest.of(pageNo - 1, pageSize)));
+        if (startDate == null || endDate == null) {
+            return new Response<>(EHttpStatus.INVALID_INFORMATION, "Ngày bắt đầu và kết thúc không được để trống", null);
+        }
+        if (startDate.after(endDate)) {
+            return new Response<>(EHttpStatus.INVALID_INFORMATION, "Ngày bắt đầu không được lớn hơn ngày kết thúc", null);
+        }
+        Page<PaymentDTO> payment = paymentService.getPaymentsBetweenDates(startDate, endDate, PageRequest.of(pageNo - 1, pageSize));
+        if (payment.isEmpty()) {
+            return new Response<>(EHttpStatus.INVALID_INFORMATION, "Không tìm thấy Payments trong khoảng thời gian: " + startDate + " đến " + endDate, null);
+        }
+        return new Response<>(EHttpStatus.OK, "Lọc Payments giữa khoảng thời gian: " + startDate + " và " + endDate, payment);
     }
     @GetMapping("/filter/byUserId")
     public Response<Page<PaymentDTO>> filterPaymentsByUserId(
@@ -73,16 +89,25 @@ public class PaymentController {
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize
     ) {
-        return new Response<>(EHttpStatus.OK, "Lọc Payments của User ID: " + userId,
-                paymentService.findPaymentByUserId(userId, PageRequest.of(pageNo - 1, pageSize)));
+        if (userId == null) {
+            return new Response<>(EHttpStatus.INVALID_INFORMATION, "User ID không được để trống", null);
+        }
+        Page<PaymentDTO> payment = paymentService.findPaymentByUserId(userId, PageRequest.of(pageNo - 1, pageSize));
+        if (payment.isEmpty()) {
+            return new Response<>(EHttpStatus.INVALID_INFORMATION, "Không tìm thấy Payments cho User ID: " + userId, null);
+        }
+        return new Response<>(EHttpStatus.OK, "Lọc Payments của User ID: " + userId, payment);
     }
     @GetMapping("/findAllPayments")
     public Response<Page<PaymentDTO>> findAllPayments(
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize
     ) {
-        return new Response<>(EHttpStatus.OK, "Lấy tất cả Payments",
-                paymentService.findAll(PageRequest.of(pageNo - 1, pageSize)));
+        Page<PaymentDTO> payments = paymentService.findAll(PageRequest.of(pageNo - 1, pageSize));
+        if (payments.isEmpty()) {
+            return new Response<>(EHttpStatus.INVALID_INFORMATION, "Không có Payments nào", null);
+        }
+        return new Response<>(EHttpStatus.OK, "Lấy tất cả Payments", payments);
     }
     @GetMapping("/findPaymentByPaymentId")
     public Response<PaymentDTO> findPaymentByPaymentId(@RequestParam Integer paymentId) {
