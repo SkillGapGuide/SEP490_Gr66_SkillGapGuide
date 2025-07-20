@@ -2,6 +2,7 @@ package com.skillgapguide.sgg.Service;
 
 import com.skillgapguide.sgg.Repository.JobCategoryRepository;
 import com.skillgapguide.sgg.Repository.JobRepository;
+import com.skillgapguide.sgg.Repository.SpecializationRepository;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -19,6 +20,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.JavascriptExecutor;
+
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -29,14 +31,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class JobScrapingService {
     private final JobRepository jobRepository;
+    private final SpecializationRepository specializationRepository;
     private final JobCategoryRepository jobCategoryRepository;
+
     @Transactional // Đảm bảo các thao tác DB được thực hiện trong một giao dịch
     public void scrapeAndSaveJob(String jobDetailUrl) {
-        if (jobRepository.existsBySourceUrl(jobDetailUrl)) {
+        if (specializationRepository.existsSpecializationByUrl(jobDetailUrl)) {
             System.out.println(">>> CÔNG VIỆC ĐÃ TỒN TẠI, BỎ QUA: " + jobDetailUrl);
             return; // Dừng thực thi phương thức ngay lập tức.
         }
-        System.setProperty("webdriver.chrome.driver", "drivers/chromedriver.exe"); // Cập nhật đường dẫn đến chromedriver
+        System.setProperty("webdriver.chrome.driver", "sgg/drivers/chromedriver.exe"); // Cập nhật đường dẫn đến chromedriver
         // Cấu hình Chrome để tránh bị phát hiện là bot
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
@@ -191,18 +195,10 @@ public class JobScrapingService {
             // === 4. Lưu vào database nếu có đủ thông tin ===
             if (!title.isEmpty() && !company.isEmpty()) {
                 String finalCategoryName = categoryName;
-                JobCategory category = jobCategoryRepository.findByName(categoryName)
-                        .orElseGet(() -> {
-                            JobCategory newCategory = new JobCategory();
-                            newCategory.setName(finalCategoryName);
-                            return jobCategoryRepository.save(newCategory);
-                        });
-
                 Job job = new Job();
                 job.setTitle(title);
                 job.setCompany(company);
                 job.setDescription(fullDescription);
-                job.setCategoryId(category.getJobCategoryId());
                 job.setStatus("ACTIVE");
                 job.setSourceUrl(jobDetailUrl);
                 jobRepository.save(job);
@@ -224,8 +220,9 @@ public class JobScrapingService {
             }
         }
     }
+
     public List<String> scrapeJobLinksFromListPage(String listPageUrl) {
-        System.setProperty("webdriver.chrome.driver", "drivers/chromedriver.exe"); // Đường dẫn chromedriver của bạn
+        System.setProperty("webdriver.chrome.driver", "sgg/drivers/chromedriver.exe"); // Đường dẫn chromedriver của bạn
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
         options.addArguments("--disable-gpu");
@@ -294,8 +291,8 @@ public class JobScrapingService {
 
                 // Thêm delay ngẫu nhiên để tránh pattern detection
                 if (count < topNJobLinks.size()) {
-                    int randomDelay = 3000 + (int)(Math.random() * 2000); // 3-5 giây ngẫu nhiên
-                    System.out.println("⏳ Chờ " + (randomDelay/1000) + " giây trước khi cào job tiếp theo...");
+                    int randomDelay = 3000 + (int) (Math.random() * 2000); // 3-5 giây ngẫu nhiên
+                    System.out.println("⏳ Chờ " + (randomDelay / 1000) + " giây trước khi cào job tiếp theo...");
                     Thread.sleep(randomDelay);
                 }
             } catch (Exception e) {
@@ -312,42 +309,15 @@ public class JobScrapingService {
         System.out.println("\n🎉 HOÀN THÀNH: Đã crawl " + count + "/" + topNJobLinks.size() + " jobs từ: " + categoryListUrl);
 
     }
-    /**
-     * Tự động cào 10 job từ danh mục Sales Xuất nhập khẩu/Logistics  trên TopCV
-     */
-    @Transactional
-    public void scrapeTop10SalesImportAndExportLogisticsJobs() {
-        String url = "https://www.topcv.vn/tim-viec-lam-sales-xuat-nhap-khau-logistics-cr1cb4?sba=1&category_family=r1~b4";
-        System.out.println("Bắt đầu cào 10 job từ danh mục Sales Logistics...");
-        scrapeAndSaveTop10JobsByCategory(url);
-        System.out.println("Hoàn thành cào job từ danh mục Sales Logistics!");
-    }
-/*
-     * Tự động cào job từ nhiều danh mục được định nghĩa sẵn
-     */
-    @Transactional
-    public void scrapeJobsFromPredefinedCategories() {
-        // Danh sách các URL danh mục được định nghĩa sẵn
-        List<String> categoryUrls = List.of(
-                "https://www.topcv.vn/tim-viec-lam-sales-logistics-cr1cb4cl33?sba=1&category_family=r1~b4l33",
-                // Có thể thêm các URL danh mục khác ở đây
-                "https://www.topcv.vn/tim-viec-lam-it-software-cr1cb4cl11",
-                "https://www.topcv.vn/tim-viec-lam-marketing-cr1cb4cl22"
-        );
 
-        System.out.println("Bắt đầu cào job từ " + categoryUrls.size() + " danh mục được định nghĩa sẵn...");
-
-        for (String categoryUrl : categoryUrls) {
-            try {
-                System.out.println("Đang cào từ: " + categoryUrl);
-                scrapeAndSaveTop10JobsByCategory(categoryUrl);
-                // Nghỉ giữa các danh mục để tránh bị chặn
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                System.err.println("Lỗi khi cào từ danh mục: " + categoryUrl + " - " + e.getMessage());
-            }
+    @Transactional
+    public void scrapeAndSaveTop10JobsBySpecialization(String specializationName) {
+        var specialization = specializationRepository.findByNameIgnoreCase(specializationName)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy vị trí chuyên môn: " + specializationName));
+        String url = specialization.getUrl();
+        if (url == null || url.isEmpty()) {
+            throw new RuntimeException("vị trí chuyên môn không tồn tại hoặc không có URL: " + specializationName);
         }
-
-        System.out.println("Hoàn thành cào job từ tất cả danh mục!");
+        scrapeAndSaveTop10JobsByCategory(url);
     }
 }

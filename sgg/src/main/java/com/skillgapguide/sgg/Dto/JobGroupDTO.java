@@ -7,8 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddOccupationRequestDTO {
+public class JobGroupDTO {
+    private Integer id;
     private String name;
-    private Integer occupationGroupId;
+    private Integer groupId;
+    private String groupName;
     private String status;
 }

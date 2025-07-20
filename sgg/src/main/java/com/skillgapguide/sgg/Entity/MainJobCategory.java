@@ -5,9 +5,8 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "occupation")
-public class Occupation {
-
+@Table(name = "occupation_groups")
+public class MainJobCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -15,10 +14,6 @@ public class Occupation {
     @Column(nullable = false)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "occupation_groups_id", nullable = false)
-    private OccupationGroup occupationGroup;
-
-    @Column(name = "status", nullable = false)
+    @Column(name = "status")
     private String status;
 }

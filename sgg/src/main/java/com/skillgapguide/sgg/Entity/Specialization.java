@@ -17,8 +17,10 @@ public class Specialization {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "occupation_id", nullable = false)
-    private Occupation occupation;
+    private JobGroup occupation;
 
     @Column(nullable = false)
     private String status;
+    @Column(name = "url_topcv")
+    private String url;
 }

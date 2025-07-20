@@ -22,6 +22,6 @@ public interface SpecializationRepository extends JpaRepository<Specialization, 
             "AND (:groupId IS NULL OR g.id = :groupId)")
     List<Specialization> findByFilters(@Param("occupationId") Integer occupationId,
                                        @Param("groupId") Integer groupId);
-
+    boolean existsSpecializationByUrl(String sourceUrl);
 
 }
