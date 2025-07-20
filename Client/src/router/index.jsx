@@ -40,7 +40,12 @@ import ResetPassword from "../pages/ResetPassword";
 import ChangePassword from "../pages/ChangePassword";
 import TestAPI from "../pages/admin/TestAPI";
 import TermsEndUserPage from "../pages/TermsEndUserPage";
+
+import JobTablePage from "../pages/admin/JobTablePage";
+import CourseTable from "../pages/admin/CourseTable";
+
 import ServiceRating from "../pages/user/ServiceRating";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -73,6 +78,7 @@ const router = createBrowserRouter([
       {path: "matchingjobs",
         element: <MatchingJobs/>
       },
+
       {path: "servicepayment",
         element: <ServicePayment/>
       },
@@ -82,6 +88,7 @@ const router = createBrowserRouter([
       {path: "servicerating",
         element: <ServiceRating/>
       },
+
       {path: "analysisCVAvailableJob1",
         element: <AnalysisCVAvailableJob1/>
       },
@@ -130,7 +137,13 @@ const router = createBrowserRouter([
       { path: "feedback", element: <AdminFeedbackManager /> },
       { path: "social-link", element: <SocialLinksManager /> },
       { path: "tag-skills", element: <TagSkillManager /> },
-      { path: "homepage-manage", element: <HomePageManager /> }, // Placeholder for static content manager
+
+      { path: "homepage-manage", element: <HomePageManager />,
+        // Placeholder for job management
+       },
+       {path:"course-management", element:<CourseTable />}, // Placeholder for course management
+        {path:"job-management", element: <JobTablePage />}, // Placeholder for static content manager
+
     ],
   },
   { path: "auth/callback", element: <AuthCallback /> }, // Placeholder for auth callback
