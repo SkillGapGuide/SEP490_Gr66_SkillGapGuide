@@ -1,5 +1,6 @@
 package com.skillgapguide.sgg.Controller;
 
+import com.skillgapguide.sgg.Dto.PaymentDTO;
 import com.skillgapguide.sgg.Entity.Payment;
 import com.skillgapguide.sgg.Entity.User;
 import com.skillgapguide.sgg.Repository.PaymentRepository;
@@ -49,7 +50,7 @@ public class PaymentController {
     private PaymentRepository paymentRepo;
     private final PaymentService paymentService;
     @GetMapping("/filter")
-    public Response<Page<Payment>> filterPaymentsByStatus(
+    public Response<Page<PaymentDTO>> filterPaymentsByStatus(
             @RequestParam String status,
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize
@@ -57,7 +58,7 @@ public class PaymentController {
         return new Response<>(EHttpStatus.OK,"Lọc Status bằng: " + status,paymentService.getPaymentsByStatus(status, PageRequest.of(pageNo - 1, pageSize)));
     }
     @GetMapping("/filter/byDatesRange")
-    public Response<Page<Payment>> filterPaymentsByDatesRange(
+    public Response<Page<PaymentDTO>> filterPaymentsByDatesRange(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
             @RequestParam(defaultValue = "1") int pageNo,
@@ -67,7 +68,7 @@ public class PaymentController {
                 paymentService.getPaymentsBetweenDates(startDate, endDate, PageRequest.of(pageNo - 1, pageSize)));
     }
     @GetMapping("/filter/byUserId")
-    public Response<Page<Payment>> filterPaymentsByUserId(
+    public Response<Page<PaymentDTO>> filterPaymentsByUserId(
             @RequestParam Integer userId,
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize
@@ -76,7 +77,7 @@ public class PaymentController {
                 paymentService.findPaymentByUserId(userId, PageRequest.of(pageNo - 1, pageSize)));
     }
     @GetMapping("/findAllPayments")
-    public Response<Page<Payment>> findAllPayments(
+    public Response<Page<PaymentDTO>> findAllPayments(
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize
     ) {
@@ -84,8 +85,8 @@ public class PaymentController {
                 paymentService.findAll(PageRequest.of(pageNo - 1, pageSize)));
     }
     @GetMapping("/findPaymentByPaymentId")
-    public Response<Payment> findPaymentByPaymentId(@RequestParam Integer paymentId) {
-        Payment payment = paymentService.findPaymentByPaymentId(paymentId);
+    public Response<PaymentDTO> findPaymentByPaymentId(@RequestParam Integer paymentId) {
+        PaymentDTO payment = paymentService.findPaymentByPaymentId(paymentId);
         if (payment != null) {
             return new Response<>(EHttpStatus.OK, "Tìm thấy Payment với ID: " + paymentId, payment);
         } else {
@@ -98,13 +99,13 @@ public class PaymentController {
         String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         response.setHeader("Content-Disposition", "attachment; filename=payments_" + currentDate + ".xlsx");
 
-        List<Payment> payments = paymentService.findAllList();
+        List<PaymentDTO> payments = paymentService.findAllList();
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Payments");
 
         Row header = sheet.createRow(0);
         header.createCell(0).setCellValue("Payment ID");
-        header.createCell(1).setCellValue("User ID");
+        header.createCell(1).setCellValue("User Name");
         header.createCell(2).setCellValue("Amount");
         header.createCell(3).setCellValue("Date");
         header.createCell(4).setCellValue("Payment Method");
@@ -113,10 +114,10 @@ public class PaymentController {
         header.createCell(7).setCellValue("Status");
 
         int rowIdx = 1;
-        for (Payment payment : payments) {
+        for (PaymentDTO payment : payments) {
             Row row = sheet.createRow(rowIdx++);
             row.createCell(0).setCellValue(payment.getPaymentId());
-            row.createCell(1).setCellValue(payment.getUserId());
+            row.createCell(1).setCellValue(payment.getUsername());
             row.createCell(2).setCellValue(payment.getAmount());
             row.createCell(3).setCellValue(payment.getDate().toString());
             row.createCell(4).setCellValue(payment.getPaymentMethod());
@@ -134,7 +135,7 @@ public class PaymentController {
         String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         response.setHeader("Content-Disposition", "attachment; filename=payments_" + currentDate + ".pdf");
 
-        List<Payment> payments = paymentService.findAllList();
+        List<PaymentDTO> payments = paymentService.findAllList();
 
         Document document = new Document();
         PdfWriter.getInstance(document, response.getOutputStream());
@@ -144,16 +145,16 @@ public class PaymentController {
         table.setWidthPercentage(100);
         table.setWidths(new int[]{4, 2, 2, 3, 3, 3, 4, 2});
 
-        String[] headers = {"Payment ID", "User ID", "Amount", "Date", "Payment Method", "Transaction Code", "QR Code URL", "Status"};
+        String[] headers = {"Payment ID", "User Name", "Amount", "Date", "Payment Method", "Transaction Code", "QR Code URL", "Status"};
         for (String header : headers) {
             PdfPCell cell = new PdfPCell(new Phrase(header));
             cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
             table.addCell(cell);
         }
 
-        for (Payment payment : payments) {
+        for (PaymentDTO payment : payments) {
             table.addCell(String.valueOf(payment.getPaymentId()));
-            table.addCell(String.valueOf(payment.getUserId()));
+            table.addCell(String.valueOf(payment.getUsername()));
             table.addCell(String.valueOf(payment.getAmount()));
             table.addCell(payment.getDate().toString());
             table.addCell(payment.getPaymentMethod());
