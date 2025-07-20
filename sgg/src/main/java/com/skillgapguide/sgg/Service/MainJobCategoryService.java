@@ -1,8 +1,8 @@
 package com.skillgapguide.sgg.Service;
 
-import com.skillgapguide.sgg.Dto.OccupationGroupDTO;
-import com.skillgapguide.sgg.Entity.OccupationGroup;
-import com.skillgapguide.sgg.Repository.OccupationGroupRepository;
+import com.skillgapguide.sgg.Dto.MainJobCategoryDTO;
+import com.skillgapguide.sgg.Entity.MainJobCategory;
+import com.skillgapguide.sgg.Repository.MainJobCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,12 +12,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class OccupationGroupService {
-    private final OccupationGroupRepository occupationGroupRepository;
+public class MainJobCategoryService {
+    private final MainJobCategoryRepository occupationGroupRepository;
 
-    public List<OccupationGroupDTO> getAllOccupationGroups() {
+    public List<MainJobCategoryDTO> getAllMainJobCategory() {
         return occupationGroupRepository.findAll().stream().map(group ->
-                new OccupationGroupDTO(
+                new MainJobCategoryDTO(
                         group.getId(),
                         group.getName(),
                         group.getStatus()
@@ -25,9 +25,9 @@ public class OccupationGroupService {
         ).collect(Collectors.toList());
     }
 
-    public List<OccupationGroupDTO> getEnabledOccupationGroups() {
+    public List<MainJobCategoryDTO> getEnabledOccupationGroups() {
         return occupationGroupRepository.findAllByStatusIgnoreCase("Enable").stream().map(group ->
-                new OccupationGroupDTO(
+                new MainJobCategoryDTO(
                         group.getId(),
                         group.getName(),
                         group.getStatus()
@@ -35,7 +35,7 @@ public class OccupationGroupService {
         ).collect(Collectors.toList());
     }
 
-    public OccupationGroup  addOccupationGroup(OccupationGroupDTO dto) {
+    public MainJobCategory addMainJobCategory(MainJobCategoryDTO dto) {
         //Check co null khong
         if (dto.getName() == null || dto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Tên nhóm nghề nghiệp không được để trống");
@@ -46,7 +46,7 @@ public class OccupationGroupService {
         }
 
         // Check duplicate
-        Optional<OccupationGroup> existing = occupationGroupRepository.findByNameIgnoreCase(dto.getName().trim());
+        Optional<MainJobCategory> existing = occupationGroupRepository.findByNameIgnoreCase(dto.getName().trim());
         if (existing.isPresent()) {
             throw new IllegalArgumentException("Tên nhóm nghề nghiệp đã tồn tại");
         }
@@ -58,20 +58,20 @@ public class OccupationGroupService {
         }
 
         // Save entity
-        OccupationGroup newGroup = new OccupationGroup();
+        MainJobCategory newGroup = new MainJobCategory();
         newGroup.setName(dto.getName().trim());
         newGroup.setStatus(status);
        return  occupationGroupRepository.save(newGroup);
     }
 
-    public void editOccupationGroup(OccupationGroupDTO dto) {
+    public void editMainJobCategory(MainJobCategoryDTO dto) {
         // Check ID null
         if (dto.getId() == null) {
             throw new IllegalArgumentException("ID nhóm nghề nghiệp không được để trống");
         }
 
         // Tìm theo ID
-        Optional<OccupationGroup> optionalGroup = occupationGroupRepository.findById(dto.getId());
+        Optional<MainJobCategory> optionalGroup = occupationGroupRepository.findById(dto.getId());
         if (optionalGroup.isEmpty()) {
             throw new IllegalArgumentException("Không tìm thấy nhóm nghề nghiệp với ID: " + dto.getId());
         }
@@ -93,22 +93,22 @@ public class OccupationGroupService {
         }
 
         // Check duplicate name (khác ID hiện tại)
-        Optional<OccupationGroup> existing = occupationGroupRepository.findByNameIgnoreCase(dto.getName().trim());
+        Optional<MainJobCategory> existing = occupationGroupRepository.findByNameIgnoreCase(dto.getName().trim());
         if (existing.isPresent() && !existing.get().getId().equals(dto.getId())) {
             throw new IllegalArgumentException("Tên nhóm nghề nghiệp đã tồn tại");
         }
 
         // Cập nhật
-        OccupationGroup group = optionalGroup.get();
+        MainJobCategory group = optionalGroup.get();
         group.setName(dto.getName().trim());
         group.setStatus(status);
         occupationGroupRepository.save(group);
     }
 
     public boolean toggleOccupationGroupStatus(Integer id) {
-        Optional<OccupationGroup> optional = occupationGroupRepository.findById(id);
+        Optional<MainJobCategory> optional = occupationGroupRepository.findById(id);
         if (optional.isPresent()) {
-            OccupationGroup group = optional.get();
+            MainJobCategory group = optional.get();
             String currentStatus = group.getStatus();
 
             if (currentStatus == null) {

@@ -9,6 +9,7 @@ import Register from "../pages/Register";
 import UserProfile from "../pages/user/UserProfile";
 import ForgotPassword from "../pages/ForgotPassword";
 import AdminSidebar from "../layouts/AdminSidebar";
+import ServicePayment from "../pages/user/ServicePayment";
 import ManagerUser from "../pages/admin/ManagerUser";
 import AdminLayout from "../layouts/AdminLayout";
 import AboutSection from "../pages/AboutSection";
@@ -25,6 +26,7 @@ import AnalysisCVAvailableJob3 from "../pages/user/AnalysisCVAvailableJob3";
 import AnalysisLinkingJob from "../pages/user/AnalysisLinkingJob";
 import AnalysisJobDescription from "../pages/user/AnalysisJobDescription";
 import FavoriteSkills from "../pages/user/FavoriteSkills";
+import CourseTracking from "../pages/user/CourseTracking";
 import FavoriteCourses from "../pages/user/FavouriteCourses";
 import MatchingJobs from "../pages/user/JobMatches";
 import AuthCallback from "../components/AuthCallback";
@@ -38,8 +40,12 @@ import ResetPassword from "../pages/ResetPassword";
 import ChangePassword from "../pages/ChangePassword";
 import TestAPI from "../pages/admin/TestAPI";
 import TermsEndUserPage from "../pages/TermsEndUserPage";
+
 import JobTablePage from "../pages/admin/JobTablePage";
 import CourseTable from "../pages/admin/CourseTable";
+
+import ServiceRating from "../pages/user/ServiceRating";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -72,9 +78,17 @@ const router = createBrowserRouter([
       {path: "matchingjobs",
         element: <MatchingJobs/>
       },
+
+      {path: "servicepayment",
+        element: <ServicePayment/>
+      },
       {path: "suggestedcourses",
         element: <SuggestedCourses/>
       },
+      {path: "servicerating",
+        element: <ServiceRating/>
+      },
+
       {path: "analysisCVAvailableJob1",
         element: <AnalysisCVAvailableJob1/>
       },
@@ -86,6 +100,9 @@ const router = createBrowserRouter([
       },
       {path: "analysislinkingjob",
         element: <AnalysisLinkingJob/>
+      },
+      {path: "coursetracking",
+        element: <CourseTracking/>
       },
       {path: "analysisjobdescription",
         element: <AnalysisJobDescription/>
@@ -120,11 +137,13 @@ const router = createBrowserRouter([
       { path: "feedback", element: <AdminFeedbackManager /> },
       { path: "social-link", element: <SocialLinksManager /> },
       { path: "tag-skills", element: <TagSkillManager /> },
+
       { path: "homepage-manage", element: <HomePageManager />,
         // Placeholder for job management
        },
        {path:"course-management", element:<CourseTable />}, // Placeholder for course management
         {path:"job-management", element: <JobTablePage />}, // Placeholder for static content manager
+
     ],
   },
   { path: "auth/callback", element: <AuthCallback /> }, // Placeholder for auth callback

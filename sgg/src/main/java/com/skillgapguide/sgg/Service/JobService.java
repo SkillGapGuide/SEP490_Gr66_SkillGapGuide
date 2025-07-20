@@ -4,11 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
-import com.skillgapguide.sgg.Dto.ExtractCvSkillDTO;
 import com.skillgapguide.sgg.Dto.ExtractJDSkillDTO;
 import com.skillgapguide.sgg.Entity.*;
 import com.skillgapguide.sgg.Repository.*;
-import org.bouncycastle.tsp.TSPUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -42,21 +40,15 @@ public class JobService {
             String email = SecurityContextHolder.getContext().getAuthentication().getName(); // lấy từ JWT
             Integer userId = userRepository.findByEmail(email).map(User::getUserId).orElseThrow(() -> new RuntimeException("User not found"));
             Cv cv = cvRepository.findByUserId(userId);
-            if(cv == null){
+            if (cv == null) {
                 throw new IllegalStateException("Chưa upload cv");
             }
             Files.createDirectories(Paths.get(UPLOAD_DIR));
             Path path = Paths.get(UPLOAD_DIR + fileName);
             Files.write(path, file.getBytes());
 
-            // Chạy extract skill trong thread riêng
-            new Thread(() -> {
-                try {
-                    extractJd(path.toAbsolutePath().toString(), userId,fileName,fileExtension);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }).start();
+            extractJd(path.toAbsolutePath().toString(), userId, fileName, fileExtension);
+
             return "File JD đã được upload thành công: " + fileName;
         } catch (IOException e) {
             e.printStackTrace();
@@ -80,29 +72,36 @@ public class JobService {
         }
     }
 
-    public void extractJd(String filePath, int userId, String fileName,String fileExtension) throws IOException {
+    public void extractJd(String filePath, int userId, String fileName, String fileExtension) throws IOException {
         String text = extractTextFromPdf(filePath);
-        String prompt = "Hãy phân tích job description dưới đây và trích xuất tất cả các yêu cầu kỹ năng của ứng viên, title, description, company. Chỉ trả về kết quả dưới dạng JSON theo mẫu sau, không thêm bất kỳ nội dung nào khác:\n" +
-                "{\n" +
-                "\"skills\": [\n" +
-                "],\n" +
-                "\"title\": \"\",\n" +
-                "\"description\": \"\",\n" +
-                "\"company\": \"\""+
-                "}\n" +
-                "JD:\n" + text;
-
-        LMStudioService service = new LMStudioService(WebClient.builder());
-        service.callLMApi(prompt).subscribe(content -> {
+        // Chạy extract skill trong thread riêng
+        new Thread(() -> {
             try {
-                saveJobSkillsToDb(content, userId,fileName,fileExtension,filePath);
+                String prompt = "Hãy phân tích job description dưới đây và trích xuất tất cả các yêu cầu kỹ năng của ứng viên, title, description, company. Chỉ trả về kết quả dưới dạng JSON theo mẫu sau, không thêm bất kỳ nội dung nào khác:\n" +
+                        "{\n" +
+                        "\"skills\": [\n" +
+                        "],\n" +
+                        "\"title\": \"\",\n" +
+                        "\"description\": \"\",\n" +
+                        "\"company\": \"\"" +
+                        "}\n" +
+                        "JD:\n" + text;
+
+                LMStudioService service = new LMStudioService(WebClient.builder());
+                service.callLMApi(prompt).subscribe(content -> {
+                    try {
+                        saveJobSkillsToDb(content, userId, fileName, fileExtension, filePath);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
-        });
+        }).start();
     }
 
-    public void saveJobSkillsToDb(String aiResponseJson, int userId, String fileName,String fileExtension, String path) throws Exception {
+    public void saveJobSkillsToDb(String aiResponseJson, int userId, String fileName, String fileExtension, String path) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         ExtractJDSkillDTO response = mapper.readValue(aiResponseJson, ExtractJDSkillDTO.class);
         Cv cv = cvRepository.findByUserId(userId);
@@ -130,7 +129,18 @@ public class JobService {
         jobMetadata.setUploadDate(LocalDateTime.now());
         jobDesFileRepository.save(jobMetadata);
     }
-    public List<JobDesSkills> getJobSkill(int jobId){
+
+    public List<JobDesSkills> getJobSkill(int jobId) {
         return jobDesSkillsRepository.findByJobId(jobId);
+    }
+
+    public List<Job> getJobList() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName(); // lấy từ JWT
+        Integer userId = userRepository.findByEmail(email).map(User::getUserId).orElseThrow(() -> new RuntimeException("User not found"));
+        Cv cv = cvRepository.findByUserId(userId);
+        if (cv == null) {
+            throw new IllegalStateException("Chưa upload cv");
+        }
+        return jobRepository.getJobsByCvId(cv.getId());
     }
 }
