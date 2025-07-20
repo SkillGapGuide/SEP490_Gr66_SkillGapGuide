@@ -1,3 +1,5 @@
+import { get } from "react-hook-form";
+
 export const ENDPOINTS = {
   auth: {
     login: "/api/auth/login",
@@ -91,6 +93,7 @@ export const ENDPOINTS = {
   },
   cv: {
     uploadCV: "/api/CV/upload-cv",
+    getCVSkill:"/api/CV/getCvSkill"
   },
   course: {
   showCourse: "/api/courses/showCourse/{courseId}",
@@ -108,5 +111,12 @@ export const ENDPOINTS = {
 ,
   chat :{
 
+  },
+  file: {
+    getHistory: "/api/file/history",
+  },
+  job :{
+    uploadFileJob: "/api/job/upload-jd",
+    getJobSkills : "/api/job/getJobSkill",
   }
 };
