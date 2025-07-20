@@ -34,7 +34,9 @@ public class SecurityConfig {
             "/api/job/**",
             "/api/gap/**",
             "/api/scrape/**",
-            "/api/payment/vnpay-return"
+            "/api/scrape/**",
+            "/api/payment/**",
+            "/api/payment/vnpay-return",
 
     };
     @Bean

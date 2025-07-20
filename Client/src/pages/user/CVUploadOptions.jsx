@@ -1,347 +1,537 @@
-import { useState, useEffect } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { FiUpload } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
-import { cvService } from "../../services/cvService";
+import TopMenu from "./TopMenu";
+import { cvService } from "../../services/cvJobService";
+import { showError, showSuccess, showInfo } from "../../utils/alert";
 import { careerService } from "../../services/career";
+import { FiTrash } from "react-icons/fi";
 
-const CV_STORAGE_KEY = "cvUploadData";
-const FORM_STORAGE_KEY = "cvUploadForm";
+const MAX_CV_SIZE = 2 * 1024 * 1024; // 2MB
 
 const CVUploadOptions = () => {
-  const navigate = useNavigate();
-  const [file, setFile] = useState(null);
-  const [fileUrl, setFileUrl] = useState(null); // Preview PDF
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
-    occupationGroup: "",
-    occupation: "",
-    specialization: "",
-  });
-  const [groups, setGroups] = useState([]);
-  const [occupations, setOccupations] = useState([]);
-  const [specializations, setSpecializations] = useState([]);
+  // State cho upload CV
+  const [cvFile, setCVFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState(null);
+  const [addingLink, setAddingLink] = useState(false);
+  const [fetchingLinks, setFetchingLinks] = useState(false);
 
-  // Load dữ liệu từ localStorage khi vào lại
-  useEffect(() => {
-    const savedForm = localStorage.getItem(FORM_STORAGE_KEY);
-    if (savedForm) setFormData(JSON.parse(savedForm));
-    const savedFile = localStorage.getItem(CV_STORAGE_KEY);
-    if (savedFile) setFileUrl(savedFile);
-    const savedStep = localStorage.getItem("cvUploadStep");
-    if (savedStep) setStep(Number(savedStep));
-  }, []);
+  // State cho upload Job Description
+  const [jobFiles, setJobFiles] = useState([]);
 
-  useEffect(() => {
-    localStorage.setItem("cvUploadStep", step);
-  }, [step]);
+  // State cho TopCV link
+  const [topcvLinks, setTopcvLinks] = useState([]);
+  const [newLink, setNewLink] = useState("");
 
-  useEffect(() => {
-    localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(formData));
-  }, [formData]);
+  // State cho popup & radio chọn method
+  const [selectedOption, setSelectedOption] = useState("");
+  const [showPopup, setShowPopup] = useState("");
 
-  // Xử lý tạo object URL cho file mới
-  useEffect(() => {
-    if (file) {
-      // Nếu là file mới upload
-      const url = URL.createObjectURL(file);
-      setFileUrl(url);
-      // Lưu file dưới dạng base64 vào localStorage để preview lại sau reload (tuỳ chọn)
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        localStorage.setItem(CV_STORAGE_KEY, e.target.result);
-      };
-      reader.readAsDataURL(file);
-      // Cleanup khi đổi file
-      return () => URL.revokeObjectURL(url);
-    }
-  }, [file]);
+  // State cho dropdown danh mục nghề
+  const [occupationGroups, setOccupationGroups] = useState([]); // Nhóm nghề
+  const [occupations, setOccupations] = useState([]); // Nghề
+  const [specializations, setSpecializations] = useState([]); // Chuyên môn
 
-  // Lấy danh sách dropdown
+  // Selected values cho dropdown
+  const [selectedGroup, setSelectedGroup] = useState("");
+  const [selectedCareer, setSelectedCareer] = useState("");
+  const [selectedSpecialization, setSelectedSpecialization] = useState("");
+  const [selectedExperience, setSelectedExperience] = useState("");
+
+  // ===== Gọi API danh mục nghề khi load component =====
   useEffect(() => {
-    (async () => {
-      const [g, o, s] = await Promise.all([
+    const fetchData = async () => {
+      const [groups, careers, specs] = await Promise.all([
         careerService.viewOccupationGroupsEnable(),
         careerService.viewOccupationsEnable(),
         careerService.viewSpecializationEnable(),
       ]);
-      setGroups(Array.isArray(g) ? g : g?.data || []);
-      setOccupations(Array.isArray(o) ? o : o?.data || []);
-      setSpecializations(Array.isArray(s) ? s : s?.data || []);
-    })();
+      setOccupationGroups(groups || []);
+      setOccupations(careers || []);
+      setSpecializations(specs || []);
+    };
+    fetchData();
   }, []);
 
-  // Xử lý upload file
- const handleUpload = (e) => {
-  const uploaded = e.target.files[0];
-  if (!uploaded) return;
+  // ===== Filter nghề theo nhóm =====
+  const filteredOccupations = useMemo(
+    () =>
+      occupations.filter(
+        (item) => String(item.groupId) === String(selectedGroup)
+      ),
+    [occupations, selectedGroup]
+  );
+  // ===== Filter chuyên môn theo nghề =====
+  const filteredSpecializations = useMemo(
+    () =>
+      specializations.filter(
+        (item) => String(item.occupationId) === String(selectedCareer)
+      ),
+    [specializations, selectedCareer]
+  );
 
-  // Kiểm tra định dạng PDF
-  if (uploaded.type !== "application/pdf") {
-    setError("Chỉ chấp nhận file PDF.");
-    setFile(null);
-    return;
-  }
+  // ===== Xử lý chọn nhóm, nghề, chuyên môn =====
+  const handleGroupChange = useCallback((e) => {
+    setSelectedGroup(e.target.value);
+    setSelectedCareer("");
+    setSelectedSpecialization("");
+  }, []);
+  const handleCareerChange = useCallback((e) => {
+    setSelectedCareer(e.target.value);
+    setSelectedSpecialization("");
+  }, []);
+  const handleSpecializationChange = useCallback((e) => {
+    setSelectedSpecialization(e.target.value);
+  }, []);
 
-  // Kiểm tra dung lượng tối đa 2MB (2 * 1024 * 1024 bytes)
-  if (uploaded.size > 2 * 1024 * 1024) {
-    setError("Dung lượng file phải nhỏ hơn 2MB.");
-    setFile(null);
-    return;
-  }
+  // ...trên đầu component
+  const handleNewLinkChange = useCallback(
+    (e) => setNewLink(e.target.value),
+    []
+  );
+  const handleExperienceChange = useCallback(
+    (e) => setSelectedExperience(e.target.value),
+    []
+  );
 
-  setFile(uploaded);
-  setError(null);
-};
-
-
-  // Check điều kiện đủ sang bước 2
-  const canProceed = () =>
-    fileUrl &&
-    formData.occupationGroup &&
-    formData.occupation &&
-    formData.specialization;
-
-  // Nộp form
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    if (!canProceed()) {
-      setError("Vui lòng chọn đầy đủ Nhóm nghề, Nghề, Chuyên môn và tải lên CV.");
+  // ========== Upload CV Handler ==========
+  const handleCVUpload = useCallback(async (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      showError("Vui lòng chọn file CV.", "Lỗi");
       return;
     }
-    setLoading(true);
-    try {
-      if (file) {
-        const response = await cvService.uploadCV(file);
-        if (response.status === 200) {
-          setStep(2);
-        } else {
-          setError("Đã xảy ra lỗi khi upload CV.");
-        }
-      } else {
-        setStep(2);
-      }
-    } catch (err) {
-      setError(err.message || "Có lỗi xảy ra khi upload CV.");
-    } finally {
-      setLoading(false);
+    if (file.type !== "application/pdf") {
+      showError("Chỉ chấp nhận file PDF.", "Lỗi");
+      return;
     }
-  };
+    if (file.size > MAX_CV_SIZE) {
+      showError("File CV không được vượt quá 2MB.", "Lỗi");
+      return;
+    }
+    setCVFile(file);
+    setUploading(true);
+    setUploadResult(null);
+    try {
+      const res = await cvService.uploadCV(file);
+      setUploadResult(res);
+      showSuccess("Tải lên CV thành công!");
+    } catch (error) {
+      setUploadResult({ error: error.message });
+      showError("Upload CV thất bại: " + error.message, "Lỗi");
+    } finally {
+      setUploading(false);
+    }
+  }, []);
 
-  // Reset về bước 1
-  const handleBack = () => setStep(1);
+  // ========== Upload Job Description Handler ==========
+  const handleJobFileUpload = useCallback(
+    (e) => {
+      const files = Array.from(e.target.files);
 
-  // CSS Dropdown Custom: rainbow border, icon, hover màu, focus rõ nét
-  const dropdownBase =
-    "w-full appearance-none px-4 py-3 rounded-2xl border-2 transition shadow-sm bg-white text-base font-medium " +
-    "focus:ring-2 focus:ring-blue-400 focus:border-blue-500 " +
-    "hover:border-pink-400 hover:bg-blue-50 " +
-    "border-gray-200 text-gray-700";
+      // Kiểm tra số lượng file tổng cộng (đã chọn + đã upload)
+      if (files.length + jobFiles.length > 5) {
+        showError("Tối đa 5 file mô tả!", "Lỗi");
+        return;
+      }
 
+      // Kiểm tra tất cả file hợp lệ
+      for (let file of files) {
+        if (
+          file.type !== "application/pdf" &&
+          file.type !==
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ) {
+          showError("Chỉ chấp nhận file PDF.", "Lỗi");
+          return;
+        }
+        if (file.size > MAX_CV_SIZE) {
+          showError("File mô tả không được vượt quá 2MB.", "Lỗi");
+          return;
+        }
+      }
+
+      try {
+        // Gọi API upload nhiều file cùng lúc
+        cvService.uploadJobDescription(files);
+        setJobFiles((prev) => [...prev, ...files]);
+        showSuccess("Tải lên mô tả công việc thành công!");
+      } catch (error) {
+        showError("Upload file mô tả thất bại: " + error.message, "Lỗi");
+      }
+    },
+    [jobFiles]
+  );
+
+  // ========== Radio select ==========
+  const handleRadioChange = useCallback((value) => {
+    setSelectedOption(value);
+    if (value === "upload") setShowPopup("upload");
+    else if (value === "link") setShowPopup("link");
+    // Không gọi showSuccess ở đây nữa!
+  }, []);
+
+  // ========== Thêm link TOPCV ==========
+  const handleAddTopcvLink = useCallback(() => {
+    const url = newLink.trim();
+    if (!url) {
+      showError("Vui lòng nhập link TOPCV!", "Lỗi");
+      return;
+    }
+    if (!/^https?:\/\/(www\.)?topcv\.vn\/.+/i.test(url)) {
+      showError("Chỉ hỗ trợ link từ TOPCV!", "Lỗi");
+      return;
+    }
+    if (topcvLinks.includes(url)) {
+      showError("Link này đã được thêm!", "Lỗi");
+      return;
+    }
+    if (topcvLinks.length >= 5) {
+      showError("Chỉ được nhập tối đa 5 link!", "Lỗi");
+      return;
+    }
+    setTopcvLinks((prev) => [...prev, url]);
+    setNewLink("");
+  }, [newLink, topcvLinks]);
+
+  const handleFetchJobsFromLinks = useCallback(async () => {
+    if (topcvLinks.length === 0) {
+      showError("Vui lòng nhập ít nhất 1 link TOPCV!", "Lỗi");
+      return;
+    }
+    setFetchingLinks(true);
+    try {
+      await Promise.all(
+        topcvLinks.map((link) => cvService.getDataJobFromLink(link))
+      );
+      showSuccess("Đã gửi link để cào job thành công!");
+      setShowPopup("");
+      setTopcvLinks([]);
+    } catch (err) {
+      showError("Cào job thất bại: " + err.message, "Lỗi");
+    } finally {
+      setFetchingLinks(false);
+    }
+  }, [topcvLinks]);
+
+  // ========== Options cho dropdown Kinh nghiệm ==========
+  const experienceOptions = useMemo(
+    () => [
+      { value: "", label: "Kinh nghiệm" },
+      { value: "1", label: "Dưới 1 năm" },
+      { value: "2", label: "1-2 năm" },
+      { value: "3", label: "2-5 năm" },
+      { value: "4", label: "Trên 5 năm" },
+    ],
+    []
+  );
+
+  // ========== UI ==========
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white py-12 px-3">
-      <div className="max-w-4xl mx-auto shadow-2xl rounded-3xl bg-white p-8">
-        {/* Stepper */}
-        <div className="flex items-center justify-center gap-12 mb-8">
-          {["Tải lên CV", "Yêu cầu tuyển dụng"].map((label, idx) => (
-            <div key={label} className="flex flex-col items-center group">
-              <div
-                className={`
-                  w-12 h-12 flex items-center justify-center rounded-full text-xl font-bold
-                  border-4 transition-all duration-300
-                  ${step === idx + 1
-                    ? "bg-gradient-to-tr from-blue-600 to-cyan-400 text-white border-blue-400 scale-110 shadow-xl"
-                    : "bg-gray-200 border-gray-300 text-gray-400"}
-                `}
-              >
-                {idx + 1}
-              </div>
-              <span className={`mt-2 text-base font-semibold ${step === idx + 1 ? "text-blue-700" : "text-gray-400"}`}>
-                {label}
+    <>
+      <div className="max-w-7xl mx-auto">
+        <TopMenu />
+      </div>
+      <div className="min-h-screen bg-white py-10 px-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Left Column: CV Upload */}
+          <div className="flex flex-col items-center border-r md:pr-6">
+            <label
+              htmlFor="cv-upload"
+              className="flex flex-col items-center justify-center w-56 h-48 border-2 border-dashed border-yellow-400 rounded-xl cursor-pointer hover:bg-yellow-50 transition mb-3"
+              title="Chỉ chấp nhận file PDF, dung lượng dưới 2MB"
+            >
+              <FiUpload className="text-yellow-500 text-4xl mb-2" />
+              <p className="font-semibold text-blue-700 underline mb-2">
+                Tải lên CV của bạn (PDF)
+              </p>
+              <span className="text-xs text-gray-500 text-center">
+                Chỉ nhận file PDF, dung lượng dưới{" "}
+                <span className="font-bold">2MB</span>
               </span>
-            </div>
-          ))}
-        </div>
-
-        {/* Thông tin hướng dẫn */}
-        <div className="mb-8 text-center">
-          <p className="font-medium text-lg text-blue-700 mb-2">
-            👋 Chào mừng bạn đến với trình upload CV thông minh!
-          </p>
-          <p className="text-gray-700">
-            <b>Bước 1:</b> Tải lên CV (PDF) & chọn lĩnh vực nghề nghiệp. <br />
-            <b>Bước 2:</b> Chọn cách nhập yêu cầu tuyển dụng phù hợp với bạn.
-          </p>
-        </div>
-
-        {/* Bước 1 */}
-        {step === 1 && (
-          <>
-            <div className="flex flex-col md:flex-row gap-10 mb-6">
-              {/* Upload PDF */}
-              <div className="w-full md:w-1/3">
-                <label
-                  htmlFor="cv-upload"
-                  className="w-full border-2 border-dashed border-blue-300 rounded-2xl bg-blue-50 flex flex-col items-center py-8 px-4 cursor-pointer hover:bg-blue-100 shadow-lg transition group"
-                >
-                  <FiUpload className="text-5xl text-blue-500 mb-3 animate-bounce group-hover:text-pink-500" />
-                  <span className="text-blue-700 font-semibold mb-2 underline">
-                    Kéo thả hoặc nhấn để chọn file CV (PDF)
-                  </span>
-                  <input id="cv-upload" type="file" accept="application/pdf" onChange={handleUpload} className="hidden" />
-                  <span className="text-gray-400 text-sm">Dung lượng ≤ 2MB</span>
-                </label>
-                {fileUrl ? (
-                  <div className="mt-6 shadow rounded-xl overflow-hidden border border-blue-100">
-                    <iframe
-                      title="CV Preview"
-                      src={fileUrl}
-                      className="w-full h-72"
-                    />
-                  </div>
-                ) : (
-                  <div className="mt-4 text-center text-gray-400 italic">Chưa có CV được tải lên</div>
-                )}
+            </label>
+            <input
+              id="cv-upload"
+              type="file"
+              accept="application/pdf"
+              onChange={handleCVUpload}
+              className="hidden"
+            />
+            {cvFile ? (
+              <div className="mt-4 w-52 h-[300px] border rounded overflow-hidden shadow bg-gray-50">
+                <iframe
+                  title="CV"
+                  src={URL.createObjectURL(cvFile)}
+                  className="w-full h-full"
+                />
               </div>
-              {/* Dropdowns */}
-              <div className="flex-1 flex flex-col gap-6 justify-between">
-                {/* Nhóm nghề */}
-                <div>
-                  <label className="block font-bold mb-1 text-gray-700">
-                    <span className="mr-1">🗂</span>Nhóm nghề <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <select
-                      className={dropdownBase}
-                      value={formData.occupationGroup}
-                      onChange={e => setFormData({
-                        occupationGroup: e.target.value,
-                        occupation: "",
-                        specialization: "",
-                      })}
-                    >
-                      <option value="">Chọn nhóm nghề</option>
-                      {groups.map(g => (
-                        <option key={g.id} value={g.id}>{g.name}</option>
-                      ))}
-                    </select>
-                    <span className="absolute right-3 top-3 text-blue-400 pointer-events-none text-xl">▼</span>
-                  </div>
-                </div>
-                {/* Nghề */}
-                <div>
-                  <label className="block font-bold mb-1 text-gray-700">
-                    <span className="mr-1">💼</span>Nghề <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <select
-                      className={dropdownBase + (!formData.occupationGroup ? " bg-gray-100" : "")}
-                      value={formData.occupation}
-                      onChange={e => setFormData({
-                        ...formData,
-                        occupation: e.target.value,
-                        specialization: "",
-                      })}
-                      disabled={!formData.occupationGroup}
-                    >
-                      <option value="">Chọn nghề</option>
-                      {occupations
-                        .filter(o => String(o.groupId) === String(formData.occupationGroup))
-                        .map(o => (
-                          <option key={o.id} value={o.id}>{o.name}</option>
-                        ))}
-                    </select>
-                    <span className="absolute right-3 top-3 text-blue-400 pointer-events-none text-xl">▼</span>
-                  </div>
-                </div>
-                {/* Chuyên môn */}
-                <div>
-                  <label className="block font-bold mb-1 text-gray-700">
-                    <span className="mr-1">🎯</span>Chuyên môn <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <select
-                      className={dropdownBase + (!formData.occupation ? " bg-gray-100" : "")}
-                      value={formData.specialization}
-                      onChange={e => setFormData({ ...formData, specialization: e.target.value })}
-                      disabled={!formData.occupation}
-                    >
-                      <option value="">Chọn chuyên môn</option>
-                      {specializations
-                        .filter(s => String(s.occupationId) === String(formData.occupation))
-                        .map(s => (
-                          <option key={s.id} value={s.id}>{s.name}</option>
-                        ))}
-                    </select>
-                    <span className="absolute right-3 top-3 text-blue-400 pointer-events-none text-xl">▼</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* Thông báo lỗi */}
-            {error && (
-              <div className="text-red-500 font-semibold text-center mb-2 animate-pulse">{error}</div>
+            ) : (
+              <p className="text-gray-500 italic mt-4">
+                Chưa có CV được tải lên
+              </p>
             )}
-            {/* Nút */}
-            <div className="flex justify-center mt-2">
-              <button
-                className={`bg-gradient-to-r from-pink-500 to-blue-500 hover:from-pink-600 hover:to-blue-600 shadow-lg text-white font-bold px-8 py-3 rounded-2xl text-lg transition-all duration-200 ${loading || !canProceed() ? "opacity-50 cursor-not-allowed" : ""}`}
-                onClick={handleSubmit}
-                disabled={loading || !canProceed()}
-              >
-                {loading ? "Đang tải..." : "Tải lên CV"}
-              </button>
-            </div>
-          </>
-        )}
+            {uploading && (
+              <p className="text-yellow-600 mt-2">Đang tải lên...</p>
+            )}
+            {uploadResult && uploadResult.error && (
+              <p className="text-red-600 mt-2">{uploadResult.error}</p>
+            )}
+          </div>
 
-        {/* Bước 2 */}
-        {step === 2 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-8 mt-4 shadow-md">
-            <h2 className="text-center text-2xl font-extrabold text-blue-800 mb-6">
-              Chọn yêu cầu tuyển dụng
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                { label: "Tải lên yêu cầu tuyển dụng", path: "/addCVwritejobdescription" },
-                {
-                  label: (
-                    <span>
-                      Nhập đường link từ{" "}
-                      <a href="https://topcv.vn" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
-                        TopCV.vn
-                      </a>
-                    </span>
-                  ),
-                  path: "/addCVfromTOPCVLink"
-                },
-                { label: "Để SkillGapGuide tìm giúp bạn!", path: "/analysisCVAvailableJob1" }
-              ].map((opt, idx) => (
-                <div key={idx} className="bg-white border-2 border-blue-100 rounded-xl p-6 flex flex-col items-center shadow-lg transition hover:scale-105 hover:border-blue-300">
-                  <p className="mb-4 font-medium text-blue-800 text-lg text-center">{opt.label}</p>
-                  <button
-                    className="bg-gradient-to-r from-red-500 to-orange-400 hover:from-red-600 hover:to-orange-500 text-white font-extrabold px-6 py-2 rounded-full shadow"
-                    onClick={() => navigate(opt.path)}
+          {/* Right Column: Dropdowns + Requirements */}
+          <div className="flex flex-col gap-6">
+            {/* Job Requirement */}
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+              <h2 className="text-center text-lg font-semibold text-blue-800 mb-4">
+                Yêu cầu tuyển dụng
+              </h2>
+              <div className="space-y-3 text-gray-800">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="jobRequirement"
+                    value="upload"
+                    checked={selectedOption === "upload"}
+                    onChange={() => handleRadioChange("upload")}
+                  />
+                  Tải lên yêu cầu tuyển dụng
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="jobRequirement"
+                    value="link"
+                    checked={selectedOption === "link"}
+                    onChange={() => handleRadioChange("link")}
+                  />
+                  Nhập đường dẫn yêu cầu tuyển dụng từ{" "}
+                  <a
+                    href="https://topcv.vn"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-600 underline"
                   >
-                    Khám phá
-                  </button>
-                </div>
+                    TOPCV
+                  </a>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="jobRequirement"
+                    value="auto"
+                    checked={selectedOption === "auto"}
+                    onChange={() => handleRadioChange("auto")}
+                  />
+                  Hãy để Skill Gap Guide giúp bạn!
+                </label>
+              </div>
+            </div>
+
+            {/* Dropdowns: chỉ hiện nếu chọn option "auto" */}
+            {selectedOption === "auto" && (
+              <div className="transition-all duration-200 grid grid-cols-1 md:grid-cols-2 gap-4 bg-blue-50 border border-blue-300 rounded-xl p-6 shadow">
+                {/* Nhóm nghề */}
+                <select
+                  className="border border-blue-400 bg-blue-100 text-blue-700 px-3 py-2 rounded focus:ring-2 focus:ring-blue-400 focus:border-blue-500 font-semibold"
+                  value={selectedGroup}
+                  onChange={handleGroupChange}
+                >
+                  <option value="">Nhóm nghề</option>
+                  {occupationGroups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+                {/* Nghề (lọc theo nhóm) */}
+                <select
+                  className="border border-blue-400 bg-blue-100 text-blue-700 px-3 py-2 rounded focus:ring-2 focus:ring-blue-400 focus:border-blue-500 font-semibold"
+                  value={selectedCareer}
+                  onChange={handleCareerChange}
+                  disabled={!selectedGroup}
+                >
+                  <option value="">Nghề</option>
+                  {filteredOccupations.map((occ) => (
+                    <option key={occ.id} value={occ.id}>
+                      {occ.name}
+                    </option>
+                  ))}
+                </select>
+                {/* Chuyên môn (lọc theo nghề) */}
+                <select
+                  className="border border-blue-400 bg-blue-100 text-blue-700 px-3 py-2 rounded focus:ring-2 focus:ring-blue-400 focus:border-blue-500 font-semibold"
+                  value={selectedSpecialization}
+                  onChange={handleSpecializationChange}
+                  disabled={!selectedCareer}
+                >
+                  <option value="">Chuyên môn</option>
+                  {filteredSpecializations.map((spec) => (
+                    <option key={spec.id} value={spec.id}>
+                      {spec.name}
+                    </option>
+                  ))}
+                </select>
+                {/* Kinh nghiệm */}
+                <select
+                  className="border border-blue-400 bg-blue-100 text-blue-700 px-3 py-2 rounded focus:ring-2 focus:ring-blue-400 focus:border-blue-500 font-semibold"
+                  value={selectedExperience}
+                  onChange={handleExperienceChange}
+                >
+                  {experienceOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Popup: Upload Job Descriptions */}
+        {showPopup === "upload" && (
+          <div className="transition-transform duration-300 fixed top-24 right-1/2 translate-x-1/2 bg-white shadow-lg border border-gray-200 p-6 rounded-lg w-96 z-50">
+            {/* Nút X */}
+            <button
+              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 hover:bg-red-200 text-gray-500 hover:text-red-600 text-2xl flex items-center justify-center transition"
+              aria-label="Đóng"
+              onClick={() => setShowPopup("")}
+              tabIndex={0}
+            >
+              ×
+            </button>
+            <h3 className="text-lg font-bold mb-4 text-center">
+              Tải lên yêu cầu tuyển dụng
+            </h3>
+            <ul className="text-sm mb-4 list-disc list-inside">
+              {jobFiles.map((file, index) => (
+                <li key={index}>{file.name}</li>
               ))}
-            </div>
-            <div className="flex justify-center mt-8">
-              <button
-                className="text-blue-600 font-semibold underline hover:text-blue-800"
-                onClick={handleBack}
-              >
-                ← Quay lại bước 1
-              </button>
-            </div>
+            </ul>
+            {jobFiles.length < 5 && (
+              <div className="text-center mb-4">
+                <label
+                  htmlFor="job-upload"
+                  className="text-red-600 font-semibold cursor-pointer underline"
+                >
+                  + Thêm file mô tả
+                </label>
+                <input
+                  id="job-upload"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handleJobFileUpload}
+                  className="hidden"
+                />
+              </div>
+            )}
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold w-full py-2 rounded"
+              onClick={() => setShowPopup("")}
+            >
+              Hoàn thành
+            </button>
           </div>
         )}
-      </div>
+
+        {/* Popup: Input TOPCV link */}
+        {/* Popup: Input TOPCV link */}
+       {showPopup === "link" && (
+  <div
+    className="transition-transform duration-300 fixed top-24 right-1/2 translate-x-1/2 bg-white shadow-lg border border-gray-200 p-6 rounded-lg w-96 z-50 flex flex-col"
+    style={{ minHeight: 400, maxHeight: 560 }}
+  >
+    <button
+      className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 hover:bg-red-200 text-gray-500 hover:text-red-600 text-2xl flex items-center justify-center transition"
+      aria-label="Đóng"
+      onClick={() => setShowPopup("")}
+      tabIndex={0}
+    >
+      ×
+    </button>
+    <h3 className="text-lg font-bold mb-3 text-center">
+      Nhập đường dẫn từ TOPCV
+    </h3>
+
+    {/* Nội dung cuộn được */}
+    <div className="flex-1 overflow-y-auto">
+      {topcvLinks.length > 0 ? (
+        <ul className="text-sm mb-3 space-y-2">
+          {topcvLinks.map((link, index) => (
+            <li
+              key={index}
+              className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg shadow-sm group"
+            >
+              <span className="font-semibold text-blue-700 min-w-[28px] text-center">
+                {index + 1}.
+              </span>
+              <a
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 break-all text-blue-900 underline hover:text-blue-700 transition"
+              >
+                {link}
+              </a>
+              <button
+                className="ml-2 text-gray-400 hover:text-red-600 transition"
+                title="Xoá link này"
+                onClick={() =>
+                  setTopcvLinks((prev) =>
+                    prev.filter((_, i) => i !== index)
+                  )
+                }
+              >
+                <FiTrash size={18} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-gray-400 italic text-center mb-3">
+          Chưa có link nào được thêm
+        </p>
+      )}
+
+      {/* Input và nút thêm link */}
+      {topcvLinks.length < 5 && (
+        <>
+          <input
+            type="text"
+            value={newLink}
+            onChange={handleNewLinkChange}
+            placeholder="Dán link từ TOPCV tại đây..."
+            className="w-full border px-3 py-2 mb-3 rounded text-sm"
+          />
+          <button
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-sm font-semibold disabled:opacity-60"
+            onClick={handleAddTopcvLink}
+            disabled={addingLink}
+          >
+            {addingLink ? "Đang thêm link..." : "+ Thêm link"}
+          </button>
+        </>
+      )}
+      {topcvLinks.length >= 5 && (
+        <p className="text-red-600 text-center font-medium my-2">
+          Chỉ nhập tối đa 5 link!
+        </p>
+      )}
     </div>
+
+    {/* Nút Hoàn thành luôn ở dưới cùng */}
+    <button
+      className="mt-3 bg-green-600 hover:bg-green-700 text-white font-semibold w-full py-2 rounded disabled:opacity-60"
+      onClick={handleFetchJobsFromLinks}
+      disabled={fetchingLinks || topcvLinks.length === 0}
+    >
+      {fetchingLinks ? "Đang gửi link..." : "Hoàn thành"}
+    </button>
+  </div>
+)}
+
+      </div>
+    </>
   );
 };
 
