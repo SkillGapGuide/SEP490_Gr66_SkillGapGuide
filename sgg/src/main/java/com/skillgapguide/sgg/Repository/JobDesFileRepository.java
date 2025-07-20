@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface JobDesFileRepository extends JpaRepository<JobDesFile, Integer> {
     List<JobDesFile> findByUserId(Integer userId);
+    void deleteAllByJobId(int jobId);
 }

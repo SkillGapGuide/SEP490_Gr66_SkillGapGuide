@@ -7,6 +7,8 @@ import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
 import com.skillgapguide.sgg.Dto.ExtractJDSkillDTO;
 import com.skillgapguide.sgg.Entity.*;
 import com.skillgapguide.sgg.Repository.*;
+import com.skillgapguide.sgg.Response.EHttpStatus;
+import com.skillgapguide.sgg.Response.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -18,23 +20,47 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class JobService {
+
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private EmbedService embedService;
     @Autowired
     private JobDesFileRepository jobDesFileRepository;
     @Autowired
-    private UserRepository userRepository;
+    private JobDeleteService jobDeleteService;
     @Autowired
     private JobDesSkillsRepository jobDesSkillsRepository;
     @Autowired
     private CVRepository cvRepository;
     @Autowired
     private JobRepository jobRepository;
-    @Autowired
-    private EmbedService embedService;
     private final String UPLOAD_DIR = "D:/JdData/";
+    public List<String> loadMultiFile(MultipartFile[] files){
+        jobDeleteService.deleteJob();
+        List<String> uploadedIds = new ArrayList<>();
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) {
+                throw new IllegalStateException("Có file trống, vui lòng kiểm tra lại");
+            }
+            String fileName = file.getOriginalFilename();
+            String fileExtension = (fileName != null && fileName.contains("."))
+                    ? fileName.substring(fileName.lastIndexOf('.') + 1)
+                    : "";
+            if (!fileExtension.equalsIgnoreCase("pdf") && !fileExtension.equalsIgnoreCase("docx")) {
+                throw new IllegalStateException("Chỉ chấp nhận file PDF");
+            }
+            // 3. Gọi service để lưu từng tệp và lưu lại ID/trạng thái
+            String id = uploadJd(fileName, fileExtension, file);
+            uploadedIds.add(id);
+        }
+        return uploadedIds;
+    }
     public String uploadJd(String fileName, String fileExtension, MultipartFile file) {
         try {
             String email = SecurityContextHolder.getContext().getAuthentication().getName(); // lấy từ JWT
@@ -58,7 +84,6 @@ public class JobService {
 
     public static String extractTextFromPdf(String filePath) throws IOException {
         try {
-
             StringBuilder text = new StringBuilder();
             PdfDocument pdfDoc = new PdfDocument(new PdfReader(filePath));
             int pages = pdfDoc.getNumberOfPages();
@@ -100,7 +125,6 @@ public class JobService {
             }
         }).start();
     }
-
     public void saveJobSkillsToDb(String aiResponseJson, int userId, String fileName, String fileExtension, String path) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         ExtractJDSkillDTO response = mapper.readValue(aiResponseJson, ExtractJDSkillDTO.class);
@@ -129,7 +153,6 @@ public class JobService {
         jobMetadata.setUploadDate(LocalDateTime.now());
         jobDesFileRepository.save(jobMetadata);
     }
-
     public List<JobDesSkills> getJobSkill(int jobId) {
         return jobDesSkillsRepository.findByJobId(jobId);
     }

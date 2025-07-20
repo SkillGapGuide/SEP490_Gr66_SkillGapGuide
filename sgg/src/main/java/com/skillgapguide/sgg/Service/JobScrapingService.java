@@ -1,12 +1,18 @@
 package com.skillgapguide.sgg.Service;
 
+import com.skillgapguide.sgg.Entity.Cv;
+import com.skillgapguide.sgg.Entity.User;
+import com.skillgapguide.sgg.Repository.CVRepository;
 import com.skillgapguide.sgg.Repository.JobCategoryRepository;
 import com.skillgapguide.sgg.Repository.JobRepository;
+import com.skillgapguide.sgg.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.skillgapguide.sgg.Entity.Job;
 import com.skillgapguide.sgg.Entity.JobCategory;
@@ -29,6 +35,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class JobScrapingService {
     private final JobRepository jobRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private CVRepository cvRepository;
+    @Autowired
+    private JobDeleteService jobDeleteService;
 //    private final JobCategoryRepository jobCategoryRepository;
     @Transactional // Đảm bảo các thao tác DB được thực hiện trong một giao dịch
     public void scrapeAndSaveJob(String jobDetailUrl) {
@@ -191,8 +203,16 @@ public class JobScrapingService {
             // === 4. Lưu vào database nếu có đủ thông tin ===
             if (!title.isEmpty() && !company.isEmpty()) {
                 String finalCategoryName = categoryName;
+                String email = SecurityContextHolder.getContext().getAuthentication().getName(); // lấy từ JWT
+                Integer userId = userRepository.findByEmail(email).map(User::getUserId).orElseThrow(() -> new RuntimeException("User not found"));
+                Cv cv = cvRepository.findByUserId(userId);
+                if (cv == null) {
+                    throw new IllegalStateException("Chưa upload cv");
+                }
+                jobDeleteService.deleteJob();
                 Job job = new Job();
                 job.setTitle(title);
+                job.setCvId(cv.getId());
                 job.setCompany(company);
                 job.setDescription(fullDescription);
                 job.setStatus("ACTIVE");

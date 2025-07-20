@@ -11,4 +11,5 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
     // Spring Data JPA sẽ tự động cung cấp các phương thức CRUD
     boolean existsBySourceUrl(String sourceUrl);
     List<Job> getJobsByCvId(int cvId);
+    void deleteAllByCvId(int cvId);
 }

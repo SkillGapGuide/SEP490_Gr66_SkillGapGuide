@@ -37,28 +37,8 @@ public class JobController {
             return new Response<>(EHttpStatus.BAD_REQUEST, "Chỉ chấp nhận tối đa 5 file mỗi lần");
         }
 
-        List<String> uploadedIds = new ArrayList<>();
 
-        for (MultipartFile file : files) {
-            if (file.isEmpty()) {
-                return new Response<>(EHttpStatus.BAD_REQUEST, "Có file trống, vui lòng kiểm tra lại");
-            }
-
-            String fileName = file.getOriginalFilename();
-            String fileExtension = (fileName != null && fileName.contains("."))
-                    ? fileName.substring(fileName.lastIndexOf('.') + 1)
-                    : "";
-
-            if (!fileExtension.equalsIgnoreCase("pdf") && !fileExtension.equalsIgnoreCase("docx")) {
-                return new Response<>(EHttpStatus.BAD_REQUEST, "Chỉ chấp nhận file PDF hoặc Word (.docx)");
-            }
-
-            // 3. Gọi service để lưu từng tệp và lưu lại ID/trạng thái
-            String id = jobService.uploadJd(fileName, fileExtension, file);
-            uploadedIds.add(id);
-        }
-
-        return new Response<>(EHttpStatus.OK, uploadedIds);
+        return new Response<>(EHttpStatus.OK, jobService.loadMultiFile(files));
 
     }
     @GetMapping("/getJobSkill")

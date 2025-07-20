@@ -9,4 +9,5 @@ import java.util.Optional;
 
 public interface JobDesSkillsRepository extends JpaRepository<JobDesSkills,Integer> {
     List<JobDesSkills> findByJobId(int jobId);
+    void deleteAllByJobId(int jobId);
 }
