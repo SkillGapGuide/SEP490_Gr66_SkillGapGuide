@@ -40,7 +40,6 @@ import java.util.Map;
 @RequestMapping("/api/payment")
 @SecurityRequirement(name = "Bearer Authentication")
 @RequiredArgsConstructor
-@RequestMapping("/api/payment")
 public class PaymentController {
     @Autowired
     private UserRepository userRepository;
@@ -99,17 +98,10 @@ public class PaymentController {
         String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         response.setHeader("Content-Disposition", "attachment; filename=payments_" + currentDate + ".xlsx");
 
-    @GetMapping("/create")
-    public ResponseEntity<Map<String, Object>> createPayment(@RequestParam double amount, HttpServletRequest request) throws Exception {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
         List<Payment> payments = paymentService.findAllList();
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Payments");
 
-        String orderInfo = "Thanh toán đơn hàng #" + System.currentTimeMillis();
-        String ipAddr = request.getRemoteAddr();
         Row header = sheet.createRow(0);
         header.createCell(0).setCellValue("Payment ID");
         header.createCell(1).setCellValue("User ID");
@@ -120,15 +112,6 @@ public class PaymentController {
         header.createCell(6).setCellValue("QR Code URL");
         header.createCell(7).setCellValue("Status");
 
-        // 👉 Gửi userId vào service để nhúng vào TxnRef
-        String url = vnPayService.createPaymentUrl(amount, orderInfo, ipAddr, user.getUserId());
-
-        Map<String, Object> response = Map.of(
-                "paymentUrl", url,
-                "message", "Redirect to payment"
-        );
-        return ResponseEntity.ok(response);
-    }
         int rowIdx = 1;
         for (Payment payment : payments) {
             Row row = sheet.createRow(rowIdx++);
@@ -142,13 +125,6 @@ public class PaymentController {
             row.createCell(7).setCellValue(payment.getStatus());
         }
 
-    @GetMapping("/vnpay-return")
-    public ResponseEntity<Map<String, Object>> paymentReturn(@RequestParam Map<String, String> params) {
-        try {
-            String status = params.get("vnp_ResponseCode");
-            String transactionNo = params.get("vnp_TransactionNo");
-            double amount = Double.parseDouble(params.get("vnp_Amount")) / 100;
-            String txnRef = params.get("vnp_TxnRef");
         workbook.write(response.getOutputStream());
         workbook.close();
     }
@@ -158,39 +134,16 @@ public class PaymentController {
         String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         response.setHeader("Content-Disposition", "attachment; filename=payments_" + currentDate + ".pdf");
 
-            // Tách userId từ txnRef: ví dụ 123_172102938123
-            Integer userId = Integer.parseInt(txnRef.split("_")[0]);
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
         List<Payment> payments = paymentService.findAllList();
 
-            Payment payment = new Payment();
-            payment.setAmount(amount);
-            payment.setDate(new Date());
-            payment.setStatus("00".equals(status) ? "SUCCESS" : "FAILED");
-            payment.setTransactionCode(transactionNo);
-            payment.setPaymentMethod("VNPAY");
-            payment.setUserId(user.getUserId());
         Document document = new Document();
         PdfWriter.getInstance(document, response.getOutputStream());
         document.open();
 
-            Payment saved = paymentRepo.save(payment);
         PdfPTable table = new PdfPTable(8);
         table.setWidthPercentage(100);
         table.setWidths(new int[]{4, 2, 2, 3, 3, 3, 4, 2});
 
-            return ResponseEntity.ok(Map.of(
-                    "message", "00".equals(status) ? "Thanh toán thành công" : "Thanh toán thất bại",
-                    "status", status,
-                    "transactionCode", transactionNo,
-                    "paymentId", saved.getPaymentId()
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of(
-                    "message", "Lỗi khi xử lý callback từ VNPAY",
-                    "error", e.getMessage()
-            ));
         String[] headers = {"Payment ID", "User ID", "Amount", "Date", "Payment Method", "Transaction Code", "QR Code URL", "Status"};
         for (String header : headers) {
             PdfPCell cell = new PdfPCell(new Phrase(header));
@@ -212,4 +165,60 @@ public class PaymentController {
         document.add(table);
         document.close();
     }
+    @GetMapping("/create")
+    public ResponseEntity<Map<String, Object>> createPayment(@RequestParam double amount, HttpServletRequest request) throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String orderInfo = "Thanh toán đơn hàng #" + System.currentTimeMillis();
+        String ipAddr = request.getRemoteAddr();
+
+        // 👉 Gửi userId vào service để nhúng vào TxnRef
+        String url = vnPayService.createPaymentUrl(amount, orderInfo, ipAddr, user.getUserId());
+
+        Map<String, Object> response = Map.of(
+                "paymentUrl", url,
+                "message", "Redirect to payment"
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/vnpay-return")
+    public ResponseEntity<Map<String, Object>> paymentReturn(@RequestParam Map<String, String> params) {
+        try {
+            String status = params.get("vnp_ResponseCode");
+            String transactionNo = params.get("vnp_TransactionNo");
+            double amount = Double.parseDouble(params.get("vnp_Amount")) / 100;
+            String txnRef = params.get("vnp_TxnRef");
+
+            // Tách userId từ txnRef: ví dụ 123_172102938123
+            Integer userId = Integer.parseInt(txnRef.split("_")[0]);
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+
+            Payment payment = new Payment();
+            payment.setAmount(amount);
+            payment.setDate(new Date());
+            payment.setStatus("00".equals(status) ? "SUCCESS" : "FAILED");
+            payment.setTransactionCode(transactionNo);
+            payment.setPaymentMethod("VNPAY");
+            payment.setUserId(user.getUserId());
+
+            Payment saved = paymentRepo.save(payment);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "00".equals(status) ? "Thanh toán thành công" : "Thanh toán thất bại",
+                    "status", status,
+                    "transactionCode", transactionNo,
+                    "paymentId", saved.getPaymentId()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "message", "Lỗi khi xử lý callback từ VNPAY",
+                    "error", e.getMessage()
+            ));
+        }
+    }
+
 }
