@@ -40,14 +40,16 @@ public class JobScraperController {
             return ResponseEntity.internalServerError().body("Lỗi xảy ra khi cào dữ liệu: " + e.getMessage());
         }
     }
-    @PostMapping("/crawl-sales-logistics")
-    public ResponseEntity<String> scrapeTop10SalesLogisticsJobs() {
+    @PostMapping("/crawl-10-jobs-by-specialization")
+    public ResponseEntity<String> scrapeTop10JobsBySpecialization(@RequestBody ScrapeRequest request) {
+        if (request.getUrl() == null || request.getUrl().isEmpty()) {
+            return ResponseEntity.badRequest().body("Vị trí chuyên môn không được để trống.");
+        }
         try {
-            // Gọi service để thực hiện việc cào 10 công việc từ danh mục Sales Logistics
-            jobScrapingService.scrapeTop10SalesImportAndExportLogisticsJobs();
-            return ResponseEntity.ok("Đã cào và lưu 10 công việc từ danh mục Sales Logistics.");
+            jobScrapingService.scrapeAndSaveTop10JobsBySpecialization(request.getUrl());
+            return ResponseEntity.ok("Đã cào và lưu 10 công việc đầu tiên từ URL: : " + request.getUrl());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Lỗi xảy ra khi cào dữ liệu: " + e.getMessage());
+            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
         }
     }
 }
