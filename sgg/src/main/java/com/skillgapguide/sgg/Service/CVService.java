@@ -107,11 +107,15 @@ public class CVService {
 
         LMStudioService service = new LMStudioService(WebClient.builder());
         service.callLMApi(prompt)
+                .doOnError(error -> {
+                    System.err.println("Lỗi khi gọi LM API: " + error.getMessage());
+                })
                 .subscribe(content -> {
                     try {
                         cvSkillService.saveCvSkillsToDb(content, cvId);
                     } catch (Exception e) {
-                        throw new RuntimeException(e.getMessage());
+                        System.err.println("Lỗi khi lưu kỹ năng vào DB: " + e.getMessage());
+                        e.printStackTrace();
                     }
                 });
     }
