@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/businessadmin")
 @RequiredArgsConstructor
-public class BusinessAdminController {
+public class ContentManagerController {
     private final JobCategoryService jobCategoryService;
     private final SpecializationsService specializationService;
     private final MainJobCategoryService occupationGroupService;
