@@ -1,13 +1,12 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { lazy } from "react";
+
+// Layouts
 import ErrorBoundary from "../components/ErrorBoundary";
 import UserLayout from "../layouts/UserLayout";
 import AdminLayout from "../layouts/AdminLayout";
-import AnalyzeUpload from "../pages/user/AnalyzeUpload";
-import AnalyzeLoading from "../pages/user/AnalyzeLoading";
-import AnalyzeResult from "../pages/user/AnalyzeResult";
 
-// Import động (React.lazy)
+// Phần User (lazy import các page lớn)
 const Home = lazy(() => import("../pages/Home"));
 const Login = lazy(() => import("../pages/Login"));
 const Register = lazy(() => import("../pages/Register"));
@@ -23,21 +22,11 @@ const UserProfile = lazy(() => import("../pages/user/UserProfile"));
 const ServicePayment = lazy(() => import("../pages/user/ServicePayment"));
 const ServiceRating = lazy(() => import("../pages/user/ServiceRating"));
 const SuggestedCourses = lazy(() => import("../pages/user/SuggestedCourses"));
-const AddCVChooseAvailableCareer = lazy(() =>
-  import("../pages/user/AddCVChooseAvailableCareer")
-);
-const AddCVWriteJobDescription = lazy(() =>
-  import("../pages/user/AddCVWriteJobDescription")
-);
-const AddCVFromTOPCVLink = lazy(() =>
-  import("../pages/user/AddCVFromTOPCVLink")
-);
-const AnalysisLinkingJob = lazy(() =>
-  import("../pages/user/AnalysisLinkingJob")
-);
-const AnalysisJobDescription = lazy(() =>
-  import("../pages/user/AnalysisJobDescription")
-);
+const AddCVChooseAvailableCareer = lazy(() => import("../pages/user/AddCVChooseAvailableCareer"));
+const AddCVWriteJobDescription = lazy(() => import("../pages/user/AddCVWriteJobDescription"));
+const AddCVFromTOPCVLink = lazy(() => import("../pages/user/AddCVFromTOPCVLink"));
+const AnalysisLinkingJob = lazy(() => import("../pages/user/AnalysisLinkingJob"));
+const AnalysisJobDescription = lazy(() => import("../pages/user/AnalysisJobDescription"));
 const FavoriteSkills = lazy(() => import("../pages/user/FavoriteSkills"));
 const FavoriteCourses = lazy(() => import("../pages/user/FavouriteCourses"));
 const CourseTracking = lazy(() => import("../pages/user/CourseTracking"));
@@ -46,31 +35,31 @@ const MainAnalysisPage = lazy(() => import("../pages/user/MainAnalysisPage"));
 const CVUploadOptions = lazy(() => import("../pages/user/CVUploadOptions"));
 const AuthCallback = lazy(() => import("../components/AuthCallback"));
 
+// Phần Analyze
+import AnalyzeUpload from "../pages/user/AnalyzeUpload";
+import AnalyzeLoading from "../pages/user/AnalyzeLoading";
+import AnalyzeResult from "../pages/user/AnalyzeResult";
+
 // Admin
 const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
 const ManagerUser = lazy(() => import("../pages/admin/ManagerUser"));
-const StaticContentManager = lazy(() =>
-  import("../pages/admin/StaticContentManager")
-);
+const StaticContentManager = lazy(() => import("../pages/admin/StaticContentManager"));
 const AboutUsManager = lazy(() => import("../pages/admin/AboutUsManager"));
-const AdminFeedbackManager = lazy(() =>
-  import("../pages/admin/AdminFeedbackManager")
-);
-const SocialLinksManager = lazy(() =>
-  import("../pages/admin/SocialLinksManager")
-);
+const AdminFeedbackManager = lazy(() => import("../pages/admin/AdminFeedbackManager"));
+const SocialLinksManager = lazy(() => import("../pages/admin/SocialLinksManager"));
 const TagSkillManager = lazy(() => import("../pages/admin/TagSkillManager"));
 const HomePageManager = lazy(() => import("../pages/admin/HomePageManager"));
 const JobTablePage = lazy(() => import("../pages/admin/JobTablePage"));
 const CourseTable = lazy(() => import("../pages/admin/CourseTable"));
 
 const router = createBrowserRouter([
+  // User routes
   {
     path: "/",
     element: <UserLayout />,
     errorElement: <ErrorBoundary />,
     children: [
-      { path: "", element: <Home /> },
+      { index: true, element: <Home /> },
       { path: "login", element: <Login /> },
       { path: "register", element: <Register /> },
       { path: "profile", element: <UserProfile /> },
@@ -80,16 +69,9 @@ const router = createBrowserRouter([
       { path: "about-us", element: <AboutSection /> },
       { path: "contact", element: <ContactPage /> },
       { path: "cv-skills", element: <CvSkillPage /> },
-      { path: "analyze", element: <MainAnalysisPage /> },
       { path: "cv-upload-options", element: <CVUploadOptions /> },
-      {
-        path: "addCVchooseavailablecareer",
-        element: <AddCVChooseAvailableCareer />,
-      },
-      {
-        path: "addCVwritejobdescription",
-        element: <AddCVWriteJobDescription />,
-      },
+      { path: "addCVchooseavailablecareer", element: <AddCVChooseAvailableCareer /> },
+      { path: "addCVwritejobdescription", element: <AddCVWriteJobDescription /> },
       { path: "addCVfromTOPCVLink", element: <AddCVFromTOPCVLink /> },
       { path: "matchingjobs", element: <MatchingJobs /> },
       { path: "servicepayment", element: <ServicePayment /> },
@@ -101,29 +83,38 @@ const router = createBrowserRouter([
       { path: "favouriteCourses", element: <FavoriteCourses /> },
       { path: "coursetracking", element: <CourseTracking /> },
       { path: "terms-of-service", element: <TermsEndUserPage /> },
+
+      // ----- Nested route phân tích -----
       {
-        path: "/analyze/upload",
-        element: <AnalyzeUpload />,
+        path: "analyze",
+        // Nếu bạn muốn luôn có TopMenu cho toàn bộ nhánh này: Có thể làm AnalyzeLayout riêng
+        children: [
+          { index: true, element: <Navigate to="upload" replace /> },
+          { path: "upload", element: <AnalyzeUpload /> },
+          { path: "loading", element: <AnalyzeLoading /> },
+          { path: "result", element: <AnalyzeResult /> }
+        ]
       },
-      {
-        path: "/analyze/loading",
-        element: <AnalyzeLoading />,
-      },
-      {
-        path: "/analyze/result",
-        element: <AnalyzeResult />,
-      },
-    ],
+      // ----- Kết thúc analyze -----
+
+      // Nếu bạn muốn một route riêng cho MainAnalysisPage
+      { path: "main-analysis", element: <MainAnalysisPage /> },
+    ]
   },
+
+  // Auth callback
   {
-    path: "*",
-    element: <NotFound />,
+    path: "auth/callback",
+    element: <AuthCallback />
   },
+
+  // Admin routes
   {
     path: "/admin",
     element: <AdminLayout />,
     errorElement: <ErrorBoundary />,
     children: [
+      { index: true, element: <Navigate to="dashboard" replace /> },
       { path: "dashboard", element: <AdminDashboard /> },
       { path: "users", element: <ManagerUser /> },
       { path: "static-content", element: <StaticContentManager /> },
@@ -134,12 +125,14 @@ const router = createBrowserRouter([
       { path: "homepage-manage", element: <HomePageManager /> },
       { path: "course-management", element: <CourseTable /> },
       { path: "job-management", element: <JobTablePage /> },
-    ],
+    ]
   },
+
+  // 404
   {
-    path: "auth/callback",
-    element: <AuthCallback />,
-  },
+    path: "*",
+    element: <NotFound />
+  }
 ]);
 
 export default router;
