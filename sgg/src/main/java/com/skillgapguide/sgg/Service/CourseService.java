@@ -176,34 +176,53 @@ public class CourseService {
         logger.info("Removed all favorite courses for userId={}", userId);
     }
 
-    @Transactional
-    public void scrapeAndSaveCoursesByCvId(int numPages, int numItems, Integer cvId) {
+    public List<Course> scrapeAndSaveCoursesByCvId(int numPages, int numItems, Integer cvId) {
+        List<Course> scrapedCourses = new ArrayList<>();
         List<String> jobSkills = courseRepository.findJobSkillsByCvId(cvId);
         if (jobSkills == null || jobSkills.isEmpty()) {
             logger.warn("Không tìm thấy jobSkill nào cho cvId={}", cvId);
-            return;
+            return scrapedCourses;
         }
 
         WebDriver driver = createChromeDriver();
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
             for (String keyword : jobSkills) {
-                logger.info("Bắt đầu cào với từ khóa: {}", keyword);
                 for (int page = 1; page <= numPages; page++) {
-                    logger.info("Đang cào trang {}/{} với từ khóa '{}'", page, numPages, keyword);
                     try {
-                        if (scrapePage(driver, wait, page, numItems, keyword, logger)) {
+                        List<Course> pageCourses = scrapePageAndReturnCourses(driver, wait, page, numItems, keyword, logger);
+                        scrapedCourses.addAll(pageCourses);
+                        if (!pageCourses.isEmpty()) {
                             randomSleep(PAGE_DELAY_MIN, PAGE_DELAY_MAX);
                         }
                     } catch (Exception e) {
                         logger.error("Lỗi khi xử lý trang {}: {}", page, e.getMessage());
-                        entityManager.clear(); // Clear persistence context after error
+                        entityManager.clear();
                     }
                 }
             }
         } finally {
             if (driver != null) driver.quit();
         }
+        return scrapedCourses;
+    }
+    private List<Course> scrapePageAndReturnCourses(WebDriver driver, WebDriverWait wait, int page, int numItems, String keyword, Logger logger) {
+        List<Course> courses = new ArrayList<>();
+        String pageUrl = buildSearchUrl(page, keyword);
+        loadPageAndWait(driver, wait, pageUrl, logger);
+        List<String> courseUrls = extractCourseUrls(driver, numItems, logger);
+        for (String courseUrl : courseUrls) {
+            try {
+                Course course = scrapeCourseDetails(driver, wait, courseUrl, logger);
+                if (course != null) {
+                    courseRepository.save(course);
+                    courses.add(course);
+                }
+            } catch (Exception e) {
+                logger.error("Lỗi khi xử lý khóa học {}: {}", courseUrl, e.getMessage());
+            }
+        }
+        return courses;
     }
 
     // Sửa lại hàm scrapePage để nhận keyword động
