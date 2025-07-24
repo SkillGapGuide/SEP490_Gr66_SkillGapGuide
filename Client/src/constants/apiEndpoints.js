@@ -1,3 +1,5 @@
+import { get } from "react-hook-form";
+
 export const ENDPOINTS = {
   auth: {
     login: "/api/auth/login",
@@ -21,6 +23,7 @@ export const ENDPOINTS = {
       "/api/user-favorite-missing-skills/get-favorite-missing-skills/{userId}",
     addFavoriteMissingSkill:
       "/api/user-favorite-missing-skill/add-favorite-missing-skill/{userId}/{skillId}",
+      fileHistory: "/api/file/history",
   },
   admin: {
     getAllUsers: "/api/admin/getAllUser",
@@ -91,6 +94,7 @@ export const ENDPOINTS = {
   },
   cv: {
     uploadCV: "/api/CV/upload-cv",
+    getCVSkill:"/api/CV/getCvSkill"
   },
   course: {
   showCourse: "/api/courses/showCourse/{courseId}",
@@ -108,5 +112,28 @@ export const ENDPOINTS = {
 ,
   chat :{
 
+  },
+  file: {
+    getHistory: "/api/file/history",
+  },
+  job :{
+    uploadFileJob: "/api/job/upload-jd",
+    getJobSkills : "/api/job/getJobSkill",
+    getJobList:"/api/job/getJobList",
+  },
+  payment :{
+    vnpayReturn: "/api/payment/vnpay-return",
+    findPaymentByPaymentId: "/api/payment/findPaymentByPaymentId",
+    findAllPayments: "/api/payment/findAllPayments",
+    filter: "/api/payment/filter",
+    filterByUserId: "/api/payment/filter/byUserId",
+    filterByDatesRange: "/api/payment/filter/byDatesRange",
+    exportPdf: "/api/payment/export/pdf",
+    exportExcel: "/api/payment/export/excel",
+    create: "/api/payment/create",
+  },
+  skillGap :{
+    getSkillGap: "/api/gap/getSkillGap",
+    getCommentSkill:"/api/gap/getCommentSkill",
   }
 };
