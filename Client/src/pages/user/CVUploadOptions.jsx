@@ -1,44 +1,46 @@
 import React, { useState, useCallback, useMemo, useEffect } from "react";
-import { FiUpload } from "react-icons/fi";
-import TopMenu from "./TopMenu";
+import { FiUpload, FiTrash } from "react-icons/fi";
 import { cvService } from "../../services/cvJobService";
+import { scrapeJobService } from "../../services/scrapService";
 import { showError, showSuccess, showInfo } from "../../utils/alert";
 import { careerService } from "../../services/career";
-import { FiTrash } from "react-icons/fi";
+import { useCVWizardStore } from "../../stores/cvWizardStore";
 
 const MAX_CV_SIZE = 2 * 1024 * 1024; // 2MB
 
-const CVUploadOptions = () => {
-  // State cho upload CV
-  const [cvFile, setCVFile] = useState(null);
+const CVUploadOptions = ({ onNext }) => {
+  // ====== GLOBAL STATE (ZUSTAND) ======
+  const cvFile = useCVWizardStore((state) => state.cvFile);
+  const setCVFile = useCVWizardStore((state) => state.setCVFile);
+
+  const uploadResult = useCVWizardStore((state) => state.uploadResult);
+  const setUploadResult = useCVWizardStore((state) => state.setUploadResult);
+
+  const jobFiles = useCVWizardStore((state) => state.jobFiles);
+  const setJobFiles = useCVWizardStore((state) => state.setJobFiles);
+
+  const topcvLinks = useCVWizardStore((state) => state.topcvLinks);
+  const setTopcvLinks = useCVWizardStore((state) => state.setTopcvLinks);
+
+  // ====== LOCAL STATE ======
   const [uploading, setUploading] = useState(false);
-  const [uploadResult, setUploadResult] = useState(null);
   const [addingLink, setAddingLink] = useState(false);
-  const [fetchingLinks, setFetchingLinks] = useState(false);
-
-  // State cho upload Job Description
-  const [jobFiles, setJobFiles] = useState([]);
-
-  // State cho TopCV link
-  const [topcvLinks, setTopcvLinks] = useState([]);
-  const [newLink, setNewLink] = useState("");
-
-  // State cho popup & radio chọn method
-  const [selectedOption, setSelectedOption] = useState("");
   const [showPopup, setShowPopup] = useState("");
+  const [selectedOption, setSelectedOption] = useState("");
+  const [newLink, setNewLink] = useState("");
+  const [uploadingJobFiles, setUploadingJobFiles] = useState(false);
+  const [scrapingLinks, setScrapingLinks] = useState(false);
 
-  // State cho dropdown danh mục nghề
-  const [occupationGroups, setOccupationGroups] = useState([]); // Nhóm nghề
-  const [occupations, setOccupations] = useState([]); // Nghề
-  const [specializations, setSpecializations] = useState([]); // Chuyên môn
-
-  // Selected values cho dropdown
+  // Dropdown ngành nghề, chuyên môn...
+  const [occupationGroups, setOccupationGroups] = useState([]);
+  const [occupations, setOccupations] = useState([]);
+  const [specializations, setSpecializations] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState("");
   const [selectedCareer, setSelectedCareer] = useState("");
   const [selectedSpecialization, setSelectedSpecialization] = useState("");
   const [selectedExperience, setSelectedExperience] = useState("");
 
-  // ===== Gọi API danh mục nghề khi load component =====
+  // Lấy danh mục nghề khi load
   useEffect(() => {
     const fetchData = async () => {
       const [groups, careers, specs] = await Promise.all([
@@ -53,7 +55,7 @@ const CVUploadOptions = () => {
     fetchData();
   }, []);
 
-  // ===== Filter nghề theo nhóm =====
+  // ======= Handler chọn nhóm/nghề/chuyên môn/kinh nghiệm =======
   const filteredOccupations = useMemo(
     () =>
       occupations.filter(
@@ -61,7 +63,6 @@ const CVUploadOptions = () => {
       ),
     [occupations, selectedGroup]
   );
-  // ===== Filter chuyên môn theo nghề =====
   const filteredSpecializations = useMemo(
     () =>
       specializations.filter(
@@ -69,8 +70,6 @@ const CVUploadOptions = () => {
       ),
     [specializations, selectedCareer]
   );
-
-  // ===== Xử lý chọn nhóm, nghề, chuyên môn =====
   const handleGroupChange = useCallback((e) => {
     setSelectedGroup(e.target.value);
     setSelectedCareer("");
@@ -83,103 +82,86 @@ const CVUploadOptions = () => {
   const handleSpecializationChange = useCallback((e) => {
     setSelectedSpecialization(e.target.value);
   }, []);
-
-  // ...trên đầu component
-  const handleNewLinkChange = useCallback(
-    (e) => setNewLink(e.target.value),
-    []
-  );
   const handleExperienceChange = useCallback(
     (e) => setSelectedExperience(e.target.value),
     []
   );
 
-  // ========== Upload CV Handler ==========
-  const handleCVUpload = useCallback(async (e) => {
-    const file = e.target.files[0];
-    if (!file) {
-      showError("Vui lòng chọn file CV.", "Lỗi");
-      return;
-    }
-    if (file.type !== "application/pdf") {
-      showError("Chỉ chấp nhận file PDF.", "Lỗi");
-      return;
-    }
-    if (file.size > MAX_CV_SIZE) {
-      showError("File CV không được vượt quá 2MB.", "Lỗi");
-      return;
-    }
-    setCVFile(file);
-    setUploading(true);
-    setUploadResult(null);
-    try {
-      const res = await cvService.uploadCV(file);
-      setUploadResult(res);
-      showSuccess("Tải lên CV thành công!");
-    } catch (error) {
-      setUploadResult({ error: error.message });
-      showError("Upload CV thất bại: " + error.message, "Lỗi");
-    } finally {
-      setUploading(false);
-    }
-  }, []);
-
-  // ========== Upload Job Description Handler ==========
-  const handleJobFileUpload = useCallback(
-    (e) => {
-      const files = Array.from(e.target.files);
-
-      // Kiểm tra số lượng file tổng cộng (đã chọn + đã upload)
-      if (files.length + jobFiles.length > 5) {
-        showError("Tối đa 5 file mô tả!", "Lỗi");
+  // ====== Upload CV Handler ======
+  const handleCVUpload = useCallback(
+    async (e) => {
+      const file = e.target.files[0];
+      if (!file) {
+        showError("Vui lòng chọn file CV.", "Lỗi");
         return;
       }
-
-      // Kiểm tra tất cả file hợp lệ
-      for (let file of files) {
-        if (
-          file.type !== "application/pdf" &&
-          file.type !==
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        ) {
-          showError("Chỉ chấp nhận file PDF.", "Lỗi");
-          return;
-        }
-        if (file.size > MAX_CV_SIZE) {
-          showError("File mô tả không được vượt quá 2MB.", "Lỗi");
-          return;
-        }
+      if (file.type !== "application/pdf") {
+        showError("Chỉ chấp nhận file PDF.", "Lỗi");
+        return;
       }
-
+      if (file.size > MAX_CV_SIZE) {
+        showError("File CV không được vượt quá 2MB.", "Lỗi");
+        return;
+      }
+      setCVFile(file);
+      setUploading(true);
+      setUploadResult(null);
       try {
-        // Gọi API upload nhiều file cùng lúc
-        cvService.uploadJobDescription(files);
-        setJobFiles((prev) => [...prev, ...files]);
-        showSuccess("Tải lên mô tả công việc thành công!");
+        const res = await cvService.uploadCV(file);
+        setUploadResult(res);
+        showSuccess("Tải lên CV thành công!");
       } catch (error) {
-        showError("Upload file mô tả thất bại: " + error.message, "Lỗi");
+        setUploadResult({ error: error.message });
+        showError("Upload CV thất bại: " + error.message, "Lỗi");
+      } finally {
+        setUploading(false);
       }
     },
-    [jobFiles]
+    [setCVFile, setUploadResult]
   );
 
-  // ========== Radio select ==========
+  // ====== Handler upload JD files (chỉ lưu vào store, chưa call API) ======
+
+const handleJobFileUpload = useCallback((e) => {
+  const files = Array.from(e.target.files); // luôn là mảng
+  setJobFiles([...jobFiles, ...files]);
+}, [jobFiles, setJobFiles]);
+
+// Handler gửi JD files khi hoàn thành
+const handleCompleteUploadJobs = useCallback(async () => {
+  if (!jobFiles.length) {
+    showError("Vui lòng chọn ít nhất 1 file mô tả!", "Lỗi");
+    return;
+  }
+  setUploadingJobFiles(true);
+  try {
+    await cvService.uploadJobDescription(jobFiles); // truyền mảng File
+    showSuccess("Upload tất cả file thành công!");
+    setShowPopup("");
+    if (typeof onNext === "function") onNext();
+  } catch (err) {
+    showError("Upload thất bại: " + err.message, "Lỗi");
+  } finally {
+    setUploadingJobFiles(false);
+  }
+}, [jobFiles, onNext]);
+
+  // ====== Handler: Chọn radio option ======
   const handleRadioChange = useCallback((value) => {
     setSelectedOption(value);
     if (value === "upload") setShowPopup("upload");
     else if (value === "link") setShowPopup("link");
-    // Không gọi showSuccess ở đây nữa!
   }, []);
 
-  // ========== Thêm link TOPCV ==========
+  // ====== Thêm link TOPCV ======
   const handleAddTopcvLink = useCallback(() => {
     const url = newLink.trim();
     if (!url) {
-      showError("Vui lòng nhập link TOPCV!", "Lỗi");
+      showError("Vui lòng nhập link TOPCV!", "YÊU CẦU");
       return;
     }
     if (!/^https?:\/\/(www\.)?topcv\.vn\/.+/i.test(url)) {
-      showError("Chỉ hỗ trợ link từ TOPCV!", "Lỗi");
+      showError("SKILLGAPGUIDE chỉ hỗ trợ link từ TOPCV!", "YÊU CẦU");
       return;
     }
     if (topcvLinks.includes(url)) {
@@ -187,34 +169,36 @@ const CVUploadOptions = () => {
       return;
     }
     if (topcvLinks.length >= 5) {
-      showError("Chỉ được nhập tối đa 5 link!", "Lỗi");
+      showError("Chỉ được nhập tối đa 5 link!", "YÊU CẦU");
       return;
     }
-    setTopcvLinks((prev) => [...prev, url]);
+    setTopcvLinks([...topcvLinks, url]);
     setNewLink("");
-  }, [newLink, topcvLinks]);
+  }, [newLink, topcvLinks, setTopcvLinks]);
 
-  const handleFetchJobsFromLinks = useCallback(async () => {
+  // ====== Handler: Hoàn thành nhập link (lúc này mới gọi scrapeJob) ======
+  const handleCompleteScrapeJobs = useCallback(async () => {
     if (topcvLinks.length === 0) {
       showError("Vui lòng nhập ít nhất 1 link TOPCV!", "Lỗi");
       return;
     }
-    setFetchingLinks(true);
+    setScrapingLinks(true);
     try {
       await Promise.all(
-        topcvLinks.map((link) => cvService.getDataJobFromLink(link))
+        topcvLinks.map((link) => scrapeJobService.scrapeJob(link))
       );
-      showSuccess("Đã gửi link để cào job thành công!");
+      showSuccess("Đã gửi tất cả link thành công!");
       setShowPopup("");
       setTopcvLinks([]);
+      if (typeof onNext === "function") onNext();
     } catch (err) {
-      showError("Cào job thất bại: " + err.message, "Lỗi");
+      showError("Gửi link thất bại: " + err.message, "Lỗi");
     } finally {
-      setFetchingLinks(false);
+      setScrapingLinks(false);
     }
-  }, [topcvLinks]);
+  }, [topcvLinks, setTopcvLinks, onNext]);
 
-  // ========== Options cho dropdown Kinh nghiệm ==========
+  // ====== Options cho dropdown Kinh nghiệm ======
   const experienceOptions = useMemo(
     () => [
       { value: "", label: "Kinh nghiệm" },
@@ -226,12 +210,15 @@ const CVUploadOptions = () => {
     []
   );
 
-  // ========== UI ==========
+  // ===== Input link TOPCV change =====
+  const handleNewLinkChange = useCallback(
+    (e) => setNewLink(e.target.value),
+    []
+  );
+
+  // ====== UI ======
   return (
     <>
-      <div className="max-w-7xl mx-auto">
-        <TopMenu />
-      </div>
       <div className="min-h-screen bg-white py-10 px-6 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Left Column: CV Upload */}
@@ -391,7 +378,6 @@ const CVUploadOptions = () => {
         {/* Popup: Upload Job Descriptions */}
         {showPopup === "upload" && (
           <div className="transition-transform duration-300 fixed top-24 right-1/2 translate-x-1/2 bg-white shadow-lg border border-gray-200 p-6 rounded-lg w-96 z-50">
-            {/* Nút X */}
             <button
               className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 hover:bg-red-200 text-gray-500 hover:text-red-600 text-2xl flex items-center justify-center transition"
               aria-label="Đóng"
@@ -419,117 +405,108 @@ const CVUploadOptions = () => {
                 <input
                   id="job-upload"
                   type="file"
-                  accept="application/pdf"
+                  accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                   onChange={handleJobFileUpload}
                   className="hidden"
                 />
               </div>
             )}
             <button
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold w-full py-2 rounded"
-              onClick={() => setShowPopup("")}
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold w-full py-2 rounded disabled:opacity-60"
+              onClick={handleCompleteUploadJobs}
+              disabled={uploadingJobFiles || jobFiles.length === 0}
             >
-              Hoàn thành
+              {uploadingJobFiles ? "Đang tải lên..." : "Hoàn thành"}
             </button>
           </div>
         )}
 
         {/* Popup: Input TOPCV link */}
-        {/* Popup: Input TOPCV link */}
-       {showPopup === "link" && (
-  <div
-    className="transition-transform duration-300 fixed top-24 right-1/2 translate-x-1/2 bg-white shadow-lg border border-gray-200 p-6 rounded-lg w-96 z-50 flex flex-col"
-    style={{ minHeight: 400, maxHeight: 560 }}
-  >
-    <button
-      className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 hover:bg-red-200 text-gray-500 hover:text-red-600 text-2xl flex items-center justify-center transition"
-      aria-label="Đóng"
-      onClick={() => setShowPopup("")}
-      tabIndex={0}
-    >
-      ×
-    </button>
-    <h3 className="text-lg font-bold mb-3 text-center">
-      Nhập đường dẫn từ TOPCV
-    </h3>
-
-    {/* Nội dung cuộn được */}
-    <div className="flex-1 overflow-y-auto">
-      {topcvLinks.length > 0 ? (
-        <ul className="text-sm mb-3 space-y-2">
-          {topcvLinks.map((link, index) => (
-            <li
-              key={index}
-              className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg shadow-sm group"
-            >
-              <span className="font-semibold text-blue-700 min-w-[28px] text-center">
-                {index + 1}.
-              </span>
-              <a
-                href={link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 break-all text-blue-900 underline hover:text-blue-700 transition"
-              >
-                {link}
-              </a>
-              <button
-                className="ml-2 text-gray-400 hover:text-red-600 transition"
-                title="Xoá link này"
-                onClick={() =>
-                  setTopcvLinks((prev) =>
-                    prev.filter((_, i) => i !== index)
-                  )
-                }
-              >
-                <FiTrash size={18} />
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="text-gray-400 italic text-center mb-3">
-          Chưa có link nào được thêm
-        </p>
-      )}
-
-      {/* Input và nút thêm link */}
-      {topcvLinks.length < 5 && (
-        <>
-          <input
-            type="text"
-            value={newLink}
-            onChange={handleNewLinkChange}
-            placeholder="Dán link từ TOPCV tại đây..."
-            className="w-full border px-3 py-2 mb-3 rounded text-sm"
-          />
-          <button
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-sm font-semibold disabled:opacity-60"
-            onClick={handleAddTopcvLink}
-            disabled={addingLink}
+        {showPopup === "link" && (
+          <div
+            className="transition-transform duration-300 fixed top-24 right-1/2 translate-x-1/2 bg-white shadow-lg border border-gray-200 p-6 rounded-lg w-96 z-50 flex flex-col"
+            style={{ minHeight: 400, maxHeight: 560 }}
           >
-            {addingLink ? "Đang thêm link..." : "+ Thêm link"}
-          </button>
-        </>
-      )}
-      {topcvLinks.length >= 5 && (
-        <p className="text-red-600 text-center font-medium my-2">
-          Chỉ nhập tối đa 5 link!
-        </p>
-      )}
-    </div>
-
-    {/* Nút Hoàn thành luôn ở dưới cùng */}
-    <button
-      className="mt-3 bg-green-600 hover:bg-green-700 text-white font-semibold w-full py-2 rounded disabled:opacity-60"
-      onClick={handleFetchJobsFromLinks}
-      disabled={fetchingLinks || topcvLinks.length === 0}
-    >
-      {fetchingLinks ? "Đang gửi link..." : "Hoàn thành"}
-    </button>
-  </div>
-)}
-
+            <button
+              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 hover:bg-red-200 text-gray-500 hover:text-red-600 text-2xl flex items-center justify-center transition"
+              aria-label="Đóng"
+              onClick={() => setShowPopup("")}
+              tabIndex={0}
+            >
+              ×
+            </button>
+            <h3 className="text-lg font-bold mb-3 text-center">
+              Nhập đường dẫn từ TOPCV
+            </h3>
+            <div className="flex-1 overflow-y-auto">
+              {topcvLinks.length > 0 ? (
+                <ul className="text-sm mb-3 space-y-2">
+                  {topcvLinks.map((link, index) => (
+                    <li
+                      key={index}
+                      className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg shadow-sm group"
+                    >
+                      <span className="font-semibold text-blue-700 min-w-[28px] text-center">
+                        {index + 1}.
+                      </span>
+                      <a
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 break-all text-blue-900 underline hover:text-blue-700 transition"
+                      >
+                        {link}
+                      </a>
+                      <button
+                        className="ml-2 text-gray-400 hover:text-red-600 transition"
+                        title="Xoá link này"
+                        onClick={() =>
+                          setTopcvLinks(topcvLinks.filter((_, i) => i !== index))
+                        }
+                      >
+                        <FiTrash size={18} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-400 italic text-center mb-3">
+                  Chưa có link nào được thêm
+                </p>
+              )}
+              {topcvLinks.length < 5 && (
+                <>
+                  <input
+                    type="text"
+                    value={newLink}
+                    onChange={handleNewLinkChange}
+                    placeholder="Dán link từ TOPCV tại đây..."
+                    className="w-full border px-3 py-2 mb-3 rounded text-sm"
+                  />
+                  <button
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-sm font-semibold disabled:opacity-60"
+                    onClick={handleAddTopcvLink}
+                    disabled={addingLink}
+                  >
+                    {addingLink ? "Đang thêm link..." : "+ Thêm link"}
+                  </button>
+                </>
+              )}
+              {topcvLinks.length >= 5 && (
+                <p className="text-red-600 text-center font-medium my-2">
+                  Chỉ nhập tối đa 5 link!
+                </p>
+              )}
+            </div>
+            <button
+              className="mt-3 bg-green-600 hover:bg-green-700 text-white font-semibold w-full py-2 rounded disabled:opacity-60"
+              onClick={handleCompleteScrapeJobs}
+              disabled={scrapingLinks || topcvLinks.length === 0}
+            >
+              {scrapingLinks ? "Đang gửi link..." : "Hoàn thành"}
+            </button>
+          </div>
+        )}
       </div>
     </>
   );

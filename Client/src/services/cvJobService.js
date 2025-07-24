@@ -46,15 +46,7 @@ uploadCV: async (file) => {
 }
 
    // API call to get job skills
-  ,getJobSkills: async (jobId)  => {
-    try {
-      const response = await apiService.get(ENDPOINTS.job.getJobSkills, { params: { jobId } });
-      return response;
-    } catch (error) {
-      console.error("Error fetching job skills:", error);
-      throw new Error(error.message || "Fetch job skills failed");
-    }
-  }  ,
+  ,
  getDataJobFromLink: async (url) => {
   try {
     const response = await apiService.post(
