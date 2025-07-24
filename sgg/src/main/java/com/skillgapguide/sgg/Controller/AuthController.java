@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 public class AuthController {
 
     private final AuthService authService;
+    private final JWTUtil jwtUtil;
     @Value("${application.frontend-url}") // Thêm vào application.properties: application.frontend-url=http://localhost:3000
     private String frontendUrl;
     // Endpoint để đăng ký tài khoản mới
@@ -57,6 +58,15 @@ public class AuthController {
     public Response<AuthResponse> login(@RequestBody AuthRequest request) {
         // Gọi service để xử lý logic đăng nhập và trả về token
         return new Response<>(EHttpStatus.OK, "Đăng nhập thành công", authService.login(request));
+    }
+    @GetMapping("/check-token")
+    public Response<String> checkToken(@RequestParam("token") String token) {
+        try {
+            jwtUtil.validateTokenOrThrow(token);
+            return new Response<>(EHttpStatus.OK, "Token còn hiệu lực", null);
+        } catch (IllegalStateException e) {
+            return new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null);
+        }
     }
     @PostMapping("/google")
     public Response<AuthResponse> googleLogin(@RequestBody GoogleLoginRequest request) {

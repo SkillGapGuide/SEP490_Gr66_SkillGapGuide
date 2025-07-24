@@ -47,17 +47,32 @@ public class CourseService {
     private EntityManager entityManager;
 
     public Course getCourseById(Integer courseId) {
-        return courseRepository.findCourseByCourseId(courseId);
+        Course course = courseRepository.findCourseByCourseId(courseId);
+        if (course == null) {
+            throw new IllegalArgumentException("Khóa học không tồn tại");
+        }
+        return course;
     }
 
     public Page<Course> getAllCourses(int pageNo, int pageSize) {
         Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNo - 1);
-        return courseRepository.findAll(pageable);
+        Page<Course> course = courseRepository.findAll(pageable);
+        if (course.isEmpty()) {
+            throw new IllegalArgumentException("Không có khóa học nào được tìm thấy");
+        }
+        return course;
     }
 
     public Page<UserFavoriteCourse> getFavoriteCoursesByUserId(Integer userId, int pageNo, int pageSize) {
         Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNo - 1);
-        return favoriteCourseRepository.findByUserId(userId, pageable); // Hoặc findByIdUserId nếu dùng composite key
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID không được để trống");
+        }
+        Page<UserFavoriteCourse> courses = favoriteCourseRepository.findByUserId(userId, pageable);
+        if (courses.isEmpty()) {
+            throw new IllegalArgumentException("Không có khóa học yêu thích nào được tìm thấy cho người dùng này");
+        }
+        return courses;
     }
 
     public UserFavoriteCourse addCourseToFavorites(Integer userId, Integer courseId) {

@@ -32,4 +32,8 @@ public class JobDeleteService {
         }
         jobRepository.deleteAllByCvId(cv.getId());
     }
+    @Transactional
+    public void deleteJobsByCvId(Integer cvId) {
+        jobRepository.deleteByCvId(cvId);
+    }
 }
