@@ -47,17 +47,32 @@ public class CourseService {
     private EntityManager entityManager;
 
     public Course getCourseById(Integer courseId) {
-        return courseRepository.findCourseByCourseId(courseId);
+        Course course = courseRepository.findCourseByCourseId(courseId);
+        if (course == null) {
+            throw new IllegalArgumentException("Khóa học không tồn tại");
+        }
+        return course;
     }
 
     public Page<Course> getAllCourses(int pageNo, int pageSize) {
         Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNo - 1);
-        return courseRepository.findAll(pageable);
+        Page<Course> course = courseRepository.findAll(pageable);
+        if (course.isEmpty()) {
+            throw new IllegalArgumentException("Không có khóa học nào được tìm thấy");
+        }
+        return course;
     }
 
     public Page<UserFavoriteCourse> getFavoriteCoursesByUserId(Integer userId, int pageNo, int pageSize) {
         Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNo - 1);
-        return favoriteCourseRepository.findByUserId(userId, pageable); // Hoặc findByIdUserId nếu dùng composite key
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID không được để trống");
+        }
+        Page<UserFavoriteCourse> courses = favoriteCourseRepository.findByUserId(userId, pageable);
+        if (courses.isEmpty()) {
+            throw new IllegalArgumentException("Không có khóa học yêu thích nào được tìm thấy cho người dùng này");
+        }
+        return courses;
     }
 
     public UserFavoriteCourse addCourseToFavorites(Integer userId, Integer courseId) {
@@ -161,34 +176,53 @@ public class CourseService {
         logger.info("Removed all favorite courses for userId={}", userId);
     }
 
-    @Transactional
-    public void scrapeAndSaveCoursesByCvId(int numPages, int numItems, Integer cvId) {
+    public List<Course> scrapeAndSaveCoursesByCvId(int numPages, int numItems, Integer cvId) {
+        List<Course> scrapedCourses = new ArrayList<>();
         List<String> jobSkills = courseRepository.findJobSkillsByCvId(cvId);
         if (jobSkills == null || jobSkills.isEmpty()) {
             logger.warn("Không tìm thấy jobSkill nào cho cvId={}", cvId);
-            return;
+            return scrapedCourses;
         }
 
         WebDriver driver = createChromeDriver();
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
             for (String keyword : jobSkills) {
-                logger.info("Bắt đầu cào với từ khóa: {}", keyword);
                 for (int page = 1; page <= numPages; page++) {
-                    logger.info("Đang cào trang {}/{} với từ khóa '{}'", page, numPages, keyword);
                     try {
-                        if (scrapePage(driver, wait, page, numItems, keyword, logger)) {
+                        List<Course> pageCourses = scrapePageAndReturnCourses(driver, wait, page, numItems, keyword, logger);
+                        scrapedCourses.addAll(pageCourses);
+                        if (!pageCourses.isEmpty()) {
                             randomSleep(PAGE_DELAY_MIN, PAGE_DELAY_MAX);
                         }
                     } catch (Exception e) {
                         logger.error("Lỗi khi xử lý trang {}: {}", page, e.getMessage());
-                        entityManager.clear(); // Clear persistence context after error
+                        entityManager.clear();
                     }
                 }
             }
         } finally {
             if (driver != null) driver.quit();
         }
+        return scrapedCourses;
+    }
+    private List<Course> scrapePageAndReturnCourses(WebDriver driver, WebDriverWait wait, int page, int numItems, String keyword, Logger logger) {
+        List<Course> courses = new ArrayList<>();
+        String pageUrl = buildSearchUrl(page, keyword);
+        loadPageAndWait(driver, wait, pageUrl, logger);
+        List<String> courseUrls = extractCourseUrls(driver, numItems, logger);
+        for (String courseUrl : courseUrls) {
+            try {
+                Course course = scrapeCourseDetails(driver, wait, courseUrl, logger);
+                if (course != null) {
+                    courseRepository.save(course);
+                    courses.add(course);
+                }
+            } catch (Exception e) {
+                logger.error("Lỗi khi xử lý khóa học {}: {}", courseUrl, e.getMessage());
+            }
+        }
+        return courses;
     }
 
     // Sửa lại hàm scrapePage để nhận keyword động
