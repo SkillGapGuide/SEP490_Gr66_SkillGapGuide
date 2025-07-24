@@ -65,14 +65,11 @@ public class CVService {
                 cvRepository.save(cvMetadata);
                 finalCvId = cvMetadata.getId();
             }
-            // Chạy extract skill trong thread riêng
-            new Thread(() -> {
                 try {
                     extractSkill(path.toAbsolutePath().toString(), finalCvId);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }).start();
             return "File CV đã được upload thành công: " + fileName;
         } catch (IOException e) {
             e.printStackTrace();
