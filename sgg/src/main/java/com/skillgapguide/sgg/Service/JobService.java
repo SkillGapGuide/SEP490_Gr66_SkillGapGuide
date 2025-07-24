@@ -111,13 +111,12 @@ public class JobService {
                         "JD:\n" + text;
 
                 LMStudioService service = new LMStudioService(WebClient.builder());
-                service.callLMApi(prompt).subscribe(content -> {
-                    try {
-                        saveJobSkillsToDb(content, userId, fileName, fileExtension, filePath);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                String content = service.callLMApi(prompt).block();
+                try {
+                    saveJobSkillsToDb(content, userId, fileName, fileExtension, filePath);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

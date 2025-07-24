@@ -65,11 +65,7 @@ public class CVService {
                 cvRepository.save(cvMetadata);
                 finalCvId = cvMetadata.getId();
             }
-                try {
-                    extractSkill(path.toAbsolutePath().toString(), finalCvId);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            extractSkill(path.toAbsolutePath().toString(), finalCvId);
             return "File CV đã được upload thành công: " + fileName;
         } catch (IOException e) {
             e.printStackTrace();
@@ -103,18 +99,14 @@ public class CVService {
                 "CV:\n" + text ;
 
         LMStudioService service = new LMStudioService(WebClient.builder());
-        service.callLMApi(prompt)
-                .doOnError(error -> {
-                    System.err.println("Lỗi khi gọi LM API: " + error.getMessage());
-                })
-                .subscribe(content -> {
-                    try {
-                        cvSkillService.saveCvSkillsToDb(content, cvId);
-                    } catch (Exception e) {
-                        System.err.println("Lỗi khi lưu kỹ năng vào DB: " + e.getMessage());
-                        e.printStackTrace();
-                    }
-                });
+        String content = service.callLMApi(prompt).block(); // <- CHỜ kết quả trả về
+
+        try {
+            cvSkillService.saveCvSkillsToDb(content, cvId);
+        } catch (Exception e) {
+            System.err.println("Lỗi khi lưu kỹ năng vào DB: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     public List<UserCvSkills> getCvSkill(){
         String email = SecurityContextHolder.getContext().getAuthentication().getName(); // lấy từ JWT
