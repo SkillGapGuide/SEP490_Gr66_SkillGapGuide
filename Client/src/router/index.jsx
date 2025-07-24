@@ -3,6 +3,7 @@ import { lazy } from "react";
 import ErrorBoundary from "../components/ErrorBoundary";
 import UserLayout from "../layouts/UserLayout";
 import AdminLayout from "../layouts/AdminLayout";
+
 import AnalyzeUpload from "../pages/user/AnalyzeUpload";
 import AnalyzeLoading from "../pages/user/AnalyzeLoading";
 import AnalyzeResult from "../pages/user/AnalyzeResult";
@@ -64,6 +65,7 @@ const HomePageManager = lazy(() => import("../pages/admin/HomePageManager"));
 const JobTablePage = lazy(() => import("../pages/admin/JobTablePage"));
 const CourseTable = lazy(() => import("../pages/admin/CourseTable"));
 
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -124,8 +126,29 @@ const router = createBrowserRouter([
     element: <AdminLayout />,
     errorElement: <ErrorBoundary />,
     children: [
-      { path: "dashboard", element: <AdminDashboard /> },
-      { path: "users", element: <ManagerUser /> },
+
+      // Các route con của admin sẽ được định nghĩa ở đây
+      { path: "users", element: <ManagerUser /> }
+      
+    ],
+  },
+  {
+    path: "/finance",
+    element: <FinanceLayout />,
+    errorElement: <ErrorBoundary />,
+    children: [
+      // Các route con của admin sẽ được định nghĩa ở đây
+      { path: "dashboard", element: <AdminDashboard /> }
+      
+    ],
+  },
+  {
+    path: "/content-manager",
+    element: <ContentManagerLayout />,
+    errorElement: <ErrorBoundary />,
+    children: [
+      // Các route con của admin sẽ được định nghĩa ở đây
+
       { path: "static-content", element: <StaticContentManager /> },
       { path: "about-us", element: <AboutUsManager /> },
       { path: "feedback", element: <AdminFeedbackManager /> },
