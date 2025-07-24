@@ -78,9 +78,10 @@ public class CourseController {
     }
     @PostMapping("/scrape")
     public ResponseEntity<String> scrapeCourses(@RequestParam(defaultValue = "1") int numPages,
-                                               @RequestParam(defaultValue = "9") int numItems) {
+                                               @RequestParam(defaultValue = "9") int numItems,
+                                                @RequestParam int cvId) {
         try{
-        courseService.scrapeAndSaveCourses(numPages, numItems);
+        courseService.scrapeAndSaveCoursesByCvId(numPages, numItems, cvId);
             return ResponseEntity.ok("Đã cào và lưu thành công course");
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Lỗi xảy ra khi cào dữ liệu: " + e.getMessage());
