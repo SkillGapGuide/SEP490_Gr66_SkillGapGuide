@@ -2,6 +2,7 @@ package com.skillgapguide.sgg.Service;
 
 
 import com.skillgapguide.sgg.Dto.CourseDTO;
+import com.skillgapguide.sgg.Dto.ScrapeResultDTO;
 import com.skillgapguide.sgg.Entity.Course;
 import com.skillgapguide.sgg.Entity.UserFavoriteCourse;
 import com.skillgapguide.sgg.Repository.CourseRepository;
@@ -176,12 +177,13 @@ public class CourseService {
         logger.info("Removed all favorite courses for userId={}", userId);
     }
 
-    public List<Course> scrapeAndSaveCoursesByCvId(int numPages, int numItems, Integer cvId) {
+    public ScrapeResultDTO scrapeAndSaveCoursesByCvId(int numPages, int numItems, Integer cvId) {
         List<Course> scrapedCourses = new ArrayList<>();
+        List<String> logs = new ArrayList<>();
         List<String> jobSkills = courseRepository.findJobSkillsByCvId(cvId);
         if (jobSkills == null || jobSkills.isEmpty()) {
-            logger.warn("Không tìm thấy jobSkill nào cho cvId={}", cvId);
-            return scrapedCourses;
+            logs.add("Không tìm thấy jobSkill nào cho cvId=" + cvId);
+            return new ScrapeResultDTO(scrapedCourses, logs);
         }
 
         WebDriver driver = createChromeDriver();
@@ -190,13 +192,13 @@ public class CourseService {
             for (String keyword : jobSkills) {
                 for (int page = 1; page <= numPages; page++) {
                     try {
-                        List<Course> pageCourses = scrapePageAndReturnCourses(driver, wait, page, numItems, keyword, logger);
+                        List<Course> pageCourses = scrapePageAndReturnCourses(driver, wait, page, numItems, keyword, logs);
                         scrapedCourses.addAll(pageCourses);
                         if (!pageCourses.isEmpty()) {
                             randomSleep(PAGE_DELAY_MIN, PAGE_DELAY_MAX);
                         }
                     } catch (Exception e) {
-                        logger.error("Lỗi khi xử lý trang {}: {}", page, e.getMessage());
+                        logs.add("Lỗi khi xử lý trang " + page + ": " + e.getMessage());
                         entityManager.clear();
                     }
                 }
@@ -204,22 +206,25 @@ public class CourseService {
         } finally {
             if (driver != null) driver.quit();
         }
-        return scrapedCourses;
+        return new ScrapeResultDTO(scrapedCourses, logs);
     }
-    private List<Course> scrapePageAndReturnCourses(WebDriver driver, WebDriverWait wait, int page, int numItems, String keyword, Logger logger) {
+    private List<Course> scrapePageAndReturnCourses(WebDriver driver, WebDriverWait wait, int page, int numItems, String keyword, List<String> logs) {
         List<Course> courses = new ArrayList<>();
         String pageUrl = buildSearchUrl(page, keyword);
         loadPageAndWait(driver, wait, pageUrl, logger);
+        logs.add("Loaded page: " + pageUrl);
         List<String> courseUrls = extractCourseUrls(driver, numItems, logger);
+        logs.add("Found " + courseUrls.size() + " new courses on page");
         for (String courseUrl : courseUrls) {
             try {
                 Course course = scrapeCourseDetails(driver, wait, courseUrl, logger);
                 if (course != null) {
                     courseRepository.save(course);
                     courses.add(course);
+                    logs.add("Saved course: " + course.getTitle());
                 }
             } catch (Exception e) {
-                logger.error("Lỗi khi xử lý khóa học {}: {}", courseUrl, e.getMessage());
+                logs.add("Lỗi khi xử lý khóa học " + courseUrl + ": " + e.getMessage());
             }
         }
         return courses;
