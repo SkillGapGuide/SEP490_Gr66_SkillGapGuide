@@ -12,6 +12,8 @@ import AdminSidebar from "../layouts/AdminSidebar";
 import ServicePayment from "../pages/user/ServicePayment";
 import ManagerUser from "../pages/admin/ManagerUser";
 import AdminLayout from "../layouts/AdminLayout";
+import ContentManagerLayout from "../layouts/ContentManagerLayout";
+import FinanceLayout from "../layouts/FinanceLayout";
 import AboutSection from "../pages/AboutSection";
 import ContactPage from "../pages/ContactPage";
 import CvSkillPage from "../pages/user/CvSkillPage";
@@ -123,8 +125,26 @@ const router = createBrowserRouter([
     errorElement: <ErrorBoundary />,
     children: [
       // Các route con của admin sẽ được định nghĩa ở đây
-      { path: "dashboard", element: <AdminDashboard /> },
-      { path: "users", element: <ManagerUser /> },
+      { path: "users", element: <ManagerUser /> }
+      
+    ],
+  },
+  {
+    path: "/finance",
+    element: <FinanceLayout />,
+    errorElement: <ErrorBoundary />,
+    children: [
+      // Các route con của admin sẽ được định nghĩa ở đây
+      { path: "dashboard", element: <AdminDashboard /> }
+      
+    ],
+  },
+  {
+    path: "/content-manager",
+    element: <ContentManagerLayout />,
+    errorElement: <ErrorBoundary />,
+    children: [
+      // Các route con của admin sẽ được định nghĩa ở đây
       { path: "static-content", element: <StaticContentManager /> },
       { path: "about-us", element: <AboutUsManager /> },
       { path: "feedback", element: <AdminFeedbackManager /> },
