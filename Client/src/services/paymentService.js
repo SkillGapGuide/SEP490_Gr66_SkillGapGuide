@@ -9,29 +9,29 @@ export const paymentService = {
 
   // /api/payment/findPaymentByPaymentId?paymentId=xxx
   findPaymentByPaymentId: async (paymentId) => {
-    return await apiService.get(ENDPOINTS.payment.findPaymentByPaymentId, { params: { paymentId } });
+    return await apiService.get(ENDPOINTS.payment.findPaymentByPaymentId, { paymentId } );
   },
 
   // /api/payment/findAllPayments?pageNo=1&pageSize=10
   findAllPayments: async (pageNo = 1, pageSize = 10) => {
-    return await apiService.get(ENDPOINTS.payment.findAllPayments, { params: { pageNo, pageSize } });
+    return await apiService.get(ENDPOINTS.payment.findAllPayments,  { pageNo, pageSize } );
   },
 
   // /api/payment/filter?status=xxx&pageNo=1&pageSize=10
   filter: async (status, pageNo = 1, pageSize = 10) => {
-    return await apiService.get(ENDPOINTS.payment.filter, { params: { status, pageNo, pageSize } });
+    return await apiService.get(ENDPOINTS.payment.filter,  { status, pageNo, pageSize } );
   },
 
   // /api/payment/filter/byUserId?userId=xxx&pageNo=1&pageSize=10
   filterByUserId: async (userId, pageNo = 1, pageSize = 10) => {
-    return await apiService.get(ENDPOINTS.payment.filterByUserId, { params: { userId, pageNo, pageSize } });
+    return await apiService.get(ENDPOINTS.payment.filterByUserId,  { userId, pageNo, pageSize } );
   },
 
   // /api/payment/filter/byDatesRange?startDate=xxx&endDate=xxx&pageNo=1&pageSize=10
   filterByDatesRange: async (startDate, endDate, pageNo = 1, pageSize = 10) => {
-    return await apiService.get(ENDPOINTS.payment.filterByDatesRange, {
-      params: { startDate, endDate, pageNo, pageSize }
-    });
+    return await apiService.get(ENDPOINTS.payment.filterByDatesRange, 
+     { startDate, endDate, pageNo, pageSize }
+    );
   },
 
   // /api/payment/export/pdf
@@ -46,6 +46,6 @@ export const paymentService = {
 
   // /api/payment/create?amount=xxx
   create: async (amount) => {
-    return await apiService.get(ENDPOINTS.payment.create, { params: { amount } });
+    return await apiService.get(ENDPOINTS.payment.create,  { amount } );
   },
 };

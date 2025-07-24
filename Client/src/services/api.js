@@ -48,10 +48,7 @@ api.interceptors.response.use(
             window.location.href = "/login";
           }, 1500);
         } else {
-          showError(
-            "Bạn không có quyền thực hiện hành động này.",
-            "Cảnh báo"
-          );
+          
         }
       } else if (error.response.status === 404) {
         showError(

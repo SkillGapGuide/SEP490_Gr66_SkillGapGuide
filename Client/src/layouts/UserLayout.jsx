@@ -23,7 +23,7 @@ export default function UserLayout() {
   <Header />
 
   <main className="flex-1">
-    <div className="min-h-[600px]"> {/* 👈 Thêm min-h để đẩy footer */}
+    <div className="min-h-[700px]"> {/* 👈 Thêm min-h để đẩy footer */}
       <Outlet />
     </div>
   </main>
