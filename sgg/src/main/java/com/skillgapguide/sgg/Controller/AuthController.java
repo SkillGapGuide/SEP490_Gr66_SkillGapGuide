@@ -84,6 +84,14 @@ public class AuthController {
             );
         }
     }
-
+    @GetMapping("/check-token")
+    public Response<String> checkToken(@RequestParam("token") String token) {
+        try {
+            jwtUtil.validateTokenOrThrow(token);
+            return new Response<>(EHttpStatus.OK, "Token còn hiệu lực", null);
+        } catch (IllegalStateException e) {
+            return new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
 
 }

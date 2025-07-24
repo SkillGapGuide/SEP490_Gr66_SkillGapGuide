@@ -54,4 +54,7 @@ export const userService = {
       ENDPOINTS.users.addFavoriteMissingSkill.replace("${userId}", userId).replace("${skillId}", skillId)
     );
   },
+  getFileHistory: async () => {
+    return await apiService.get(ENDPOINTS.users.fileHistory);
+  },
 };
