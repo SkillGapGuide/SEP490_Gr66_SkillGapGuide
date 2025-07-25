@@ -175,10 +175,15 @@ const handleCompleteUploadJobs = useCallback(() => {
 
   // ====== Handler: Hoàn thành nhập link (lúc này mới gọi scrapeJob) ======
 const handleCompleteScrapeJobs = useCallback(() => {
+  console.log('Gọi handleCompleteScrapeJobs', topcvLinks, onNext);
   if (!topcvLinks.length) return showError("Vui lòng nhập ít nhất 1 link!");
   setShowPopup("");
-  if (typeof onNext === "function") onNext();
+  if (typeof onNext === "function") {
+    console.log('Đã gọi onNext option 2');
+    onNext();
+  }
 }, [topcvLinks, onNext]);
+
 
   // ====== Options cho dropdown Kinh nghiệm ======
   const experienceOptions = useMemo(

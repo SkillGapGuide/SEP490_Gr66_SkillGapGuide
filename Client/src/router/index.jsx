@@ -5,7 +5,8 @@ import { lazy } from "react";
 import ErrorBoundary from "../components/ErrorBoundary";
 import UserLayout from "../layouts/UserLayout";
 import AdminLayout from "../layouts/AdminLayout";
-
+import FinanceLayout from "../layouts/FinanceLayout";
+import ContentManagerLayout from "../layouts/ContentManagerLayout";
 import AnalyzeUpload from "../pages/user/AnalyzeUpload";
 import AnalyzeLoading from "../pages/user/AnalyzeLoading";
 import AnalyzeResult from "../pages/user/AnalyzeResult";
@@ -39,10 +40,7 @@ const MainAnalysisPage = lazy(() => import("../pages/user/MainAnalysisPage"));
 const CVUploadOptions = lazy(() => import("../pages/user/CVUploadOptions"));
 const AuthCallback = lazy(() => import("../components/AuthCallback"));
 
-// Phần Analyze
-import AnalyzeUpload from "../pages/user/AnalyzeUpload";
-import AnalyzeLoading from "../pages/user/AnalyzeLoading";
-import AnalyzeResult from "../pages/user/AnalyzeResult";
+
 
 // Admin
 const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
@@ -103,7 +101,7 @@ const router = createBrowserRouter([
       // ----- Kết thúc analyze -----
 
       // Nếu bạn muốn một route riêng cho MainAnalysisPage
-      { path: "main-analysis", element: <MainAnalysisPage /> },
+      
     ]
   },
 

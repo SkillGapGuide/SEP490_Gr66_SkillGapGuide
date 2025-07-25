@@ -51,6 +51,7 @@ export const ENDPOINTS = {
   scraper: {
     scrapeJob: "/api/scrape/job",
     crawlTenJobs: "/api/scrape/crawl-10-jobs",
+    scraper1To5Jobs: "api/scrape/crawl-4-jobs-by-links",
   },
   feedback: {
     getAllFeedbacks: "/api/feedback/getAll",
