@@ -19,10 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -39,7 +36,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payment")
-@SecurityRequirement(name = "Bearer Authentication")
+//@SecurityRequirement(name = "Bearer Authentication")
 @RequiredArgsConstructor
 public class PaymentController {
     @Autowired
@@ -245,6 +242,19 @@ public class PaymentController {
                     "error", e.getMessage()
             ));
         }
+    }
+    @PostMapping("/getPaymentFromCassio")
+    public void handleWebhook(@RequestBody String payload, @RequestHeader("secure-token") String webhookKey) throws Exception {
+        String expectedKey = "FakfLNi92MNKL2n";
+        if (!webhookKey.equals(expectedKey)) {
+            throw new SecurityException("Invalid webhook key");
+        } else {
+            paymentService.confirmPaymentCassio(payload);
+        }
+    }
+    @GetMapping("/getPaymentQr/{typeRegister}")
+    public Response<?> getQr(@RequestParam int typeRegister){
+        return new Response<>(EHttpStatus.OK,paymentService.getPaymentQr(typeRegister));
     }
 
 }

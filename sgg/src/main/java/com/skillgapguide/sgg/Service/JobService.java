@@ -99,8 +99,6 @@ public class JobService {
 
     public void extractJd(String filePath, int userId, String fileName, String fileExtension) throws IOException {
         String text = extractTextFromPdf(filePath);
-        // Chạy extract skill trong thread riêng
-        new Thread(() -> {
             try {
                 String prompt = "Hãy phân tích job description dưới đây và trích xuất tất cả các yêu cầu kỹ năng của ứng viên, title, description, company. Chỉ trả về kết quả dưới dạng JSON theo mẫu sau, không thêm bất kỳ nội dung nào khác:\n" +
                         "{\n" +
@@ -113,17 +111,15 @@ public class JobService {
                         "JD:\n" + text;
 
                 LMStudioService service = new LMStudioService(WebClient.builder());
-                service.callLMApi(prompt).subscribe(content -> {
-                    try {
-                        saveJobSkillsToDb(content, userId, fileName, fileExtension, filePath);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                String content = service.callLMApi(prompt).block();
+                try {
+                    saveJobSkillsToDb(content, userId, fileName, fileExtension, filePath);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }).start();
     }
     public void saveJobSkillsToDb(String aiResponseJson, int userId, String fileName, String fileExtension, String path) throws Exception {
         ObjectMapper mapper = new ObjectMapper();

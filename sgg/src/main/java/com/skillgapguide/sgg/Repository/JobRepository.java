@@ -12,4 +12,6 @@ public interface JobRepository extends JpaRepository<Job, Integer> {
     boolean existsBySourceUrl(String sourceUrl);
     List<Job> getJobsByCvId(int cvId);
     void deleteAllByCvId(int cvId);
+    boolean existsByCvId(Integer cvId);
+    void deleteByCvId(Integer cvId);
 }
