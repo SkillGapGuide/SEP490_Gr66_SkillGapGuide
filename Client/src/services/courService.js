@@ -86,4 +86,8 @@ export const courService = {
       ENDPOINTS.course.deleteAllFavoriteCourse.replace("{userId}", userId)
     );
   },
+ crawl5JobsByLinks: async (links) => {
+  return await apiService.post(ENDPOINTS.scraper.scraper1To5Jobs, { urls: links });
+}
+
 };
