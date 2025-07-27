@@ -16,7 +16,8 @@ export const useCVWizardStore = create((set) => ({
   // Các state khác bạn muốn lưu giữa các bước:
   jobFiles: [],
   setJobFiles: (jobFiles) => set({ jobFiles }),
-
+  selectedOption: "", // NEW: lưu loại người dùng chọn ("upload", "link", "auto")
+  setSelectedOption: (selectedOption) => set({ selectedOption }),
   // Nếu cần clear toàn bộ khi user hoàn thành/quay lại từ đầu:
   resetWizard: () =>
     set({
@@ -24,6 +25,7 @@ export const useCVWizardStore = create((set) => ({
       uploadResult: null,
       topcvLinks: [],
       jobFiles: [],
+       selectedOption: "", // reset luôn option khi quay lại đầu
       // reset các state khác tuỳ bạn!
     }),
 }));

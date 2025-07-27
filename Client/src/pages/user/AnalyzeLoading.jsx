@@ -19,7 +19,7 @@ export default function AnalyzeLoading() {
   // Khi loading xong chuyển sang result
   return (
     <div>
-      <TopMenu />
+     
       <LoadingAnalyze onFinish={() => navigate("/analyze/result")} />
     </div>
   );
