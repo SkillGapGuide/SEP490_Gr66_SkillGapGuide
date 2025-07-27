@@ -126,14 +126,14 @@ public class CourseService {
                 course.getTitle() == null || course.getTitle().trim().isEmpty() ||
                 course.getUrl() == null || course.getUrl().trim().isEmpty() ||
                 course.getProvider() == null || course.getProvider().trim().isEmpty()) {
-            throw new IllegalArgumentException("Course title, URL, and provider must not be empty");
+            throw new IllegalArgumentException("Không được để trống các trường tiêu đề, URL và nhà cung cấp");
         }
 
         // Check for existing course
         Optional<Course> existingCourse = courseRepository.findCourseByUrl(course.getUrl());
         if (existingCourse.isPresent()) {
             logger.warn("Attempt to add duplicate course with URL: {}", course.getUrl());
-            throw new IllegalStateException("Course already exists");
+            throw new IllegalStateException("Khóa học đã tồn tại");
         }
 
         Course newCourse = new Course();
@@ -155,7 +155,7 @@ public class CourseService {
 
     public void changeFavoriteCourseStatus(Integer courseId, Integer userId, String status) {
         UserFavoriteCourse favoriteCourse = favoriteCourseRepository.findByUserIdAndCourseId(userId, courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Favorite course not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khóa học yêu thích"));
         favoriteCourse.setStatus(status);
         favoriteCourseRepository.save(favoriteCourse);
         logger.info("Changed status of favorite course: userId={}, courseId={}, status={}", userId, courseId, status);
@@ -165,7 +165,7 @@ public class CourseService {
         Optional<UserFavoriteCourse> existingFavorite = favoriteCourseRepository.findByUserIdAndCourseId(userId, courseId);
         if (existingFavorite.isEmpty()) {
             logger.warn("Attempted to remove non-existent favorite: userId={}, courseId={}", userId, courseId);
-            throw new IllegalStateException("Favorite course not found");
+            throw new IllegalStateException("Không tim thấy khóa học yêu thích");
         }
         favoriteCourseRepository.delete(existingFavorite.get());
         logger.info("Removed favorite course: userId={}, courseId={}", userId, courseId);
@@ -217,11 +217,20 @@ public class CourseService {
         logs.add("Found " + courseUrls.size() + " new courses on page");
         for (String courseUrl : courseUrls) {
             try {
-                Course course = scrapeCourseDetails(driver, wait, courseUrl, logger);
+                Optional<Course> existingCourse = courseRepository.findCourseByUrl(courseUrl);
+                Course course;
+                if (existingCourse.isPresent()) {
+                    course = existingCourse.get();
+                    logs.add("Đã lấy khóa học từ database: " + course.getTitle());
+                } else {
+                    course = scrapeCourseDetails(driver, wait, courseUrl, logger);
+                    if (course != null) {
+                        courseRepository.save(course);
+                        logs.add("Saved course: " + course.getTitle());
+                    }
+                }
                 if (course != null) {
-                    courseRepository.save(course);
                     courses.add(course);
-                    logs.add("Saved course: " + course.getTitle());
                 }
             } catch (Exception e) {
                 logs.add("Lỗi khi xử lý khóa học " + courseUrl + ": " + e.getMessage());
@@ -289,6 +298,9 @@ public class CourseService {
                 String courseUrl = BASE_URL + href.split("\\?")[0];
                 if (!courseRepository.existsCourseByUrl(courseUrl)) {
                     courseUrls.add(courseUrl);
+                }else {
+                    logger.info("Khóa học đã tồn tại: {}", courseUrl);
+                    courseRepository.findCourseByUrl(courseUrl);
                 }
             }
         }
