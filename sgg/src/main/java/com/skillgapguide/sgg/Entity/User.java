@@ -65,7 +65,8 @@ public class User implements UserDetails {
             case 2 -> role = "ROLE_CONTENT_MANAGER";
             case 3 -> role = "ROLE_FINANCE_ADMIN";
             case 4 -> role = "ROLE_USER";
-            case 5 -> role = "ROLE_PREMIUM_USER";
+            case 5 -> role = "ROLE_PRO_USER";
+            case 6 -> role = "ROLE_PREMIUM_USER";
             default -> role = "ROLE_UNKNOWN";
         }
         return List.of(new SimpleGrantedAuthority(role));
