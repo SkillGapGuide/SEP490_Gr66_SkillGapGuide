@@ -12,7 +12,6 @@ public class JobDesFile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private Integer userId;
-    private Integer jobId;
     private String fileName;
     private String filePath;
     private String fileType;

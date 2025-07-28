@@ -30,4 +30,8 @@ public class SkillGapController {
     public Response<CommentResponse> getCommentSkill(@RequestParam int jobId, @RequestParam int cvId) throws Exception {
         return new Response<>(EHttpStatus.OK, skillGapSevice.getComment(jobId,cvId));
     }
+    @GetMapping("/testCosineSimilarity")
+    public Response<?> test(@RequestParam String text1, @RequestParam String text2) throws Exception {
+        return new Response<>(EHttpStatus.OK, cosineSimilarityService.testCosine(text1,text2));
+    }
 }

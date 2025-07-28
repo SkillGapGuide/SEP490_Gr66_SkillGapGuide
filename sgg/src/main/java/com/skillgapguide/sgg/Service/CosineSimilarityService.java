@@ -22,9 +22,6 @@ public class CosineSimilarityService {
     @Autowired
     private UserCvSkillsRepository userCvSkillsRepository;
     public void compareCvJob(int jobId, int cvId) throws Exception {
-        if(jobCvSkillScoreRepository.findByCvSkillAndJobSkill(cvId, jobId) != null){
-
-        }
         jobCvSkillScoreRepository.deleteByJobIdAndCvId(jobId,cvId);
         List<UserCvSkills> userCvSkillsList = userCvSkillsRepository.findByCvId(cvId);
         List<JobDesSkills> jobDesSkillsList = jobDesSkillsRepository.findByJobId(jobId);
