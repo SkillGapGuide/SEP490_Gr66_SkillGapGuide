@@ -35,7 +35,9 @@ public class  UserService {
     public String forgotPassword(ForgotPasswordRequest request) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new IllegalStateException("Email không chính xác, vui lòng kiểm tra lại."));
-
+        if(user.getProvider() == User.Provider.GOOGLE) {
+            throw new IllegalStateException("Tài khoản đăng nhập bằng Google không thể đặt lại mật khẩu.");
+        }
         String token = UUID.randomUUID().toString();
         VerificationToken verificationToken = new VerificationToken(
                 token,

@@ -38,4 +38,8 @@ public class JobDeleteService {
         Integer userId = userRepository.findByEmail(email).map(User::getUserId).orElseThrow(() -> new RuntimeException("User not found"));
         jobDesFileRepository.deleteAllByUserId(userId);
     }
+    @Transactional
+    public void deleteJobsByCvId(Integer cvId) {
+        jobRepository.deleteByCvId(cvId);
+    }
 }
