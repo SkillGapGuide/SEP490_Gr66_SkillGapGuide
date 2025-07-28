@@ -42,6 +42,7 @@ export default function AdminFeedbackManager() {
           pageSize: pageSize // Use pageSize from state
         });
         setFeedbacks(data.result);
+        console.log("Fetched feedbacks:", data.result);
         
         // Filter data locally
         const filtered = data.result.content.filter(f => 
@@ -140,8 +141,8 @@ export default function AdminFeedbackManager() {
               <tr>
                 <td colSpan={4} className="px-6 py-4 text-center">Đang tải...</td>
               </tr>
-            ) : filteredData.map((f) => (
-              <tr key={f.email} className="hover:bg-gray-50 transition-colors">
+            ) : filteredData.map((f,index) => (
+              <tr key= {index}  className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{f.email}</td>
                 <td className="px-6 py-4 text-sm text-gray-500 max-w-md truncate">{f.content}</td>
                 <td className="px-6 py-4"><StarRating rating={f.star} /></td>

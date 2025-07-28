@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useAnalysisStore } from "../../stores/useAnalysisStore";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import Stepper from "./Stepper";
-import { Menu } from "lucide-react";
-import TopMenu from "./TopMenu";
+import { UserContext } from "../../context/UserContext";
+import { useCVWizardStore } from "../../stores/cvWizardStore";
+const MATCH_SCORE = 0.75;
+const FREE_USER_ROLE = "Free User";
+ // Hoặc "free" tùy hệ thống
 // Skeleton components
 const renderSkillSkeleton = () => (
   <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -28,18 +31,19 @@ const renderJobSkeleton = () => (
 );
 
 const AnalysisResult = () => {
-  // Dữ liệu từ zustand-persist, F5 không mất data
+  const { user } = useContext(UserContext);
+  const userRole = user?.role || "Free User"; 
   const skills = useAnalysisStore((s) => s.skills);
   const jobList = useAnalysisStore((s) => s.jobList);
   const jobDetails = useAnalysisStore((s) => s.jobDetails);
-  const isLoading = useAnalysisStore((s) => s.isAnalysisLoading); // Đặt biến này khi LoadingAnalyze đang chạy
+  const isLoading = useAnalysisStore((s) => s.isAnalysisLoading);
+const cvId = useCVWizardStore(s => s.cvId)
 
   return (
     <div className="bg-white min-h-screen py-6 px-4 max-w-6xl mx-auto">
-     
       <Stepper />
       <h1 className="text-2xl font-bold text-gray-800 mb-6">
-        Kết quả phân tích kỹ năng
+        Kết quả phân tích kỹ năng {cvId ? `CV #${cvId}` : ""}
       </h1>
       {/* Hiện kỹ năng từ CV */}
       <h2 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
@@ -96,14 +100,28 @@ const AnalysisResult = () => {
         )}
       </div>
 
-      {/* Hiện job phân tích */}
+      {/* Phân tích job */}
       <div className="mt-10">
         {isLoading ? (
-          <>
-            {Array.from({ length: 2 }).map((_, idx) => (
-              <div key={idx}>{renderJobSkeleton()}</div>
-            ))}
-          </>
+          Array.from({ length: 2 }).map((_, idx) => (
+            <div key={idx}>{renderJobSkeleton()}</div>
+          ))
+        ) : userRole === FREE_USER_ROLE ? (
+          <div className="border rounded-xl bg-yellow-50 p-7 text-center my-6 shadow">
+            <h2 className="text-xl font-bold text-yellow-700 mb-2">
+              Bạn đang dùng tài khoản miễn phí
+            </h2>
+            <p className="text-gray-700 mb-3">
+              Nâng cấp tài khoản để xem đầy đủ kết quả phân tích công việc, nhận tư vấn kỹ năng còn thiếu và đánh giá độ phù hợp cá nhân hóa!
+            </p>
+            <button
+              onClick={() => window.location.href = "/servicepayment"}
+              className="mt-2 bg-yellow-400 hover:bg-yellow-500 text-white font-bold px-5 py-2 rounded shadow"
+            >
+              Nâng cấp tài khoản ngay
+            </button>
+            <div className="mt-6">{renderJobSkeleton()}</div>
+          </div>
         ) : !jobList || jobList.length === 0 ? (
           <p className="text-gray-400 italic">Chưa có yêu cầu phân tích nào.</p>
         ) : (
@@ -122,7 +140,7 @@ const AnalysisResult = () => {
                 </div>
                 {jobInfo.error ? (
                   <div className="text-red-600 font-semibold">
-                    XIN lỖI BẠN AI KHÔNG THỂ PHÂN THÍCH CÔNG VIỆC NÀY{" "}
+                    Xin lỗi, AI không thể phân tích công việc này.
                   </div>
                 ) : (
                   <>
@@ -164,36 +182,50 @@ const AnalysisResult = () => {
                             <th className="border px-3 py-2">
                               Điểm phù hợp (%)
                             </th>
+                            <th className="border px-3 py-2">
+                              Độ phù hợp
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
                           {jobInfo.skillGap && jobInfo.skillGap.length > 0 ? (
-                            jobInfo.skillGap.map((item, idx) => (
-                              <tr key={idx}>
-                                <td className="border px-3 py-2">
-                                  {item.cvSkill}
-                                </td>
-                                <td className="border px-3 py-2">
-                                  {item.jobSkill}
-                                </td>
-                                <td
-                                  className={
-                                    "border px-3 py-2 font-semibold " +
-                                    (item.score >= 0.8
-                                      ? "text-green-600"
-                                      : item.score >= 0.4
-                                      ? "text-yellow-500"
-                                      : "text-red-600")
-                                  }
-                                >
-                                  {Math.round(item.score * 100)}%
-                                </td>
-                              </tr>
-                            ))
+                            jobInfo.skillGap.map((item, idx) => {
+                              const percent = Math.round(item.score * 100);
+                              const isMatch = item.score >= MATCH_SCORE;
+                              return (
+                                <tr key={idx}>
+                                  <td className="border px-3 py-2">
+                                    {item.cvSkill}
+                                  </td>
+                                  <td className="border px-3 py-2">
+                                    {item.jobSkill}
+                                  </td>
+                                  <td
+                                    className={
+                                      "border px-3 py-2 font-semibold " +
+                                      (item.score >= 0.8
+                                        ? "text-green-600"
+                                        : item.score >= 0.4
+                                        ? "text-yellow-500"
+                                        : "text-red-600")
+                                    }
+                                  >
+                                    {percent}%
+                                  </td>
+                                  <td className="border px-3 py-2 font-bold">
+                                    {isMatch ? (
+                                      <span className="text-green-700">Phù hợp</span>
+                                    ) : (
+                                      <span className="text-red-500">Không phù hợp</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })
                           ) : (
                             <tr>
                               <td
-                                colSpan={3}
+                                colSpan={4}
                                 className="border px-3 py-2 text-gray-400 italic"
                               >
                                 Không có dữ liệu phân tích kỹ năng.

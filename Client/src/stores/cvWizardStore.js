@@ -4,6 +4,9 @@ export const useCVWizardStore = create((set) => ({
   // State lưu file CV
   cvFile: null,
   setCVFile: (cvFile) => set({ cvFile }),
+  // NEW: State lưu cvId
+  cvId: null,
+  setCvId: (cvId) => set({ cvId }),
 
   // State lưu kết quả upload CV (tùy ý)
   uploadResult: null,
@@ -19,10 +22,11 @@ export const useCVWizardStore = create((set) => ({
   selectedOption: "", // NEW: lưu loại người dùng chọn ("upload", "link", "auto")
   setSelectedOption: (selectedOption) => set({ selectedOption }),
   // Nếu cần clear toàn bộ khi user hoàn thành/quay lại từ đầu:
-  resetWizard: () =>
+  clearAll: () =>
     set({
       cvFile: null,
       uploadResult: null,
+       cvId: null, // reset luôn cvId
       topcvLinks: [],
       jobFiles: [],
        selectedOption: "", // reset luôn option khi quay lại đầu

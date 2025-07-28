@@ -14,7 +14,9 @@ export const feedbackService = {
     },
     
     createFeedback: async (feedbackData) => {
-        const response = await apiService.post(ENDPOINTS.feedback.createFeedback, feedbackData);
+        const {content,star,userId} = feedbackData;
+        const createdAt = new Date().toISOString();
+        const response = await apiService.post(ENDPOINTS.feedback.createFeedback, {userId, content, star, createdAt});
         return response;
     }
 
