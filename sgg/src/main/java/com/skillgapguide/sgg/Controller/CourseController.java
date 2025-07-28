@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -79,12 +80,23 @@ public class CourseController {
         courseService.changeFavoriteCourseStatus(courseId,userId, status);
         return new Response<>(EHttpStatus.OK, "Thay đổi trạng thái khóa học thành công", null);
     }
+//    @PostMapping("/scrape")
+//    public Response<?> scrapeCourses(@RequestParam(defaultValue = "1") int numPages,
+//                                     @RequestParam(defaultValue = "9") int numItems,
+//                                     @RequestParam int cvId) {
+//        try {
+//            ScrapeResultDTO result = courseService.scrapeAndSaveCoursesByCvId(numPages, numItems, cvId);
+//            return new Response<>(EHttpStatus.OK, "Đã cào và lưu thành công course", result);
+//        } catch (Exception e) {
+//            return new Response<>(EHttpStatus.BAD_REQUEST, "Lỗi xảy ra khi cào dữ liệu: " + e.getMessage(), null);
+//        }
+//    }
     @PostMapping("/scrape")
-    public Response<?> scrapeCourses(@RequestParam(defaultValue = "1") int numPages,
-                                     @RequestParam(defaultValue = "9") int numItems,
-                                     @RequestParam int cvId) {
+    public Response<?> scrapeCoursesGroupedByJobSkill(@RequestParam(defaultValue = "1") int numPages,
+                                                      @RequestParam(defaultValue = "9") int numItems,
+                                                      @RequestParam int cvId) {
         try {
-            ScrapeResultDTO result = courseService.scrapeAndSaveCoursesByCvId(numPages, numItems, cvId);
+            Map<String, List<Course>> result = courseService.scrapeCoursesGroupedByJobSkill(numPages, numItems, cvId);
             return new Response<>(EHttpStatus.OK, "Đã cào và lưu thành công course", result);
         } catch (Exception e) {
             return new Response<>(EHttpStatus.BAD_REQUEST, "Lỗi xảy ra khi cào dữ liệu: " + e.getMessage(), null);
