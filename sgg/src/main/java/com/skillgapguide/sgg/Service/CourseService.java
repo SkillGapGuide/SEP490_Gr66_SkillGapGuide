@@ -208,6 +208,35 @@ public class CourseService {
         }
         return new ScrapeResultDTO(scrapedCourses, logs);
     }
+    public Map<String, List<Course>> scrapeCoursesGroupedByJobSkill(int numPages, int numItems, Integer cvId) {
+        Map<String, List<Course>> result = new LinkedHashMap<>();
+        List<String> jobSkills = courseRepository.findJobSkillsByCvId(cvId);
+        if (jobSkills == null || jobSkills.isEmpty()) {
+            return result;
+        }
+        WebDriver driver = createChromeDriver();
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
+            for (String keyword : jobSkills) {
+                List<Course> coursesForSkill = new ArrayList<>();
+                for (int page = 1; page <= numPages; page++) {
+                    try {
+                        List<Course> pageCourses = scrapePageAndReturnCourses(driver, wait, page, numItems, keyword, new ArrayList<>());
+                        coursesForSkill.addAll(pageCourses);
+                        if (!pageCourses.isEmpty()) {
+                            randomSleep(PAGE_DELAY_MIN, PAGE_DELAY_MAX);
+                        }
+                    } catch (Exception e) {
+                        entityManager.clear();
+                    }
+                }
+                result.put(keyword, coursesForSkill);
+            }
+        } finally {
+            if (driver != null) driver.quit();
+        }
+        return result;
+    }
     private List<Course> scrapePageAndReturnCourses(WebDriver driver, WebDriverWait wait, int page, int numItems, String keyword, List<String> logs) {
         List<Course> courses = new ArrayList<>();
         String pageUrl = buildSearchUrl(page, keyword);
