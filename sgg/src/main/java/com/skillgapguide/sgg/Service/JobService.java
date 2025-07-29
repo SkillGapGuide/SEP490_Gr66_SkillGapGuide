@@ -123,7 +123,20 @@ public class JobService {
                 LMStudioService service = new LMStudioService(WebClient.builder());
                 String content = service.callMistralApi(prompt).block();
                 try {
-                    saveJobSkillsToDb(content, userId);
+                    ObjectMapper mapper = new ObjectMapper();
+                    ExtractJDSkillDTO response = mapper.readValue(content, ExtractJDSkillDTO.class);
+                    Cv cv = cvRepository.findByUserId(userId);
+                    List<String> skills = response.getSkills();
+
+                    Job jobNew = new Job();
+                    jobNew.setTitle(response.getTitle());
+                    jobNew.setCompany(response.getCompany());
+                    jobNew.setDescription(response.getDescription());
+                    jobNew.setStatus("ACTIVE");
+                    jobNew.setCvId(cv.getId());
+                    jobRepository.save(jobNew);
+
+                    saveJobSkillsToDb(skills, userId);
                     AuditLog auditLog = new AuditLog();
                     auditLog.setUserId(userId);
                     auditLog.setAction("UPLOAD_JOB_DESCRIPTION");
@@ -137,22 +150,11 @@ public class JobService {
                 e.printStackTrace();
             }
     }
-    public void saveJobSkillsToDb(String aiResponseJson, int userId) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        ExtractJDSkillDTO response = mapper.readValue(aiResponseJson, ExtractJDSkillDTO.class);
-        Cv cv = cvRepository.findByUserId(userId);
-        Job job = new Job();
-        job.setTitle(response.getTitle());
-        job.setCompany(response.getCompany());
-        job.setDescription(response.getDescription());
-        job.setStatus("ACTIVE");
-        job.setCvId(cv.getId());
-        jobRepository.save(job);
-        List<String> skills = response.getSkills();
+    public void saveJobSkillsToDb(List<String> skills, int jobId) throws Exception {
         for (String skill : skills) {
             JobDesSkills jobDesSkills = new JobDesSkills();
             jobDesSkills.setSkill(skill);
-            jobDesSkills.setJobId(job.getJobId());
+            jobDesSkills.setJobId(jobId);
             jobDesSkillsRepository.save(jobDesSkills);
             embedService.getJobDesSkillEmbedding(skill);
         }
@@ -161,21 +163,55 @@ public class JobService {
         return jobDesSkillsRepository.findByJobId(jobId);
     }
 
-    public List<Job> getJobList(int option) throws IOException {
+    public List<Job> getJobList() throws IOException {
         String email = SecurityContextHolder.getContext().getAuthentication().getName(); // lấy từ JWT
         Integer userId = userRepository.findByEmail(email).map(User::getUserId).orElseThrow(() -> new RuntimeException("User not found"));
         Cv cv = cvRepository.findByUserId(userId);
         if (cv == null) {
             throw new IllegalStateException("Chưa upload cv");
         }
-        if (option == 1) {
+        return jobRepository.getJobsByCvId(cv.getId());
+    }
+
+    public void analyzeJobDescription(int option) throws IOException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName(); // lấy từ JWT
+        Integer userId = userRepository.findByEmail(email).map(User::getUserId).orElseThrow(() -> new RuntimeException("User not found"));
+        Cv cv = cvRepository.findByUserId(userId);
+        if (option ==1) {
             List<JobDesFile> jobDesFiles = jobDesFileRepository.findByUserId(userId);
+            if (jobDesFiles.isEmpty()) {
+                throw new IllegalStateException("Chưa upload job description");
+            }
             for (JobDesFile jobDesFile : jobDesFiles) {
                 Path path = Paths.get(jobDesFile.getFilePath());
                 String fileName = jobDesFile.getFileName();
                 extractJd(path.toAbsolutePath().toString(), userId, fileName);
             }
+        } else if(option == 2|| option== 3){
+            List<Job> jobList = jobRepository.getJobsByCvId(cv.getId());
+            if (jobList.isEmpty()) {
+                throw new IllegalStateException("Chưa upload job description");
+            }
+            for( Job job : jobList) {
+                String prompt = "Hãy phân tích job description dưới đây và trích xuất tất cả các yêu cầu kỹ năng của ứng viên. Chỉ trả về kết quả dưới dạng JSON theo mẫu sau, không thêm bất kỳ nội dung nào khác:\n" +
+                        "{\n" +
+                        "\"skills\": [\n" +
+                        "]" +
+                        "}\n" +
+                        "JD:\n" + job.getDescription();
+
+                LMStudioService service = new LMStudioService(WebClient.builder());
+                String content = service.callMistralApi(prompt).block();
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    ExtractJDSkillDTO response = mapper.readValue(content, ExtractJDSkillDTO.class);
+                    List<String> skills = response.getSkills();
+                    saveJobSkillsToDb(skills, userId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
-        return jobRepository.getJobsByCvId(cv.getId());
+
     }
 }
