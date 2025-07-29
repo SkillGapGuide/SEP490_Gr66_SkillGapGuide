@@ -47,8 +47,12 @@ public class JobController {
         return new Response<>(EHttpStatus.OK, jobService.getJobSkill(jobId));
     }
     @GetMapping("/getJobList")
-    public Response<?> getJobList(@RequestParam int option) throws IOException {
-        return new Response<>(EHttpStatus.OK, jobService.getJobList(option));
+    public Response<?> getJobList() throws IOException {
+        return new Response<>(EHttpStatus.OK, jobService.getJobList());
     }
-
+    @GetMapping("/analyzeJobDescription")
+    public Response<?> analyzeJob(@RequestParam int option) throws IOException {
+        jobService.analyzeJobDescription(option);
+        return new Response<>(EHttpStatus.OK, "Phân tích mô tả công việc thành công");
+    }
 }
