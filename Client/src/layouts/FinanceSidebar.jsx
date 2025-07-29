@@ -10,7 +10,8 @@ import {
 } from "lucide-react";
 
 const menu = [
-  { label: "Quản lý doanh thu", to: "/finance/dashboard", icon: <Home size={20} /> }
+  { label: "Bảng điều khiển", to: "/finance/dashboard", icon: <Home size={20} /> },
+  { label: "Quản lý doanh thu", to: "/finance/paymentmanagement", icon: <Home size={20} /> }
   
 ];
 
