@@ -14,6 +14,7 @@ import com.skillgapguide.sgg.Response.Response;
 import com.skillgapguide.sgg.Service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Date;
 import java.util.Map;
@@ -208,14 +210,13 @@ public class PaymentController {
     }
 
     @GetMapping("/vnpay-return")
-    public ResponseEntity<Map<String, Object>> paymentReturn(@RequestParam Map<String, String> params) {
+    public ResponseEntity<Response<Map<String, Object>>> paymentReturn(@RequestParam Map<String, String> params) {
         try {
             String status = params.get("vnp_ResponseCode");
             String transactionNo = params.get("vnp_TransactionNo");
             double amount = Double.parseDouble(params.get("vnp_Amount")) / 100;
             String txnRef = params.get("vnp_TxnRef");
 
-            // Tách userId từ txnRef: ví dụ 123_172102938123
             Integer userId = Integer.parseInt(txnRef.split("_")[0]);
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
@@ -230,17 +231,26 @@ public class PaymentController {
 
             Payment saved = paymentRepo.save(payment);
 
-            return ResponseEntity.ok(Map.of(
-                    "message", "00".equals(status) ? "Thanh toán thành công" : "Thanh toán thất bại",
-                    "status", status,
-                    "transactionCode", transactionNo,
-                    "paymentId", saved.getPaymentId()
-            ));
+            Map<String, Object> data = new HashMap<>();
+            data.put("status", status);
+            data.put("transactionCode", transactionNo);
+            data.put("paymentId", saved.getPaymentId());
+
+            if ("00".equals(status)) {
+                return ResponseEntity.ok(
+                        new Response<>(EHttpStatus.OK, "Thanh toán thành công", data)
+                );
+            } else {
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body(new Response<>(EHttpStatus.BAD_REQUEST, "Thanh toán thất bại", data));
+            }
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of(
-                    "message", "Lỗi khi xử lý callback từ VNPAY",
-                    "error", e.getMessage()
-            ));
+            Map<String, Object> errorData = Map.of("error", e.getMessage());
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new Response<>(EHttpStatus.BAD_REQUEST, "Lỗi khi xử lý callback từ VNPAY", errorData));
         }
     }
     @PostMapping("/getPaymentFromCassio")
