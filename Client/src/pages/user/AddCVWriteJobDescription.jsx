@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import { useAnalysisStore } from "../../stores/useAnalysisStore";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import Stepper from "./Stepper";
 import { UserContext } from "../../context/UserContext";
 import { useCVWizardStore } from "../../stores/cvWizardStore";
 const MATCH_SCORE = 0.75;
@@ -41,7 +40,7 @@ const cvId = useCVWizardStore(s => s.cvId)
 
   return (
     <div className="bg-white min-h-screen py-6 px-4 max-w-6xl mx-auto">
-      <Stepper />
+    
       <h1 className="text-2xl font-bold text-gray-800 mb-6">
         Kết quả phân tích kỹ năng {cvId ? `CV #${cvId}` : ""}
       </h1>

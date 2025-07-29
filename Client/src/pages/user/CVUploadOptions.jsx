@@ -556,7 +556,7 @@ const CVUploadOptions = ({ onNext }) => {
                 </>
               )}
               {topcvLinks.length >= 5 && (
-                <p className="text-red-600 text-center font-medium my-2"> 
+                <p className="text-red-600 text-center font-medium my-2">
                   Chỉ nhập tối đa 5 link!
                 </p>
               )}
@@ -571,7 +571,7 @@ const CVUploadOptions = ({ onNext }) => {
           </div>
         )}
         {showCongrats && (
-         <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-60 backdrop-blur">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-60 backdrop-blur">
             <div className="bg-white rounded-xl shadow-lg p-8 text-center max-w-md w-full">
               <h2 className="text-2xl font-bold text-green-600 mb-4">
                 🎉 Chúc mừng bạn!
@@ -579,16 +579,16 @@ const CVUploadOptions = ({ onNext }) => {
               <p className="mb-6 text-gray-700">
                 Bạn đã tải lên CV và mô tả công việc thành công.
                 <br />
-                Bấm <span className="font-semibold text-blue-600">
-                  Bắt đầu
+                Bấm{" "}
+                <span className="font-semibold text-blue-600">
+                  Phân tích kỹ năng
                 </span>{" "}
-                để hệ thống phân tích kỹ năng cho bạn.
+                để hệ thống phân tích kỹ năng cho bạn nhé .
               </p>
               <button
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-lg transition"
                 onClick={() => {
                   setShowCongrats(false);
-                  if (typeof onNext === "function") onNext();
                 }}
               >
                 Bắt đầu

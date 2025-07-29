@@ -10,6 +10,15 @@ const menuItems = [
     enableCondition: () => true,
   },
    { label: "Công việc phù hợp", path: "/matchingjobs", enableCondition: () => true, },
+   {
+    label: "Phân tích kỹ năng",
+    path: "/analyze/result",
+    enableCondition: () => {
+      const { skills } = useAnalysisStore.getState();
+      return skills && skills.length > 0;
+    },
+  },
+  
   { label: "Gợi ý khóa học", path: "/suggestedcourses" , enableCondition: () => true,},
   // {
   //   label: "Phân tích kỹ năng",
@@ -19,14 +28,7 @@ const menuItems = [
   //     return !!cvFile && jobFiles && jobFiles.length > 0;
   //   },
   // },
-  {
-    label: "Phân tích kỹ năng",
-    path: "/analyze/result",
-    enableCondition: () => {
-      const { skills } = useAnalysisStore.getState();
-      return skills && skills.length > 0;
-    },
-  },
+ 
    { label: "Theo dõi tiến độ", path: "/coursetracking" ,enableCondition: () => true,},
   { label: "Đánh giá", path: "/servicerating" ,enableCondition: () => true,},
   { label: "Đăng ký gói dịch vụ", path: "/servicepayment", enableCondition: () => true, }
