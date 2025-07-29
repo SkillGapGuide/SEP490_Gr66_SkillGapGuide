@@ -1,13 +1,17 @@
-from FlagEmbedding import BGEM3FlagModel
-
-import json
+# from FlagEmbedding import BGEM3FlagModel
+from sentence_transformers import SentenceTransformer
 from fastapi import FastAPI
 from pydantic import BaseModel
+import torch
+print(torch.version.cuda)            # → Nếu là None thì không có CUDA
+print(torch.cuda.is_available())     # → Nếu là False thì không dùng được GPU
+
 
 app = FastAPI()
 
 # Nhúng văn bản thành vector
-model = BGEM3FlagModel('BAAI/bge-m3', use_fp16=True)
+# model = BGEM3FlagModel('BAAI/bge-m3', use_fp16=True)
+model = SentenceTransformer("nomic-ai/nomic-embed-text-v2-moe", trust_remote_code=True)
 class TextInput(BaseModel):
     text: str
 

@@ -10,6 +10,7 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,19 +27,33 @@ public class EmbedService {
     @Autowired
     private JobDesSkillsEmbeddingRepository jobDesSkillsEmbeddingRepository;
     public static double[] fetchEmbedding(String text) throws JSONException, IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        String requestBody = "{\"text\":\"" + text + "\"}";
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:8000/embed"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        JSONObject json = new JSONObject(response.body());
-        JSONArray arr = json.getJSONArray("embedding");
-        double[] vector = new double[arr.length()];
-        for (int i = 0; i < arr.length(); i++) {
-            vector[i] = arr.getDouble(i);
+        String prompt="search_document:" + text ;
+        LMStudioService service = new LMStudioService(WebClient.builder());
+        String content = service.callNomicApi(prompt).block();
+//        HttpClient client = HttpClient.newHttpClient();
+//        String requestBody = "{\"text\":\"search_document: " + text + "\"}";
+//        HttpRequest request = HttpRequest.newBuilder()
+//                .uri(URI.create("http://localhost:8000/embed"))
+//                .header("Content-Type", "application/json")
+//                .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
+//                .build();
+//        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (content == null || !content.trim().startsWith("{")) {
+            throw new RuntimeException("Invalid response from API: " + content);
+        }
+        JSONObject json = new JSONObject(content);
+        if (!json.has("data")) {
+            throw new JSONException("No 'data' field in response");
+        }
+        JSONArray dataArray = json.getJSONArray("data");
+        if (dataArray.length() == 0) {
+            throw new JSONException("'data' array is empty");
+        }
+        JSONObject embeddingObject = dataArray.getJSONObject(0);
+        JSONArray embeddingArray = embeddingObject.getJSONArray("embedding");
+        double[] vector = new double[embeddingArray.length()];
+        for (int i = 0; i < embeddingArray.length(); i++) {
+            vector[i] = embeddingArray.getDouble(i);
         }
         return vector;
     }

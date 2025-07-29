@@ -1,5 +1,6 @@
 package com.skillgapguide.sgg.Dto;
 
+import com.skillgapguide.sgg.Entity.AuditLog;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserFileHistoryDTO {
-    private List<FileInfoDTO> cvFiles;
-    private List<FileInfoDTO> jobDesFile;
+    private List<AuditLog> cvFiles;
+    private List<AuditLog> jobDesFile;
 }

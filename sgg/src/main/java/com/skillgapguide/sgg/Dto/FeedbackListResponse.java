@@ -9,6 +9,5 @@ public interface FeedbackListResponse {
     String getContent();
 
     Integer getStar();
-
-
+    String getTime();
 }

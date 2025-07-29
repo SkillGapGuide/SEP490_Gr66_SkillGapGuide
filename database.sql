@@ -123,8 +123,7 @@ CREATE TABLE job_des_file (
                               file_type varchar(255) NOT NULL,
                               upload_date datetime NOT NULL,
                               PRIMARY KEY (id),
-                              FOREIGN KEY (user_id) REFERENCES User(user_id),
-                              FOREIGN KEY (job_id) REFERENCES job(job_id) on delete cascade
+                              FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
 -- Bảng User_Course (bảng nối), liên kết User và Course
 CREATE TABLE User_Course (
@@ -258,6 +257,7 @@ create table job_cv_skills_score(
                                     cv_skill int ,
                                     score double,
                                     FOREIGN KEY (job_skill) REFERENCES job_des_skills(id) on delete cascade,
+                                    FOREIGN KEY (cv_skill) REFERENCES user_cv_skills(id) on delete cascade
                                     FOREIGN KEY (cv_skill) REFERENCES user_cv_skills(id) on delete cascade
 );
 INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (1,     1,     'active');
