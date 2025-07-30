@@ -8,6 +8,9 @@ import "slick-carousel/slick/slick-theme.css";
 import { Link } from "react-router-dom";
 import innovation from "../assets/innovation.png";
 import React from "react";
+import { showInfo } from "../utils/alert";
+import { useNavigate } from "react-router-dom";
+
 // Carousel images (có thể thay bằng ảnh thực tế)
 const images = [
   "/images/slide1.png",
@@ -55,7 +58,7 @@ const settings = {
 
 export default function Home() {
   const [uploading, setUploading] = useState(false);
-
+const navigate = useNavigate();
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-50 via-white to-indigo-50">
       {/* HERO SECTION */}
@@ -79,25 +82,31 @@ export default function Home() {
             <p className="mt-4 text-gray-700 text-lg font-light">
               Tải lên CV – nhận ngay bản đồ kỹ năng cần thiết, đề xuất định hướng, khóa học phù hợp.
             </p>
-            <Link to="/analyze">
-              <motion.button
-                whileHover={{ scale: 1.04, backgroundColor: "#4338CA" }}
-                whileTap={{ scale: 0.97 }}
-                className={`mt-8 inline-flex items-center gap-3 bg-indigo-700 text-white px-7 py-3 rounded-full shadow-lg text-lg font-bold hover:bg-indigo-800 transition-all ${uploading ? "opacity-70 cursor-not-allowed" : ""}`}
-                disabled={uploading}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setUploading(true);
-                  setTimeout(() => {
-                    setUploading(false);
-                    window.location.href = "/analyze";
-                  }, 1600); // Demo effect
-                }}
-              >
-                <FiUploadCloud className="w-6 h-6" />
-                Tải lên CV & nhận phân tích
-              </motion.button>
-            </Link>
+           <motion.button
+  whileHover={{ scale: 1.04, backgroundColor: "#4338CA" }}
+  whileTap={{ scale: 0.97 }}
+  className={`mt-8 inline-flex items-center gap-3 bg-indigo-700 text-white px-7 py-3 rounded-full shadow-lg text-lg font-bold hover:bg-indigo-800 transition-all ${uploading ? "opacity-70 cursor-not-allowed" : ""}`}
+  disabled={uploading}
+ onClick={(e) => {
+  e.preventDefault();
+  if (!localStorage.getItem("token")) {
+    showInfo("Bạn cần đăng nhập để tải lên CV!");
+    setTimeout(() => {
+      navigate("/login");
+    }, 2000);
+    return;
+  }
+  setUploading(true);
+  setTimeout(() => {
+    setUploading(false);
+    navigate("/analyze");
+  }, 1600);
+}}
+>
+  <FiUploadCloud className="w-6 h-6" />
+  Tải lên CV & nhận phân tích
+</motion.button>
+
           </motion.div>
           <motion.img
             initial={{ scale: 0.88, opacity: 0, rotate: 10 }}

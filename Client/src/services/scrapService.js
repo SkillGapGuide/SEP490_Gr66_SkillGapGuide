@@ -8,5 +8,8 @@ export const scrapeJobService = {
 
   crawlTenJobs: async (url) => {
     return await apiService.post(ENDPOINTS.scraper.crawlTenJobs, {url});
-  }
+  },
+  crawl5JobsByLinks: async (links) => {
+  return await apiService.post(ENDPOINTS.scraper.scraper1To5Jobs, { urls: links });
+}
 };

@@ -29,7 +29,7 @@ const CVUploadOptions = ({ onNext }) => {
   const setCvUploaded = useCVWizardStore((s) => s.setCvUploaded);
   const clearAllCvAndFile = useCVWizardStore((s) => s.clearAllCvAndFile);
   const setAnalysisNeedRun = useCVWizardStore((s) => s.setAnalysisNeedRun);
-  
+
   // ====== LOCAL STATE ======
   const [uploading, setUploading] = useState(false);
   const [addingLink, setAddingLink] = useState(false);
@@ -103,16 +103,16 @@ const CVUploadOptions = ({ onNext }) => {
       if (file.type !== "application/pdf")
         return showError("Chỉ nhận file PDF.");
       if (file.size > MAX_CV_SIZE) return showError("File quá lớn.");
-  // Reset toàn bộ trước khi upload file mới!
-    clearAllCvAndFile();
+      // Reset toàn bộ trước khi upload file mới!
+      clearAllCvAndFile();
       setUploading(true); // BẮT ĐẦU loading
       setCVFile(file); // LƯU file vào store NGAY để preview được luôn (nếu muốn)
 
       try {
         await cvService.uploadCV(file); // <-- dùng file vừa upload
         setCvUploaded(true);
-        
-setAnalysisNeedRun(true); // Lưu trạng thái đã upload
+
+        setAnalysisNeedRun(true); // Lưu trạng thái đã upload
         showSuccess("Tải lên CV thành công!");
       } catch (err) {
         showError("Tải lên CV thất bại: " + (err?.message || ""));
@@ -223,7 +223,7 @@ setAnalysisNeedRun(true); // Lưu trạng thái đã upload
 
   // ====== Handler: Hoàn thành nhập link (lúc này mới gọi scrapeJob) ======
   const handleCompleteScrapeJobs = useCallback(async () => {
-    console.log("Gọi handleCompleteScrapeJobs", topcvLinks, onNext);
+    console.log("Gọi handleCompleteScrapeJobs", topcvLinks);
     if (!topcvLinks.length) return showError("Vui lòng nhập ít nhất 1 link!");
     try {
       await scrapeJobService.crawl5JobsByLinks(topcvLinks);
