@@ -20,7 +20,7 @@ public class LMStudioService {
                 .build();
     }
 
-    public Mono<String> callLMApi(String prompt) {
+    public Mono<String> callMistralApi(String prompt) {
         Map<String, Object> requestBody = Map.of(
                 "model", "mistralai/mistral-7b-instruct-v0.3",
                 "messages", List.of(
@@ -39,6 +39,22 @@ public class LMStudioService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .flatMap(this::parseAiResponse)
+                .timeout(Duration.ofMinutes(2))
+                .onErrorResume(e -> Mono.just("Lỗi: " + e.getMessage()));
+    }
+    public Mono<String> callNomicApi(String prompt) {
+        Map<String, Object> requestBody = Map.of(
+                "model", "text-embedding-nomic-embed-text-v2-moe",
+                "input", prompt
+        );
+        return webClient.post()
+                .uri("/v1/embeddings")
+                .header("Authorization", "Bearer lm-studio")
+                .header("Accept", MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(String.class)
                 .timeout(Duration.ofMinutes(2))
                 .onErrorResume(e -> Mono.just("Lỗi: " + e.getMessage()));
     }

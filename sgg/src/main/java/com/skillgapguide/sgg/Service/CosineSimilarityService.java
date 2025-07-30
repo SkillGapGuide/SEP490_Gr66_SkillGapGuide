@@ -22,9 +22,6 @@ public class CosineSimilarityService {
     @Autowired
     private UserCvSkillsRepository userCvSkillsRepository;
     public void compareCvJob(int jobId, int cvId) throws Exception {
-        if(jobCvSkillScoreRepository.findByCvSkillAndJobSkill(cvId, jobId) != null){
-
-        }
         jobCvSkillScoreRepository.deleteByJobIdAndCvId(jobId,cvId);
         List<UserCvSkills> userCvSkillsList = userCvSkillsRepository.findByCvId(cvId);
         List<JobDesSkills> jobDesSkillsList = jobDesSkillsRepository.findByJobId(jobId);
@@ -94,16 +91,27 @@ public class CosineSimilarityService {
     }
 
     public double getCosine(UserCvSkills cv, JobDesSkills job) throws Exception {
-        double[] vec1 = embedService.getCvSkillEmbedding(cv.getSkill());
-        double[] vec2 = embedService.getJobDesSkillEmbedding(job.getSkill());
+        double[] vec1 = normalize(embedService.getCvSkillEmbedding(cv.getSkill()));
+        double[] vec2 = normalize(embedService.getJobDesSkillEmbedding(job.getSkill()));
         double result = cosineSimilarity(vec1,vec2);
         return result;
     }
     public double testCosine(String cv, String job) throws Exception {
-        double[] vec1 = embedService.getCvSkillEmbedding(cv);
-        double[] vec2 = embedService.getJobDesSkillEmbedding(job);
+        double[] vec1 = normalize(embedService.getCvSkillEmbedding(cv));
+        double[] vec2 = normalize(embedService.getJobDesSkillEmbedding(job));
         double result = cosineSimilarity(vec1,vec2);
         return result;
+    }
+    public double[] normalize(double[] vector) {
+        double norm = 0.0;
+        for (double v : vector) {
+            norm += v * v;
+        }
+        norm = Math.sqrt(norm);
+        for (int i = 0; i < vector.length; i++) {
+            vector[i] /= norm;
+        }
+        return vector;
     }
 
     /**
@@ -112,7 +120,7 @@ public class CosineSimilarityService {
      * @param b Real number table representing the second vector
      * @return value between -1 and 1
      */
-    public static double cosineSimilarity(double[] a, double[] b) {
+    public double cosineSimilarity(double[] a, double[] b) {
         double dot = 0.0, normA = 0.0, normB = 0.0;
         for (int i = 0; i < a.length; i++) {
             dot += a[i] * b[i];      // Dot product

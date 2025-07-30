@@ -33,6 +33,12 @@ public class JobDeleteService {
         jobRepository.deleteAllByCvId(cv.getId());
     }
     @Transactional
+    public void deleteFileJobDes(){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName(); // lấy từ JWT
+        Integer userId = userRepository.findByEmail(email).map(User::getUserId).orElseThrow(() -> new RuntimeException("User not found"));
+        jobDesFileRepository.deleteAllByUserId(userId);
+    }
+    @Transactional
     public void deleteJobsByCvId(Integer cvId) {
         jobRepository.deleteByCvId(cvId);
     }

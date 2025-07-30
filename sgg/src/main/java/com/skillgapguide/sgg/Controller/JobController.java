@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,8 +47,12 @@ public class JobController {
         return new Response<>(EHttpStatus.OK, jobService.getJobSkill(jobId));
     }
     @GetMapping("/getJobList")
-    public Response<?> getJobList(){
+    public Response<?> getJobList() throws IOException {
         return new Response<>(EHttpStatus.OK, jobService.getJobList());
     }
-
+    @GetMapping("/analyzeJobDescription")
+    public Response<?> analyzeJob(@RequestParam int option) throws IOException {
+        jobService.analyzeJobDescription(option);
+        return new Response<>(EHttpStatus.OK, "Phân tích mô tả công việc thành công");
+    }
 }

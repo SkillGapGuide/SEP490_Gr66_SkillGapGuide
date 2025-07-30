@@ -7,4 +7,5 @@ public interface FeedbackListResponse {
     String getEmail();
     String getContent();
     Integer getStar();
+    String getTime();
 }
