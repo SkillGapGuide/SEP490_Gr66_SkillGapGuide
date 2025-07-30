@@ -5,8 +5,11 @@ import { uploadImageToSupabase } from '../../config/uploadImageSupabase';
 import { FiUser, FiHeart, FiCheckCircle } from "react-icons/fi";
 import { FaChalkboardTeacher } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
+import { useContext } from "react";
+import { UserContext } from "../../context/UserContext";
 
 const UserProfile = () => {
+ const { setUser: setUserContext } = useContext(UserContext);
   const fileInputRef = useRef(null);
   const [fileAvatar, setFileAvatar] = useState(null);
   const [user, setUser] = useState({ fullName: "", email: "", phone: "", avatar: "", role: "" });
@@ -15,6 +18,7 @@ const UserProfile = () => {
   const [showModal, setShowModal] = useState(false);
   const [changedAvatar, setChangedAvatar] = useState(false);
   const location = useLocation();
+ 
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -72,9 +76,15 @@ const UserProfile = () => {
     }
 
     try {
-      await userService.updateProfile({ fullName: user.fullName, phone: user.phone, avatar: imageUrl });
-      showSuccess("Cập nhật thành công!");
-      setEdit({ fullName: false, phone: false });
+       await userService.updateProfile({ fullName: user.fullName, phone: user.phone, avatar: imageUrl });
+  showSuccess("Cập nhật thành công!");
+  setEdit({ fullName: false, phone: false });
+
+  // Cập nhật context và localStorage sau khi đổi avatar
+  const newUser = { ...user, avatar: imageUrl };
+  setUser(newUser); // set vào context
+  setUserContext(newUser);
+  localStorage.setItem('user', JSON.stringify(newUser)); // set vào localStorage (cần thiết nếu dùng user từ localStorage ở đâu đó)
     } catch (err) {
       showError("Lỗi khi cập nhật thông tin.");
     }

@@ -24,8 +24,12 @@ const CVUploadOptions = ({ onNext }) => {
   const setTopcvLinks = useCVWizardStore((state) => state.setTopcvLinks);
 
   const selectedOption = useCVWizardStore((s) => s.selectedOption);
-const setSelectedOption = useCVWizardStore((s) => s.setSelectedOption);
-
+  const setSelectedOption = useCVWizardStore((s) => s.setSelectedOption);
+  const setJobFilesMeta = useCVWizardStore((s) => s.setJobFilesMeta);
+  const setCvUploaded = useCVWizardStore((s) => s.setCvUploaded);
+  const clearAllCvAndFile = useCVWizardStore((s) => s.clearAllCvAndFile);
+  const setAnalysisNeedRun = useCVWizardStore((s) => s.setAnalysisNeedRun);
+  
   // ====== LOCAL STATE ======
   const [uploading, setUploading] = useState(false);
   const [addingLink, setAddingLink] = useState(false);
@@ -43,7 +47,7 @@ const setSelectedOption = useCVWizardStore((s) => s.setSelectedOption);
   const [selectedCareer, setSelectedCareer] = useState("");
   const [selectedSpecialization, setSelectedSpecialization] = useState("");
   const [selectedExperience, setSelectedExperience] = useState("");
-
+  const [showCongrats, setShowCongrats] = useState(false);
   // Lấy danh mục nghề khi load
   useEffect(() => {
     const fetchData = async () => {
@@ -92,56 +96,100 @@ const setSelectedOption = useCVWizardStore((s) => s.setSelectedOption);
   );
 
   // ====== Upload CV Handler ======
- const handleCVUpload = useCallback((e) => {
-  const file = e.target.files[0];
-  if (!file) return showError("Vui lòng chọn file CV.");
-  if (file.type !== "application/pdf") return showError("Chỉ nhận file PDF.");
-  if (file.size > MAX_CV_SIZE) return showError("File quá lớn.");
-  setCVFile(file); // Chỉ lưu vào store
-}, [setCVFile]);
+  const handleCVUpload = useCallback(
+    async (e) => {
+      const file = e.target.files[0];
+      if (!file) return showError("Vui lòng chọn file CV.");
+      if (file.type !== "application/pdf")
+        return showError("Chỉ nhận file PDF.");
+      if (file.size > MAX_CV_SIZE) return showError("File quá lớn.");
+  // Reset toàn bộ trước khi upload file mới!
+    clearAllCvAndFile();
+      setUploading(true); // BẮT ĐẦU loading
+      setCVFile(file); // LƯU file vào store NGAY để preview được luôn (nếu muốn)
+
+      try {
+        await cvService.uploadCV(file); // <-- dùng file vừa upload
+        setCvUploaded(true);
+        
+setAnalysisNeedRun(true); // Lưu trạng thái đã upload
+        showSuccess("Tải lên CV thành công!");
+      } catch (err) {
+        showError("Tải lên CV thất bại: " + (err?.message || ""));
+      } finally {
+        setUploading(false); // KẾT THÚC loading
+      }
+    },
+    [setCVFile]
+  );
 
   // ====== Handler upload JD files (chỉ lưu vào store, chưa call API) ======
-const handleJobFileUpload = useCallback((e) => {
-  const files = Array.from(e.target.files);
+  const handleJobFileUpload = useCallback(
+    (e) => {
+      const files = Array.from(e.target.files);
 
-  const existFiles = jobFiles.map(f => f.name + '|' + f.size);
+      const existFiles = jobFiles.map((f) => f.name + "|" + f.size);
 
-  // Kiểm tra file trùng và file quá dung lượng
-  let hasDuplicate = false;
-  let hasOversize = false;
+      // Kiểm tra file trùng và file quá dung lượng
+      let hasDuplicate = false;
+      let hasOversize = false;
 
-  // Lọc file hợp lệ
-  const validFiles = files.filter(f => {
-    if (existFiles.includes(f.name + '|' + f.size)) {
-      hasDuplicate = true;
-      return false;
+      // Lọc file hợp lệ
+      const validFiles = files.filter((f) => {
+        if (existFiles.includes(f.name + "|" + f.size)) {
+          hasDuplicate = true;
+          return false;
+        }
+        if (f.size > MAX_FILE_SIZE) {
+          hasOversize = true;
+          return false;
+        }
+        return true;
+      });
+
+      if (hasDuplicate) {
+        showError(
+          "Một hoặc nhiều file đã tồn tại trong danh sách. Vui lòng chọn file khác!"
+        );
+      }
+      if (hasOversize) {
+        showError(
+          "Một hoặc nhiều file vượt quá 2MB. Vui lòng chọn file nhỏ hơn 2MB!"
+        );
+      }
+
+      // Thêm file hợp lệ
+      if (validFiles.length) {
+        const newJobFiles = [...jobFiles, ...validFiles];
+        setJobFiles(newJobFiles);
+        setJobFilesMeta(
+          newJobFiles.map((f) => ({ name: f.name, size: f.size }))
+        );
+      }
+    },
+    [jobFiles, setJobFiles]
+  );
+
+  // Handler gửi JD files khi hoàn thành
+  const handleCompleteUploadJobs = useCallback(async () => {
+    if (!jobFiles.length)
+      return showError("Vui lòng upload ít nhất 1 file mô tả!");
+    setUploadingJobFiles(true);
+    try {
+      await cvService.uploadJobDescription(jobFiles);
+      // Sau khi upload thành công, lưu metadata
+      setJobFilesMeta(jobFiles.map((f) => ({ name: f.name, size: f.size })));
+      showSuccess("Tải lên file mô tả công việc thành công!");
+      setShowPopup("");
+      setShowCongrats(true);
+    } catch (err) {
+      showError(
+        "Tải lên file mô tả công việc thất bại: " + (err?.message || "")
+      );
+    } finally {
+      setUploadingJobFiles(false);
     }
-    if (f.size > MAX_FILE_SIZE) {
-      hasOversize = true;
-      return false;
-    }
-    return true;
-  });
-
-  if (hasDuplicate) {
-    showError("Một hoặc nhiều file đã tồn tại trong danh sách. Vui lòng chọn file khác!");
-  }
-  if (hasOversize) {
-    showError("Một hoặc nhiều file vượt quá 2MB. Vui lòng chọn file nhỏ hơn 2MB!");
-  }
-
-  // Thêm file hợp lệ
-  if (validFiles.length) setJobFiles([...jobFiles, ...validFiles]);
-}, [jobFiles, setJobFiles]);
-
-
-// Handler gửi JD files khi hoàn thành
-const handleCompleteUploadJobs = useCallback(() => {
-  if (!jobFiles.length) return showError("Vui lòng upload ít nhất 1 file mô tả!");
-  setShowPopup("");
-  if (typeof onNext === "function") onNext(); // sang LoadingAnalyze
-}, [jobFiles, onNext]);
-
+  }, [jobFiles, setJobFilesMeta]);
 
   // ====== Handler: Chọn radio option ======
   const handleRadioChange = useCallback((value) => {
@@ -174,16 +222,18 @@ const handleCompleteUploadJobs = useCallback(() => {
   }, [newLink, topcvLinks, setTopcvLinks]);
 
   // ====== Handler: Hoàn thành nhập link (lúc này mới gọi scrapeJob) ======
-const handleCompleteScrapeJobs = useCallback(() => {
-  console.log('Gọi handleCompleteScrapeJobs', topcvLinks, onNext);
-  if (!topcvLinks.length) return showError("Vui lòng nhập ít nhất 1 link!");
-  setShowPopup("");
-  if (typeof onNext === "function") {
-    console.log('Đã gọi onNext option 2');
-    onNext();
-  }
-}, [topcvLinks, onNext]);
-
+  const handleCompleteScrapeJobs = useCallback(async () => {
+    console.log("Gọi handleCompleteScrapeJobs", topcvLinks, onNext);
+    if (!topcvLinks.length) return showError("Vui lòng nhập ít nhất 1 link!");
+    try {
+      await scrapeJobService.crawl5JobsByLinks(topcvLinks);
+    } catch (err) {
+      showError("Lấy dữ liệu từ link TOPCV thất bại: " + (err?.message || ""));
+      return;
+    }
+    setShowPopup("");
+    setShowCongrats(true);
+  }, [topcvLinks]);
 
   // ====== Options cho dropdown Kinh nghiệm ======
   const experienceOptions = useMemo(
@@ -376,41 +426,54 @@ const handleCompleteScrapeJobs = useCallback(() => {
             <h3 className="text-lg font-bold mb-4 text-center">
               Tải lên yêu cầu tuyển dụng
             </h3>
-          
 
-{/* ... */}
-<ul className="mb-4">
-  {jobFiles.length === 0 ? (
-    <li className="text-gray-400 italic text-center py-4">
-      Chưa có file nào được thêm
-    </li>
-  ) : (
-    jobFiles.map((file, index) => (
-      <li
-        key={index}
-        className="flex items-center justify-between gap-2 bg-gray-50 border border-gray-200 rounded-xl mb-2 px-3 py-2 shadow-sm group transition"
-      >
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <span className="text-blue-500">
-            <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20"><path d="M8 2a2 2 0 00-2 2v1H6a2 2 0 00-2 2v9a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H8zm0 2h4v1H8V4zm-2 3h8v9a1 1 0 01-1 1H7a1 1 0 01-1-1V7z"></path></svg>
-          </span>
-          <span className="truncate font-medium text-gray-700">{file.name}</span>
-          <span className="text-xs text-gray-400 ml-2">
-            {(file.size / 1024).toFixed(1)} KB
-          </span>
-        </div>
-        <button
-          className="p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-600 transition opacity-60 group-hover:opacity-100"
-          title="Xoá file này"
-          onClick={() => setJobFiles(jobFiles.filter((_, i) => i !== index))}
-        >
-          <FiTrash size={18} />
-        </button>
-      </li>
-    ))
-  )}
-</ul>
-
+            {/* ... */}
+            <ul className="mb-4">
+              {jobFiles.length === 0 ? (
+                <li className="text-gray-400 italic text-center py-4">
+                  Chưa có file nào được thêm
+                </li>
+              ) : (
+                jobFiles.map((file, index) => (
+                  <li
+                    key={index}
+                    className="flex items-center justify-between gap-2 bg-gray-50 border border-gray-200 rounded-xl mb-2 px-3 py-2 shadow-sm group transition"
+                  >
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <span className="text-blue-500">
+                        <svg
+                          width="18"
+                          height="18"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M8 2a2 2 0 00-2 2v1H6a2 2 0 00-2 2v9a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H8zm0 2h4v1H8V4zm-2 3h8v9a1 1 0 01-1 1H7a1 1 0 01-1-1V7z"></path>
+                        </svg>
+                      </span>
+                      <span className="truncate font-medium text-gray-700">
+                        {file.name}
+                      </span>
+                      <span className="text-xs text-gray-400 ml-2">
+                        {(file.size / 1024).toFixed(1)} KB
+                      </span>
+                    </div>
+                    <button
+                      className="p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-600 transition opacity-60 group-hover:opacity-100"
+                      title="Xoá file này"
+                      onClick={() => {
+                        const newFiles = jobFiles.filter((_, i) => i !== index);
+                        setJobFiles(newFiles);
+                        setJobFilesMeta(
+                          newFiles.map((f) => ({ name: f.name, size: f.size }))
+                        );
+                      }}
+                    >
+                      <FiTrash size={18} />
+                    </button>
+                  </li>
+                ))
+              )}
+            </ul>
 
             {jobFiles.length < 5 && (
               <div className="text-center mb-4">
@@ -479,7 +542,9 @@ const handleCompleteScrapeJobs = useCallback(() => {
                         className="ml-2 text-gray-400 hover:text-red-600 transition"
                         title="Xoá link này"
                         onClick={() =>
-                          setTopcvLinks(topcvLinks.filter((_, i) => i !== index))
+                          setTopcvLinks(
+                            topcvLinks.filter((_, i) => i !== index)
+                          )
                         }
                       >
                         <FiTrash size={18} />
@@ -523,6 +588,32 @@ const handleCompleteScrapeJobs = useCallback(() => {
             >
               {scrapingLinks ? "Đang gửi link..." : "Hoàn thành"}
             </button>
+          </div>
+        )}
+        {showCongrats && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-60 backdrop-blur">
+            <div className="bg-white rounded-xl shadow-lg p-8 text-center max-w-md w-full">
+              <h2 className="text-2xl font-bold text-green-600 mb-4">
+                🎉 Chúc mừng bạn!
+              </h2>
+              <p className="mb-6 text-gray-700">
+                Bạn đã tải lên CV và mô tả công việc thành công.
+                <br />
+                Bấm{" "}
+                <span className="font-semibold text-blue-600">
+                  Phân tích kỹ năng
+                </span>{" "}
+                để hệ thống phân tích kỹ năng cho bạn nhé .
+              </p>
+              <button
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-lg transition"
+                onClick={() => {
+                  setShowCongrats(false);
+                }}
+              >
+                Bắt đầu
+              </button>
+            </div>
           </div>
         )}
       </div>

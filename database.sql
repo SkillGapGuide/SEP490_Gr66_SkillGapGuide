@@ -3,9 +3,9 @@ Create database skill_gap_guide;
 use skill_gap_guide;
 -- Bảng lưu các vai trò (ví dụ: admin, user)
 CREATE TABLE Role (
-                      role_id INT NOT NULL AUTO_INCREMENT,
-                      name NVARCHAR(255) NOT NULL,
-                      PRIMARY KEY (role_id)
+    role_id INT NOT NULL AUTO_INCREMENT,
+    name NVARCHAR(255) NOT NULL,
+    PRIMARY KEY (role_id)
 );
 CREATE TABLE user_status (
                              status_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -19,6 +19,7 @@ INSERT INTO user_status (name) VALUES
 CREATE TABLE Subscription (
                               subscription_id INT NOT NULL AUTO_INCREMENT,
                               type int NOT NULL,
+                              price double,
                               status NVARCHAR(255) NOT NULL,
                               PRIMARY KEY (subscription_id)
 );
@@ -35,7 +36,6 @@ CREATE TABLE Course (
                         create_at DateTime,
                         PRIMARY KEY (course_id)
 );
-
 -- Bảng Người dùng (User), liên kết đến Role và Subscription
 CREATE TABLE User (
                       user_id INT NOT NULL AUTO_INCREMENT,
@@ -55,7 +55,6 @@ CREATE TABLE User (
                       FOREIGN KEY (role_id) REFERENCES Role(role_id),
                       FOREIGN KEY (subscription_id) REFERENCES Subscription(subscription_id)
 );
-
 -- Bảng Thanh toán (Payment), liên kết đến User
 CREATE TABLE Payment (
                          payment_id INT NOT NULL AUTO_INCREMENT,
@@ -69,7 +68,6 @@ CREATE TABLE Payment (
                          PRIMARY KEY (payment_id),
                          FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
-
 -- Bảng Phản hồi (Feedback), liên kết đến User
 CREATE TABLE FeedBack (
                           feedback_id INT NOT NULL AUTO_INCREMENT,
@@ -80,7 +78,6 @@ CREATE TABLE FeedBack (
                           PRIMARY KEY (feedback_id),
                           FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
-
 -- Bảng CV, liên kết đến User
 CREATE TABLE CV (
                     id INT NOT NULL AUTO_INCREMENT,
@@ -92,8 +89,6 @@ CREATE TABLE CV (
                     PRIMARY KEY (id),
                     FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
-
--- Bảng Công việc (Job), liên kết đến JobCategory
 CREATE TABLE Job (
                      job_id INT NOT NULL AUTO_INCREMENT,
                      cv_id int,
@@ -123,8 +118,7 @@ CREATE TABLE job_des_file (
                               file_type varchar(255) NOT NULL,
                               upload_date datetime NOT NULL,
                               PRIMARY KEY (id),
-                              FOREIGN KEY (user_id) REFERENCES User(user_id),
-                              FOREIGN KEY (job_id) REFERENCES job(job_id) on delete cascade
+                              FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
 -- Bảng User_Course (bảng nối), liên kết User và Course
 CREATE TABLE User_Course (
@@ -146,7 +140,6 @@ CREATE TABLE User_Favorite_Course (
                                       FOREIGN KEY (user_id) REFERENCES User(user_id),
                                       FOREIGN KEY (course_id) REFERENCES Course(course_id)
 );
-
 -- Bảng Nội dung (Content)
 CREATE TABLE StaticPage (
                             id INT NOT NULL AUTO_INCREMENT,
@@ -199,14 +192,12 @@ CREATE TABLE user_subscription_history (
                                            FOREIGN KEY (user_id) REFERENCES User(user_id),
                                            FOREIGN KEY (subscription_id) REFERENCES Subscription(subscription_id)
 );
-
 -- job category
 CREATE TABLE occupation_groups(  -- domain or aria
                                   id INT AUTO_INCREMENT PRIMARY KEY,
                                   name VARCHAR(100) NOT NULL,
                                   status nvarchar(100)
 );
-
 CREATE TABLE occupation (
                             id INT AUTO_INCREMENT PRIMARY KEY,
                             name VARCHAR(100) NOT NULL,
@@ -214,7 +205,6 @@ CREATE TABLE occupation (
                             status nvarchar(100),
                             FOREIGN KEY (occupation_groups_id) REFERENCES occupation_groups(id)
 );
-
 CREATE TABLE specializations (
                                  id INT AUTO_INCREMENT PRIMARY KEY,
                                  name VARCHAR(100) NOT NULL,
@@ -234,7 +224,7 @@ create table user_cv_skills(
                                id INT AUTO_INCREMENT PRIMARY KEY,
                                skill nvarchar(100),
                                cv_id int ,
-                               FOREIGN KEY (cv_id) REFERENCES CV(id)
+                               FOREIGN KEY (cv_id) REFERENCES CV(id) on delete cascade
 );
 create table user_cv_skills_embedding(
                                          id INT AUTO_INCREMENT PRIMARY KEY,
@@ -252,22 +242,47 @@ create table job_des_skills_embedding(
                                          skill nvarchar(100),
                                          embedding_json JSON
 );
-create table job_cv_skills_score(
-                                    id INT AUTO_INCREMENT PRIMARY KEY,
-                                    job_skill int ,
-                                    cv_skill int ,
-                                    score double,
-                                    FOREIGN KEY (job_skill) REFERENCES job_des_skills(id) on delete cascade,
-                                    FOREIGN KEY (cv_skill) REFERENCES user_cv_skills(id)
+CREATE TABLE job_cv_skills_score (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    job_skill INT,
+    cv_skill INT,
+    score DOUBLE,
+    FOREIGN KEY (job_skill)
+        REFERENCES job_des_skills (id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (cv_skill)
+        REFERENCES user_cv_skills (id)
+        ON DELETE CASCADE
 );
-INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (1,     1,     'active');
-INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (2,     3,     'active');
-INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (3,     9,     'active');
-INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`, `status`)VALUES    (4,     12,     'active');
+create table job_match_embedding(
+                                         id INT AUTO_INCREMENT PRIMARY KEY,
+                                         `text` nvarchar(100),
+                                         embedding_json JSON
+);
+CREATE TABLE job_cv_score (
+
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    job_id INT,
+    cv_id INT,
+    score DOUBLE,
+    FOREIGN KEY (job_id)
+        REFERENCES job (job_id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (cv_id)
+        REFERENCES CV (id)
+        ON DELETE CASCADE
+);
+
+INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`,`price`, `status`)VALUES    (1,     1, 0,    'active');
+INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`,`price`, `status`)VALUES    (2,     2,  100000,   'active');
+INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`,`price`, `status`)VALUES    (3,     3,  200000 ,  'active');
+
 INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (1,     'System Admin');
-INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (2,     'Business Admin');
-INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (3,     'Free User');
-INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES		(4,'Premium User');
+INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (2,     'Content Manager');
+INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (3,     'Finance Admin');
+INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (4,     'Free User');
+INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (5,     'Pro User');
+INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES		(6,'Premium User');
 INSERT INTO Course (title, rating, difficulty, description, provider, url, status, create_at)
 VALUES
     ('Introduction to Python', 4.5, 'Beginner', 'Learn the basics of Python programming.', 'Coursera', 'https://www.coursera.org/python', 'Active', '2025-06-25 10:00:00'),

@@ -8,7 +8,6 @@ import AdminLayout from "../layouts/AdminLayout";
 import FinanceLayout from "../layouts/FinanceLayout";
 import ContentManagerLayout from "../layouts/ContentManagerLayout";
 import AnalyzeUpload from "../pages/user/AnalyzeUpload";
-import AnalyzeLoading from "../pages/user/AnalyzeLoading";
 import AnalyzeResult from "../pages/user/AnalyzeResult";
 
 // Phần User (lazy import các page lớn)
@@ -27,34 +26,50 @@ const UserProfile = lazy(() => import("../pages/user/UserProfile"));
 const ServicePayment = lazy(() => import("../pages/user/ServicePayment"));
 const ServiceRating = lazy(() => import("../pages/user/ServiceRating"));
 const SuggestedCourses = lazy(() => import("../pages/user/SuggestedCourses"));
-const AddCVChooseAvailableCareer = lazy(() => import("../pages/user/AddCVChooseAvailableCareer"));
-const AddCVWriteJobDescription = lazy(() => import("../pages/user/AddCVWriteJobDescription"));
-const AddCVFromTOPCVLink = lazy(() => import("../pages/user/AddCVFromTOPCVLink"));
-const AnalysisLinkingJob = lazy(() => import("../pages/user/AnalysisLinkingJob"));
-const AnalysisJobDescription = lazy(() => import("../pages/user/AnalysisJobDescription"));
+const AddCVChooseAvailableCareer = lazy(() =>
+  import("../pages/user/AddCVChooseAvailableCareer")
+);
+const AddCVWriteJobDescription = lazy(() =>
+  import("../pages/user/AddCVWriteJobDescription")
+);
+const AddCVFromTOPCVLink = lazy(() =>
+  import("../pages/user/AddCVFromTOPCVLink")
+);
+const AnalysisLinkingJob = lazy(() =>
+  import("../pages/user/AnalysisLinkingJob")
+);
+const AnalysisJobDescription = lazy(() =>
+  import("../pages/user/AnalysisJobDescription")
+);
 const FavoriteSkills = lazy(() => import("../pages/user/FavoriteSkills"));
 const FavoriteCourses = lazy(() => import("../pages/user/FavouriteCourses"));
 const CourseTracking = lazy(() => import("../pages/user/CourseTracking"));
 const MatchingJobs = lazy(() => import("../pages/user/JobMatches"));
-const MainAnalysisPage = lazy(() => import("../pages/user/MainAnalysisPage"));
 const CVUploadOptions = lazy(() => import("../pages/user/CVUploadOptions"));
 const AuthCallback = lazy(() => import("../components/AuthCallback"));
+
 const PricingTable = lazy(()=>import("../pages/admin/PricingTable"))
 const PaymentManagement = lazy(()=>import("../pages/admin/PaymentManagement"))
+
 
 
 // Admin
 const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
 const ManagerUser = lazy(() => import("../pages/admin/ManagerUser"));
-const StaticContentManager = lazy(() => import("../pages/admin/StaticContentManager"));
+const StaticContentManager = lazy(() =>
+  import("../pages/admin/StaticContentManager")
+);
 const AboutUsManager = lazy(() => import("../pages/admin/AboutUsManager"));
-const AdminFeedbackManager = lazy(() => import("../pages/admin/AdminFeedbackManager"));
-const SocialLinksManager = lazy(() => import("../pages/admin/SocialLinksManager"));
+const AdminFeedbackManager = lazy(() =>
+  import("../pages/admin/AdminFeedbackManager")
+);
+const SocialLinksManager = lazy(() =>
+  import("../pages/admin/SocialLinksManager")
+);
 const TagSkillManager = lazy(() => import("../pages/admin/TagSkillManager"));
 const HomePageManager = lazy(() => import("../pages/admin/HomePageManager"));
 const JobTablePage = lazy(() => import("../pages/admin/JobTablePage"));
 const CourseTable = lazy(() => import("../pages/admin/CourseTable"));
-
 
 const router = createBrowserRouter([
   // User routes
@@ -74,8 +89,14 @@ const router = createBrowserRouter([
       { path: "contact", element: <ContactPage /> },
       { path: "cv-skills", element: <CvSkillPage /> },
       { path: "cv-upload-options", element: <CVUploadOptions /> },
-      { path: "addCVchooseavailablecareer", element: <AddCVChooseAvailableCareer /> },
-      { path: "addCVwritejobdescription", element: <AddCVWriteJobDescription /> },
+      {
+        path: "addCVchooseavailablecareer",
+        element: <AddCVChooseAvailableCareer />,
+      },
+      {
+        path: "addCVwritejobdescription",
+        element: <AddCVWriteJobDescription />,
+      },
       { path: "addCVfromTOPCVLink", element: <AddCVFromTOPCVLink /> },
       { path: "matchingjobs", element: <MatchingJobs /> },
       { path: "servicepayment", element: <ServicePayment /> },
@@ -91,25 +112,22 @@ const router = createBrowserRouter([
       // ----- Nested route phân tích -----
       {
         path: "analyze",
-        // Nếu bạn muốn luôn có TopMenu cho toàn bộ nhánh này: Có thể làm AnalyzeLayout riêng
         children: [
           { index: true, element: <Navigate to="upload" replace /> },
           { path: "upload", element: <AnalyzeUpload /> },
-          { path: "loading", element: <AnalyzeLoading /> },
-          { path: "result", element: <AnalyzeResult /> }
-        ]
+          { path: "result", element: <AnalyzeResult /> },
+        ],
       },
       // ----- Kết thúc analyze -----
 
       // Nếu bạn muốn một route riêng cho MainAnalysisPage
-      
-    ]
+    ],
   },
 
   // Auth callback
   {
     path: "auth/callback",
-    element: <AuthCallback />
+    element: <AuthCallback />,
   },
 
   // Admin routes
@@ -118,11 +136,12 @@ const router = createBrowserRouter([
     element: <AdminLayout />,
     errorElement: <ErrorBoundary />,
     children: [
-
       // Các route con của admin sẽ được định nghĩa ở đây
       { path: "users", element: <ManagerUser /> },
+
       { path: "pricingtable", element: <PricingTable /> }
       
+
     ],
   },
   {
@@ -132,7 +151,9 @@ const router = createBrowserRouter([
     children: [
       // Các route con của admin sẽ được định nghĩa ở đây
       { path: "dashboard", element: <AdminDashboard /> },
+
       { path: "paymentmanagement", element: <PaymentManagement /> }
+
     ],
   },
   {
@@ -150,14 +171,14 @@ const router = createBrowserRouter([
       { path: "homepage-manage", element: <HomePageManager /> },
       { path: "course-management", element: <CourseTable /> },
       { path: "job-management", element: <JobTablePage /> },
-    ]
+    ],
   },
 
   // 404
   {
     path: "*",
-    element: <NotFound />
-  }
+    element: <NotFound />,
+  },
 ]);
 
 export default router;

@@ -126,14 +126,14 @@ public class CourseService {
                 course.getTitle() == null || course.getTitle().trim().isEmpty() ||
                 course.getUrl() == null || course.getUrl().trim().isEmpty() ||
                 course.getProvider() == null || course.getProvider().trim().isEmpty()) {
-            throw new IllegalArgumentException("Course title, URL, and provider must not be empty");
+            throw new IllegalArgumentException("Không được để trống các trường tiêu đề, URL và nhà cung cấp");
         }
 
         // Check for existing course
         Optional<Course> existingCourse = courseRepository.findCourseByUrl(course.getUrl());
         if (existingCourse.isPresent()) {
             logger.warn("Attempt to add duplicate course with URL: {}", course.getUrl());
-            throw new IllegalStateException("Course already exists");
+            throw new IllegalStateException("Khóa học đã tồn tại");
         }
 
         Course newCourse = new Course();
@@ -155,7 +155,7 @@ public class CourseService {
 
     public void changeFavoriteCourseStatus(Integer courseId, Integer userId, String status) {
         UserFavoriteCourse favoriteCourse = favoriteCourseRepository.findByUserIdAndCourseId(userId, courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Favorite course not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khóa học yêu thích"));
         favoriteCourse.setStatus(status);
         favoriteCourseRepository.save(favoriteCourse);
         logger.info("Changed status of favorite course: userId={}, courseId={}, status={}", userId, courseId, status);
@@ -165,7 +165,7 @@ public class CourseService {
         Optional<UserFavoriteCourse> existingFavorite = favoriteCourseRepository.findByUserIdAndCourseId(userId, courseId);
         if (existingFavorite.isEmpty()) {
             logger.warn("Attempted to remove non-existent favorite: userId={}, courseId={}", userId, courseId);
-            throw new IllegalStateException("Favorite course not found");
+            throw new IllegalStateException("Không tim thấy khóa học yêu thích");
         }
         favoriteCourseRepository.delete(existingFavorite.get());
         logger.info("Removed favorite course: userId={}, courseId={}", userId, courseId);
@@ -208,6 +208,35 @@ public class CourseService {
         }
         return new ScrapeResultDTO(scrapedCourses, logs);
     }
+    public Map<String, List<Course>> scrapeCoursesGroupedByJobSkill(int numPages, int numItems, Integer cvId) {
+        Map<String, List<Course>> result = new LinkedHashMap<>();
+        List<String> jobSkills = courseRepository.findJobSkillsByCvId(cvId);
+        if (jobSkills == null || jobSkills.isEmpty()) {
+            return result;
+        }
+        WebDriver driver = createChromeDriver();
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
+            for (String keyword : jobSkills) {
+                List<Course> coursesForSkill = new ArrayList<>();
+                for (int page = 1; page <= numPages; page++) {
+                    try {
+                        List<Course> pageCourses = scrapePageAndReturnCourses(driver, wait, page, numItems, keyword, new ArrayList<>());
+                        coursesForSkill.addAll(pageCourses);
+                        if (!pageCourses.isEmpty()) {
+                            randomSleep(PAGE_DELAY_MIN, PAGE_DELAY_MAX);
+                        }
+                    } catch (Exception e) {
+                        entityManager.clear();
+                    }
+                }
+                result.put(keyword, coursesForSkill);
+            }
+        } finally {
+            if (driver != null) driver.quit();
+        }
+        return result;
+    }
     private List<Course> scrapePageAndReturnCourses(WebDriver driver, WebDriverWait wait, int page, int numItems, String keyword, List<String> logs) {
         List<Course> courses = new ArrayList<>();
         String pageUrl = buildSearchUrl(page, keyword);
@@ -217,11 +246,20 @@ public class CourseService {
         logs.add("Found " + courseUrls.size() + " new courses on page");
         for (String courseUrl : courseUrls) {
             try {
-                Course course = scrapeCourseDetails(driver, wait, courseUrl, logger);
+                Optional<Course> existingCourse = courseRepository.findCourseByUrl(courseUrl);
+                Course course;
+                if (existingCourse.isPresent()) {
+                    course = existingCourse.get();
+                    logs.add("Đã lấy khóa học từ database: " + course.getTitle());
+                } else {
+                    course = scrapeCourseDetails(driver, wait, courseUrl, logger);
+                    if (course != null) {
+                        courseRepository.save(course);
+                        logs.add("Saved course: " + course.getTitle());
+                    }
+                }
                 if (course != null) {
-                    courseRepository.save(course);
                     courses.add(course);
-                    logs.add("Saved course: " + course.getTitle());
                 }
             } catch (Exception e) {
                 logs.add("Lỗi khi xử lý khóa học " + courseUrl + ": " + e.getMessage());
@@ -289,6 +327,9 @@ public class CourseService {
                 String courseUrl = BASE_URL + href.split("\\?")[0];
                 if (!courseRepository.existsCourseByUrl(courseUrl)) {
                     courseUrls.add(courseUrl);
+                }else {
+                    logger.info("Khóa học đã tồn tại: {}", courseUrl);
+                    courseRepository.findCourseByUrl(courseUrl);
                 }
             }
         }
@@ -366,7 +407,7 @@ public class CourseService {
     private ChromeOptions buildChromeOptions() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments(
-                "--headless=new",
+//                "--headless=new",
                 "--disable-gpu",
                 "--window-size=1920,1080",
                 "--disable-blink-features=AutomationControlled",
