@@ -48,6 +48,11 @@ const MatchingJobs = lazy(() => import("../pages/user/JobMatches"));
 const CVUploadOptions = lazy(() => import("../pages/user/CVUploadOptions"));
 const AuthCallback = lazy(() => import("../components/AuthCallback"));
 
+const PricingTable = lazy(()=>import("../pages/admin/PricingTable"))
+const PaymentManagement = lazy(()=>import("../pages/admin/PaymentManagement"))
+
+
+
 // Admin
 const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
 const ManagerUser = lazy(() => import("../pages/admin/ManagerUser"));
@@ -133,6 +138,10 @@ const router = createBrowserRouter([
     children: [
       // Các route con của admin sẽ được định nghĩa ở đây
       { path: "users", element: <ManagerUser /> },
+
+      { path: "pricingtable", element: <PricingTable /> }
+      
+
     ],
   },
   {
@@ -142,6 +151,9 @@ const router = createBrowserRouter([
     children: [
       // Các route con của admin sẽ được định nghĩa ở đây
       { path: "dashboard", element: <AdminDashboard /> },
+
+      { path: "paymentmanagement", element: <PaymentManagement /> }
+
     ],
   },
   {
