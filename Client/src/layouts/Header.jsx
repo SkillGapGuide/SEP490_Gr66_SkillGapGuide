@@ -2,12 +2,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
 import { useState, useEffect, memo, useRef ,useContext } from "react";
 import { UserContext } from "../context/UserContext";
+import defaultAvatar from "../assets/default_avatar.png";
+// Import default avatar image
+// Import default avatar image
 const Header = memo(function Header() {
   const [openMenu, setOpenMenu] = useState(null);
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [userAvatar, setUserAvatar] = useState("/default_avatar.png"); // Default avatar
+  const [userAvatar, setUserAvatar] = useState(defaultAvatar); // Default avatar
   const profileMenuRef = useRef(null);
 const { user } = useContext(UserContext); // <-- Lấy user từ context
  
@@ -44,7 +47,7 @@ const { user } = useContext(UserContext); // <-- Lấy user từ context
     if (user && user.avatar) {
       setUserAvatar(user.avatar);
     } else {
-      setUserAvatar("/default-avatar.png");
+      setUserAvatar(defaultAvatar); // Set default avatar if user has no avatar
     }
   }, [user]);
 

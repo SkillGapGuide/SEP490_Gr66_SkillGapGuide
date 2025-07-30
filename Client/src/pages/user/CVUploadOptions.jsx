@@ -25,7 +25,11 @@ const CVUploadOptions = ({ onNext }) => {
 
   const selectedOption = useCVWizardStore((s) => s.selectedOption);
   const setSelectedOption = useCVWizardStore((s) => s.setSelectedOption);
-
+  const setJobFilesMeta = useCVWizardStore((s) => s.setJobFilesMeta);
+  const setCvUploaded = useCVWizardStore((s) => s.setCvUploaded);
+  const clearAllCvAndFile = useCVWizardStore((s) => s.clearAllCvAndFile);
+  const setAnalysisNeedRun = useCVWizardStore((s) => s.setAnalysisNeedRun);
+  
   // ====== LOCAL STATE ======
   const [uploading, setUploading] = useState(false);
   const [addingLink, setAddingLink] = useState(false);
@@ -99,12 +103,16 @@ const CVUploadOptions = ({ onNext }) => {
       if (file.type !== "application/pdf")
         return showError("Chỉ nhận file PDF.");
       if (file.size > MAX_CV_SIZE) return showError("File quá lớn.");
-
+  // Reset toàn bộ trước khi upload file mới!
+    clearAllCvAndFile();
       setUploading(true); // BẮT ĐẦU loading
       setCVFile(file); // LƯU file vào store NGAY để preview được luôn (nếu muốn)
 
       try {
         await cvService.uploadCV(file); // <-- dùng file vừa upload
+        setCvUploaded(true);
+        
+setAnalysisNeedRun(true); // Lưu trạng thái đã upload
         showSuccess("Tải lên CV thành công!");
       } catch (err) {
         showError("Tải lên CV thất bại: " + (err?.message || ""));
@@ -151,7 +159,13 @@ const CVUploadOptions = ({ onNext }) => {
       }
 
       // Thêm file hợp lệ
-      if (validFiles.length) setJobFiles([...jobFiles, ...validFiles]);
+      if (validFiles.length) {
+        const newJobFiles = [...jobFiles, ...validFiles];
+        setJobFiles(newJobFiles);
+        setJobFilesMeta(
+          newJobFiles.map((f) => ({ name: f.name, size: f.size }))
+        );
+      }
     },
     [jobFiles, setJobFiles]
   );
@@ -163,6 +177,8 @@ const CVUploadOptions = ({ onNext }) => {
     setUploadingJobFiles(true);
     try {
       await cvService.uploadJobDescription(jobFiles);
+      // Sau khi upload thành công, lưu metadata
+      setJobFilesMeta(jobFiles.map((f) => ({ name: f.name, size: f.size })));
       showSuccess("Tải lên file mô tả công việc thành công!");
       setShowPopup("");
       setShowCongrats(true);
@@ -173,7 +189,7 @@ const CVUploadOptions = ({ onNext }) => {
     } finally {
       setUploadingJobFiles(false);
     }
-  }, [jobFiles]);
+  }, [jobFiles, setJobFilesMeta]);
 
   // ====== Handler: Chọn radio option ======
   const handleRadioChange = useCallback((value) => {
@@ -444,9 +460,13 @@ const CVUploadOptions = ({ onNext }) => {
                     <button
                       className="p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-600 transition opacity-60 group-hover:opacity-100"
                       title="Xoá file này"
-                      onClick={() =>
-                        setJobFiles(jobFiles.filter((_, i) => i !== index))
-                      }
+                      onClick={() => {
+                        const newFiles = jobFiles.filter((_, i) => i !== index);
+                        setJobFiles(newFiles);
+                        setJobFilesMeta(
+                          newFiles.map((f) => ({ name: f.name, size: f.size }))
+                        );
+                      }}
                     >
                       <FiTrash size={18} />
                     </button>

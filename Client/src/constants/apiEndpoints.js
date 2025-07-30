@@ -121,6 +121,8 @@ export const ENDPOINTS = {
     uploadFileJob: "/api/job/upload-jd",
     getJobSkills : "/api/job/getJobSkill",
     getJobList:"/api/job/getJobList",
+    analyzeJob: "/api/job/analyzeJobDescription",
+    getJobMatchScore :"/api/job/match/getJobMatchScore"
   },
   payment :{
     vnpayReturn: "/api/payment/vnpay-return",

@@ -407,7 +407,7 @@ public class CourseService {
     private ChromeOptions buildChromeOptions() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments(
-                "--headless=new",
+//                "--headless=new",
                 "--disable-gpu",
                 "--window-size=1920,1080",
                 "--disable-blink-features=AutomationControlled",

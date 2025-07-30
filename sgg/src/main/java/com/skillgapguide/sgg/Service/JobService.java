@@ -136,7 +136,7 @@ public class JobService {
                     jobNew.setCvId(cv.getId());
                     jobRepository.save(jobNew);
 
-                    saveJobSkillsToDb(skills, userId);
+                    saveJobSkillsToDb(skills,jobNew.getJobId());
                     AuditLog auditLog = new AuditLog();
                     auditLog.setUserId(userId);
                     auditLog.setAction("UPLOAD_JOB_DESCRIPTION");
