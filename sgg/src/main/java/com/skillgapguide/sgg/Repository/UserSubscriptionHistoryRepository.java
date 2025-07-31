@@ -1,8 +1,11 @@
 package com.skillgapguide.sgg.Repository;
 
+import com.skillgapguide.sgg.Dto.UserSubscriptionRequest;
 import com.skillgapguide.sgg.Entity.User;
 import com.skillgapguide.sgg.Entity.UserSubscriptionHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,5 +18,10 @@ public interface UserSubscriptionHistoryRepository extends JpaRepository<UserSub
     List<UserSubscriptionHistory> findByStatus(String status);
 
     List<UserSubscriptionHistory> findByUserAndStatus(User user, String status);
-
+    @Query("SELECT new com.skillgapguide.sgg.Dto.UserSubscriptionRequest(u.userId, su.subscriptionId, su.subscriptionName, u.fullName, s.endDate, s.status) " +
+            "FROM UserSubscriptionHistory s " +
+            "JOIN s.user u " +
+            "JOIN s.subscription su " +
+            "WHERE u.userId = :userId")
+    Optional<UserSubscriptionRequest> findSubscriptionByUserId(@Param("userId") Integer userId);
 }

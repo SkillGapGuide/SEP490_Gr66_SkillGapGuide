@@ -1,5 +1,6 @@
 package com.skillgapguide.sgg.Service;
 
+import com.skillgapguide.sgg.Dto.UserSubscriptionRequest;
 import com.skillgapguide.sgg.Entity.Subscription;
 import com.skillgapguide.sgg.Entity.User;
 import com.skillgapguide.sgg.Entity.UserSubscriptionHistory;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,5 +44,27 @@ public class SubscriptionService {
                 userRepository.save(user);
             }
         }
+    }
+    public Optional<UserSubscriptionRequest> findSubscriptionByUserId(Integer userId) {
+        return historyRepo.findSubscriptionByUserId(userId);
+    }
+    public List<Subscription> findAllSubscriptions() {
+        return subscriptionRepository.findAll();
+    }
+    public Subscription findSubscriptionBySubscriptionId(Integer subscriptionId) {
+        return subscriptionRepository.findSubscriptionBySubscriptionId(subscriptionId);
+    }
+    public Subscription editSubscription(Subscription subscription, Integer subscriptionId) {
+        Subscription newSubscription = subscriptionRepository.findSubscriptionBySubscriptionId(subscriptionId);
+        if (newSubscription == null) {
+            throw new RuntimeException("Không tìm thấy gói cước với ID: " + subscription.getSubscriptionId());
+        }
+        // Cập nhật các trường cần thiết
+        newSubscription.setSubscriptionName(subscription.getSubscriptionName());
+        newSubscription.setType(subscription.getType());
+        newSubscription.setPrice(subscription.getPrice());
+        newSubscription.setStatus(subscription.getStatus());
+        subscriptionRepository.save(newSubscription);
+        return newSubscription;
     }
 }

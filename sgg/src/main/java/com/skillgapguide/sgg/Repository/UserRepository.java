@@ -1,6 +1,7 @@
 package com.skillgapguide.sgg.Repository;
 
 
+import com.skillgapguide.sgg.Dto.SubscriptionDTO;
 import com.skillgapguide.sgg.Dto.UserDetailDTO;
 import com.skillgapguide.sgg.Dto.UserListRequest;
 import com.skillgapguide.sgg.Dto.UserListResponse;
@@ -13,6 +14,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -33,6 +35,11 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "where u.email = :email")
     UserDetailDTO getUserDetail(String email);
     Optional<User> findByPhone(String phone);
+    @Query("select new com.skillgapguide.sgg.Dto.SubscriptionDTO(s.subscriptionId, s.subscriptionName, u.userId, u.fullName) " +
+            "from User u join Subscription s on u.subscriptionId = s.subscriptionId " +
+            "where u.userId = :userid")
+    Optional<SubscriptionDTO> findByUserid(@Param("userid") Integer userid);
+
 
 
 }
