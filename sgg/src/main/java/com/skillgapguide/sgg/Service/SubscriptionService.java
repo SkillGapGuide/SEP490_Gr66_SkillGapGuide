@@ -10,6 +10,7 @@ import com.skillgapguide.sgg.Repository.UserSubscriptionHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,7 +23,11 @@ public class SubscriptionService {
     private final UserRepository userRepository;
     private final SubscriptionRepository subscriptionRepository;
 
-    @Scheduled(cron = "0 0 2 * * *") // chạy mỗi ngày lúc 2 giờ sáng
+
+//    @Scheduled(cron = "0 0 2 * * *", zone = "Asia/Ho_Chi_Minh") // chạy mỗi ngày lúc 2 giờ sáng
+    @Transactional
+//    @Scheduled(cron = "0 */1 * * * *", zone = "Asia/Ho_Chi_Minh")
+    @Scheduled(cron = "0 0 * * * *", zone = "Asia/Ho_Chi_Minh")
     public void expireOldSubscriptions() {
         List<UserSubscriptionHistory> activeHistories = historyRepo.findByStatus("ACTIVE");
         LocalDateTime now = LocalDateTime.now();
