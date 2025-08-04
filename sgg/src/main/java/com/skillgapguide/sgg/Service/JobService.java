@@ -206,7 +206,7 @@ public class JobService {
                     ObjectMapper mapper = new ObjectMapper();
                     ExtractJDSkillDTO response = mapper.readValue(content, ExtractJDSkillDTO.class);
                     List<String> skills = response.getSkills();
-                    saveJobSkillsToDb(skills, userId);
+                    saveJobSkillsToDb(skills, job.getJobId());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

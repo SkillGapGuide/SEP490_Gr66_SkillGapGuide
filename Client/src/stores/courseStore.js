@@ -4,15 +4,13 @@ import { persist } from "zustand/middleware";
 export const useCourseStore = create(
   persist(
     (set) => ({
-      scrapedCourses: {}, // Dạng: { [skillName]: [courseObj, ...] }
-
+      scrapedCourses: {},
+      isCourseLoading: false,   // <-- THÊM FLAG NÀY
       setScrapedCourses: (courseData) => set({ scrapedCourses: courseData }),
-
-      // Có thể gọi riêng để clear nếu cần
-      clearScrapedCourses: () => set({ scrapedCourses: {} }),
+      setCourseLoading: (val) => set({ isCourseLoading: val }),
+      clearScrapedCourses: () => set({ scrapedCourses: {}, isCourseLoading: false }),
     }),
-    {
-      name: "scraped-course-storage", // key dùng trong localStorage
-    }
+    { name: "scraped-course-storage" }
   )
 );
+

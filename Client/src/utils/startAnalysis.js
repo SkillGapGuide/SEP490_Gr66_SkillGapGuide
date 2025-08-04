@@ -4,7 +4,8 @@ import { skillGapService } from "../services/skillGapService";
 import { useCVWizardStore } from "../stores/cvWizardStore";
 import { useAnalysisStore } from "../stores/useAnalysisStore";
 import { showError } from "../utils/alert";
-
+import { useCourseStore } from "../stores/courseStore";
+import { courService } from "../services/courService"; // Đường dẫn tuỳ bạn
 export async function runAnalysisFlowOnce({
   userRole = "Free User",
   onSkillStart,
@@ -115,6 +116,22 @@ export async function runAnalysisFlowOnce({
        
     // Kết thúc
     onFinish?.();
+     // Sau onFinish mới cào course
+  const { setScrapedCourses, setCourseLoading } = useCourseStore.getState();
+  setCourseLoading(true);
+  try {
+    if (cvId) {
+      const res = await courService.scrapeAutomation(1, 3, cvId);
+      setScrapedCourses(res.result || {});
+    }
+  } catch (err) {
+    setScrapedCourses({});
+    showError("Lỗi "+err.message) // Hoặc báo lỗi tuỳ bạn
+  }
+  finally {
+  setCourseLoading(false); // <-- luôn tắt loading dù thành công hay lỗi!
+}
+
   } catch (err) {
     showError("Lỗi trong quá trình phân tích: " + (err?.message || ""));
   }

@@ -1,131 +1,202 @@
-import React, { useContext, useState } from "react";
-import { FaStar } from "react-icons/fa";
+import React, { useState } from "react";
+import { useCourseStore } from "../../stores/courseStore";
 import TopMenu from "./TopMenu";
-import { UserContext } from "../../context/UserContext"; // Thêm dòng này
+import {
+  HelpCircle as BadgeHelpCircle, BookOpen, BookMarked, Link2, Star, Info,
+} from "lucide-react";
 
-const courseData = [
-  {
-    skill: "Kỹ năng làm việc nhóm (Teamwork)",
-    courses: [
-      {
-        id: 1,
-        title: "Teamwork Skills: Communicating Effectively in Groups",
-        description:
-          "Học cách giao tiếp hiệu quả, lắng nghe chủ động, đưa phản hồi tích cực và giải quyết xung đột trong nhóm.",
-      },
-      {
-        id: 2,
-        title: "High-Performance Collaboration: Leadership, Teamwork",
-        description:
-          "Nâng cao kỹ năng lãnh đạo, phối hợp và đảm nhận các tình huống thực tế, phù hợp cho môi trường doanh nghiệp.",
-      },
-    ],
-  },
-  {
-    skill: "Quản lý thời gian (Time Management)",
-    courses: [
-      {
-        id: 3,
-        title: "Organize Yourself: Time Management for Personal",
-        description:
-          "Học cách xác định ưu tiên, thiết lập kế hoạch và kiểm soát lịch trình để giảm căng thẳng và tăng năng suất.",
-      },
-    ],
-  },
-];
+// Helper rút gọn text
+const truncate = (text, maxLength = 120) => {
+  if (!text) return "";
+  return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+};
 
 const SuggestedCourses = () => {
-  const [favorites, setFavorites] = useState({});
-  const { user } = useContext(UserContext); // Lấy user từ context
-  const userRole = user?.role || "Free User";
+  const { scrapedCourses, isCourseLoading } = useCourseStore();
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
-  const toggleFavorite = (id) => {
-    setFavorites((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
+  // Lọc kỹ năng có khoá học
+  const filteredSkills = Object.entries(scrapedCourses || {})
+    .filter(([_, arr]) => Array.isArray(arr) && arr.length > 0);
 
-  // Nếu là Free User, chỉ hiện message chặn, không hiện course
-  if (userRole === "Free User") {
+  if (isCourseLoading) {
     return (
-      <>
-        <div className="max-w-7xl mx-auto">
-          <TopMenu />
-        </div>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] bg-white">
-          <div className="max-w-xl mx-auto bg-yellow-50 border border-yellow-400 rounded-xl p-8 text-center shadow">
-            <div className="text-2xl font-bold text-yellow-700 mb-3 flex flex-col items-center">
-              <span className="mb-2">🔒</span>
-              Tính năng chỉ dành cho tài khoản Premium!
-            </div>
-            <div className="mb-6 text-gray-700 text-base">
-              Bạn cần nâng cấp tài khoản để xem các khoá học gợi ý cho kỹ năng còn thiếu.<br />
-              Nâng cấp ngay để mở khoá tất cả các tính năng nâng cao.
-            </div>
-            <button
-              onClick={() => window.location.href = "/servicepayment"}
-              className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold px-6 py-2 rounded transition"
-            >
-              Nâng cấp tài khoản ngay
-            </button>
-          </div>
-        </div>
-      </>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] bg-white">
+        <BookOpen className="animate-bounce mb-2 text-blue-500" size={36} />
+        <span className="animate-pulse text-blue-700 font-semibold text-base">
+          Đang tìm kiếm khóa học phù hợp (quá trình này có thể mất 1-3 phút)...
+        </span>
+      </div>
     );
   }
 
-  // Nếu không phải Free User, hiển thị bảng khoá học như cũ
   return (
-    <>
-      <div className="max-w-7xl mx-auto">
-        <TopMenu />
-      </div>
-      <div className="bg-white min-h-screen p-6 max-w-6xl mx-auto">
-        <div className="border border-blue-400 rounded-xl overflow-hidden text-sm">
-          <table className="w-full border-collapse">
-            <thead className="bg-blue-50 text-gray-800 font-semibold text-center">
-              <tr>
-                <th className="border px-4 py-3 w-[35%]">Kỹ năng bạn còn thiếu</th>
-                <th className="border px-4 py-3">Khóa học gợi ý</th>
-              </tr>
-            </thead>
-            <tbody>
-              {courseData.map((item, idx) => (
-                <tr key={idx} className="align-top">
-                  <td className="border px-4 py-3 font-medium text-gray-800 bg-white">
-                    {item.skill}
-                  </td>
-                  <td className="border px-4 py-3 space-y-3">
-                    {item.courses.map((course) => (
-                      <div
-                        key={course.id}
-                        className="border border-blue-300 rounded-lg p-3 bg-white shadow-sm"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-semibold text-[14px] text-gray-800">
-                            {course.title}
-                          </span>
-                          <button
-                            onClick={() => toggleFavorite(course.id)}
-                            className={`rounded-full w-5 h-5 flex items-center justify-center border ${
-                              favorites[course.id]
-                                ? "bg-yellow-400 text-white"
-                                : "bg-white border-yellow-400 text-yellow-400"
-                            } transition`}
-                            title="Đánh dấu yêu thích"
-                          >
-                            <FaStar className="text-sm" />
-                          </button>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1">{course.description}</p>
+    <div className="bg-white min-h-screen p-4 md:p-6 max-w-6xl mx-auto">
+      <TopMenu />
+      <h2 className="text-2xl font-bold text-blue-700 mb-6 flex gap-2 items-center">
+        <BookOpen className="text-blue-500" /> Danh sách khóa học gợi ý
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {/* Cột Kỹ năng còn thiếu */}
+        <div className="col-span-1 border rounded-2xl p-4 bg-blue-50 h-fit sticky top-4">
+          <div className="flex items-center gap-2 mb-4 text-blue-700 font-semibold text-lg">
+            <BadgeHelpCircle className="text-blue-500" size={20} />
+            Kỹ năng còn thiếu
+          </div>
+          <ul className="space-y-3">
+            {filteredSkills.map(([skill]) => (
+              <li key={skill} className="flex gap-2 items-center">
+                <BadgeHelpCircle className="text-blue-400" size={17} />
+                <span className="text-blue-900 font-medium">{skill}</span>
+              </li>
+            ))}
+            {filteredSkills.length === 0 && (
+              <li className="text-gray-400 italic">
+                <Info className="inline text-blue-300 mr-1" size={17} />
+                Không có kỹ năng còn thiếu nào!
+              </li>
+            )}
+          </ul>
+          <div className="mt-5 text-xs text-gray-400 italic">
+            Bạn nên bổ sung kỹ năng này!
+          </div>
+        </div>
+
+        {/* Cột Khoá học phù hợp */}
+        <div className="col-span-1 md:col-span-3">
+          {filteredSkills.length === 0 && (
+            <div className="text-gray-400 italic py-12 text-base flex items-center justify-center">
+              <Info size={20} className="mx-2 text-blue-300" />
+              Không tìm thấy khoá học phù hợp.
+            </div>
+          )}
+          <div className="space-y-8">
+            {filteredSkills.map(([skill, courses]) => (
+              <div key={skill} className="mb-8">
+                <div className="flex items-center gap-2 mb-3">
+                  <BookMarked className="text-blue-400" size={20} />
+                  <span className="text-blue-800 font-semibold text-[18px]">{skill}</span>
+                </div>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {courses.map((course) => (
+                    <div
+                      key={course.courseId}
+                      className="border border-blue-200 rounded-xl p-4 bg-blue-50 shadow-sm hover:bg-blue-100/70 transition relative group flex flex-col h-full"
+                    >
+                      {/* Tên khoá học */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <BookOpen className="text-blue-400" size={17} />
+                        <span className="font-semibold text-blue-900 text-base">Tên khoá học:</span>
+                        <span className="font-semibold text-blue-800">{truncate(course.title, 38)}</span>
                       </div>
-                    ))}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      {/* Độ khó & rating */}
+                      <div className="flex flex-wrap gap-3 items-center text-xs mb-1 mt-2">
+                        <span className="flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                          <Info size={14} className="mr-1" />
+                          <span className="font-semibold">Độ khó:</span> {truncate(course.difficulty, 30)}
+                        </span>
+                        <span className="flex items-center gap-1 bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
+                          <Star size={13} className="mr-1" /> Rating: <span className="font-semibold">{course.rating}</span>
+                        </span>
+                      </div>
+                      {/* Mô tả rút gọn */}
+                      <div className="text-xs text-gray-700 mt-2 group relative max-w-[98%]">
+                        <span className="font-semibold mr-1 text-blue-900">Mô tả:</span>
+                        <span title={course.description}>
+                          {truncate(course.description, 90)}
+                          {course.description?.length > 90 && (
+                            <span className="text-blue-400 ml-1">[...]</span>
+                          )}
+                        </span>
+                      </div>
+                      {/* Link & Xem chi tiết */}
+                      <div className="mt-3 flex items-center gap-5">
+                        {course.url && (
+                          <a
+                            href={course.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline text-blue-600 hover:text-blue-900 flex items-center gap-1 text-xs font-medium"
+                          >
+                            <Link2 size={15} />
+                            Xem trên website
+                          </a>
+                        )}
+                        <button
+                          className="text-xs font-semibold text-blue-700 underline hover:text-blue-900"
+                          onClick={() => setSelectedCourse(course)}
+                        >
+                          Xem chi tiết
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </>
+
+      {/* --- MODAL chi tiết khóa học --- */}
+      {selectedCourse && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center transition animate-fade-in"
+             onClick={() => setSelectedCourse(null)}
+        >
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 relative animate-fade-in max-h-[92vh] flex flex-col"
+               onClick={e => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-3 right-4 text-2xl font-bold text-gray-400 hover:text-red-500"
+              onClick={() => setSelectedCourse(null)}
+            >
+              ×
+            </button>
+            <div className="overflow-y-auto mt-2" style={{ maxHeight: "70vh" }}>
+              <h3 className="text-2xl font-bold text-blue-700 mb-3 flex gap-2 items-center">
+                <BookMarked className="text-blue-400" />
+                {selectedCourse.title}
+              </h3>
+              <div className="mb-2 flex items-center gap-2 text-sm text-gray-700">
+                <Info size={17} className="text-blue-300" />
+                <span className="font-semibold text-blue-900 mr-2">Độ khó:</span>
+                {selectedCourse.difficulty}
+              </div>
+              <div className="mb-2 flex items-center gap-2 text-sm text-gray-700">
+                <Star size={16} className="text-yellow-400" />
+                <span className="font-semibold text-blue-900 mr-2">Rating:</span>
+                {selectedCourse.rating}
+              </div>
+              <div className="mb-2 flex items-center gap-2 text-sm text-gray-700">
+                <BookOpen size={17} className="text-blue-400" />
+                <span className="font-semibold text-blue-900 mr-2">Nhà cung cấp:</span>
+                {selectedCourse.provider}
+              </div>
+              <div className="mb-3 flex items-start gap-2 text-sm text-gray-700">
+                <Info size={17} className="text-blue-300 mt-1" />
+                <div>
+                  <div className="font-semibold text-blue-900 mb-1">Mô tả chi tiết:</div>
+                  <div className="whitespace-pre-line">{selectedCourse.description}</div>
+                </div>
+              </div>
+              {selectedCourse.url && (
+                <div className="mt-4">
+                  <a
+                    href={selectedCourse.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-700 underline font-semibold hover:text-blue-900 flex items-center gap-1"
+                  >
+                    <Link2 size={18} />
+                    Đến trang khóa học
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

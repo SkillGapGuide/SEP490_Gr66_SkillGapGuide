@@ -223,16 +223,21 @@ const CVUploadOptions = ({ onNext }) => {
 
   // ====== Handler: Hoàn thành nhập link (lúc này mới gọi scrapeJob) ======
   const handleCompleteScrapeJobs = useCallback(async () => {
-    console.log("Gọi handleCompleteScrapeJobs", topcvLinks);
     if (!topcvLinks.length) return showError("Vui lòng nhập ít nhất 1 link!");
+
+    setScrapingLinks(true); // Disable nút bấm
+    showInfo("Quá trình có thể mất từ 1 đến 2 phút. Vui lòng chờ...");
+
     try {
       await scrapeJobService.crawl5JobsByLinks(topcvLinks);
+      showSuccess("Lấy dữ liệu từ link TOPCV thành công!"); // Thông báo khi xong
+      setShowPopup("");
+      setShowCongrats(true);
     } catch (err) {
       showError("Lấy dữ liệu từ link TOPCV thất bại: " + (err?.message || ""));
-      return;
+    } finally {
+      setScrapingLinks(false); // Enable nút lại
     }
-    setShowPopup("");
-    setShowCongrats(true);
   }, [topcvLinks]);
 
   // ====== Options cho dropdown Kinh nghiệm ======
