@@ -37,6 +37,7 @@ public class SecurityConfig {
             "/api/scrape/**",
             "/api/payment/**",
             "/api/payment/vnpay-return",
+            "/api/subscription/**",
 
     };
     @Bean

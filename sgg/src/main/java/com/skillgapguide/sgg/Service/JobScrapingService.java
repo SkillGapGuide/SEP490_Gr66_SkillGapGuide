@@ -262,7 +262,7 @@ public class JobScrapingService {
     // Remove deletion logic from these methods
     @Transactional
     public void scrapeAndSaveTop10JobsByCategory(String categoryListUrl) {
-        int n = 4;
+        int n = 5;
         List<String> jobLinks = scrapeJobLinksFromListPage(categoryListUrl);
         if (jobLinks == null || jobLinks.isEmpty()) {
             System.out.println("Không tìm thấy job nào ở URL: " + categoryListUrl);

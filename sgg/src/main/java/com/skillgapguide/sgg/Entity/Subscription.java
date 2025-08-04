@@ -16,7 +16,7 @@ public class Subscription {
     private Integer subscriptionId;
 
     @Column(nullable = false)
-    private String type;
+    private Integer type;
     @Column(name = "subscription_name")
     private String subscriptionName;
     private BigInteger price;
