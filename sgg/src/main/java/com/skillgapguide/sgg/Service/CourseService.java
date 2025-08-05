@@ -71,9 +71,6 @@ public class CourseService {
             throw new IllegalArgumentException("User ID không được để trống");
         }
         Page<UserFavoriteCourse> courses = favoriteCourseRepository.findByUserId(userId, pageable);
-        if (courses.isEmpty()) {
-            throw new IllegalArgumentException("Không có khóa học yêu thích nào được tìm thấy cho người dùng này");
-        }
         return courses;
     }
 
