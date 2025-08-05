@@ -117,7 +117,7 @@ const AnalyzeResult = () => {
         <div key={idx}><JobSkeleton /></div>
       ));
     }
-    if (userRole !== FREE_USER_ROLE) {
+    if (userRole === FREE_USER_ROLE) {
       return (
         <div className="border rounded-xl bg-yellow-50 p-7 text-center my-6 shadow">
           <h2 className="text-xl font-bold text-yellow-700 mb-2">
@@ -191,8 +191,8 @@ const AnalyzeResult = () => {
                 <table className="w-full border-collapse text-center">
                   <thead className="bg-blue-50 text-gray-800 font-semibold">
                     <tr>
-                      <th className="border px-3 py-2">Kỹ năng trong CV</th>
-                      <th className="border px-3 py-2">Yêu cầu công việc</th>
+                      <th className="border px-3 py-2">Kĩ năng công việc yêu cầu </th>
+                      <th className="border px-3 py-2">Kỹ năng trong CV phù hợp nhất</th>
                       <th className="border px-3 py-2">Điểm phù hợp (%)</th>
                       <th className="border px-3 py-2">Độ phù hợp</th>
                     </tr>
@@ -204,8 +204,9 @@ const AnalyzeResult = () => {
                         const isMatch = item.score >= MATCH_SCORE;
                         return (
                           <tr key={idx}>
+                             <td className="border px-3 py-2">{item.jobSkill}</td>
                             <td className="border px-3 py-2">{item.cvSkill}</td>
-                            <td className="border px-3 py-2">{item.jobSkill}</td>
+                           
                             <td
                               className={
                                 "border px-3 py-2 font-semibold " +

@@ -122,7 +122,10 @@ export const ENDPOINTS = {
     getJobSkills : "/api/job/getJobSkill",
     getJobList:"/api/job/getJobList",
     analyzeJob: "/api/job/analyzeJobDescription",
-    getJobMatchScore :"/api/job/match/getJobMatchScore"
+    getJobMatchScore :"/api/job/match/getJobMatchScore",
+    addFavoriteJob:"/api/favorite-job/add/{jobId}",
+    removeFavoriteJob:"/api/favorite-job/add/{jobId}",
+    getFavoriteJobs: "/api/favorite-job/list",
   },
   payment :{
     vnpayReturn: "/api/payment/vnpay-return",

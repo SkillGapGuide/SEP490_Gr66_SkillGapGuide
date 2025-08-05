@@ -4,6 +4,7 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { FiUser, FiHeart, FiCheckCircle } from "react-icons/fi";
 import { FaChalkboardTeacher } from "react-icons/fa";
 import { userService } from "../../services/userService"; // Đảm bảo path đúng
+import SidebarProfile from "../../components/user/SidebarProfile";
 
 const FavoriteSkills = () => {
   const userId = 5; // hoặc lấy từ context/auth nếu có
@@ -47,52 +48,12 @@ const FavoriteSkills = () => {
     setSkills(updated);
   };
 
-  const sidebarLinks = [
-    {
-      label: "Thông tin tài khoản",
-      icon: <FiUser className="text-purple-500" />,
-      to: "/profile",
-    },
-    {
-      label: "Khóa học yêu thích",
-      icon: <FaChalkboardTeacher className="text-black" />,
-      to: "/favouriteCourses",
-    },
-    {
-      label: "Kỹ năng yêu thích",
-      icon: <FiHeart className="text-sky-500" />,
-      to: "/favouriteskills",
-    },
-    {
-      label: "Trạng thái tài khoản",
-      icon: <FiCheckCircle className="text-blue-700" />,
-      to: "/account-status",
-    },
-  ];
+ 
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 flex gap-8">
       {/* Sidebar */}
-      <div className="w-[230px] bg-white rounded-xl shadow-md py-6 flex flex-col justify-between text-[15px] font-medium">
-        <div className="space-y-4">
-          {sidebarLinks.map((item, index) => (
-            <Link
-              key={index}
-              to={item.to}
-              className={`flex items-center gap-2 p-3 rounded hover:bg-gray-100 transition ${
-                location.pathname === item.to
-                  ? "font-bold text-indigo-700 bg-indigo-50"
-                  : "text-gray-700"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                {item.icon}
-                <span>{item.label}</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
+      <SidebarProfile/>
 
       {/* Main content */}
       <div className="flex-1">

@@ -145,6 +145,8 @@ public class  UserService {
         userDTO.setFullName(user.getFullName());
         userDTO.setPhone(user.getPhone());
         userDTO.setAvatar(user.getAvatar());
+        userDTO.setProvider(user.getProvider().name());
+
 
         // Role mapping
         switch (user.getRoleId()) {

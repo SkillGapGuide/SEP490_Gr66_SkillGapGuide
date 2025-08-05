@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useRef } from "react";
 import { useCourseStore } from "../../stores/courseStore";
 import TopMenu from "./TopMenu";
+import { FaHeartCirclePlus, FaHeartCircleCheck } from "react-icons/fa6";
 import {
   HelpCircle as BadgeHelpCircle, BookOpen, BookMarked, Link2, Star, Info,
 } from "lucide-react";
-
-// Helper rút gọn text
+import { courService } from "../../services/courService";
+import { UserContext } from "../../context/UserContext";
+import { showError,showSuccess,showConfirm } from "../../utils/alert";
 const truncate = (text, maxLength = 120) => {
   if (!text) return "";
   return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
@@ -14,10 +16,44 @@ const truncate = (text, maxLength = 120) => {
 const SuggestedCourses = () => {
   const { scrapedCourses, isCourseLoading } = useCourseStore();
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const { user } = useContext(UserContext);
+  const userId = user?.id ; // 
+  // Favorite state: object { courseId: true }
+  const [favoriteMap, setFavoriteMap] = useState({});
+  const [favoriteLoading, setFavoriteLoading] = useState({}); // { courseId: true/false }
 
-  // Lọc kỹ năng có khoá học
+  // Scroll map: key skill => ref
+  const skillRefs = useRef({});
+
+  // Filtered skills
   const filteredSkills = Object.entries(scrapedCourses || {})
     .filter(([_, arr]) => Array.isArray(arr) && arr.length > 0);
+
+  const handleAddFavorite = async (courseId) => {
+  // Xác nhận trước!
+  const result = await showConfirm("Bạn có chắc muốn thêm khóa học này vào yêu thích?", "Xác nhận thêm vào yêu thích");
+  if (!result.isConfirmed) return; // Nếu bấm "Huỷ", không làm gì cả
+
+  if (favoriteMap[courseId]) return; // Đã favorite, không làm gì nữa
+  setFavoriteLoading((prev) => ({ ...prev, [courseId]: true }));
+  try {
+    await courService.addCourseToFavorites(userId, courseId);
+    setFavoriteMap((prev) => ({ ...prev, [courseId]: true }));
+    showSuccess("Đã thêm vào yêu thích!");
+  } catch (error) {
+    showError("Bạn đã thêm khóa học này vào danh sách yêu thích rồi!");
+  } finally {
+    setFavoriteLoading((prev) => ({ ...prev, [courseId]: false }));
+  }
+};
+
+  // Scroll tới skill section khi click skill sidebar
+  const handleSkillSidebarClick = (skill) => {
+    const ref = skillRefs.current[skill];
+    if (ref && ref.scrollIntoView) {
+      ref.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   if (isCourseLoading) {
     return (
@@ -37,15 +73,18 @@ const SuggestedCourses = () => {
         <BookOpen className="text-blue-500" /> Danh sách khóa học gợi ý
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Cột Kỹ năng còn thiếu */}
+        {/* Sidebar kỹ năng */}
         <div className="col-span-1 border rounded-2xl p-4 bg-blue-50 h-fit sticky top-4">
           <div className="flex items-center gap-2 mb-4 text-blue-700 font-semibold text-lg">
             <BadgeHelpCircle className="text-blue-500" size={20} />
-            Kỹ năng còn thiếu
+            Khoá học đề cử theo kỹ năng
           </div>
           <ul className="space-y-3">
             {filteredSkills.map(([skill]) => (
-              <li key={skill} className="flex gap-2 items-center">
+              <li key={skill} className="flex gap-2 items-center cursor-pointer hover:bg-blue-100 rounded-lg px-2 py-1 transition"
+                onClick={() => handleSkillSidebarClick(skill)}
+                title={`Xem các khoá học cho kỹ năng "${skill}"`}
+              >
                 <BadgeHelpCircle className="text-blue-400" size={17} />
                 <span className="text-blue-900 font-medium">{skill}</span>
               </li>
@@ -62,7 +101,7 @@ const SuggestedCourses = () => {
           </div>
         </div>
 
-        {/* Cột Khoá học phù hợp */}
+        {/* Danh sách khóa học */}
         <div className="col-span-1 md:col-span-3">
           {filteredSkills.length === 0 && (
             <div className="text-gray-400 italic py-12 text-base flex items-center justify-center">
@@ -72,7 +111,10 @@ const SuggestedCourses = () => {
           )}
           <div className="space-y-8">
             {filteredSkills.map(([skill, courses]) => (
-              <div key={skill} className="mb-8">
+              <div key={skill}
+                className="mb-8"
+                ref={el => skillRefs.current[skill] = el}
+              >
                 <div className="flex items-center gap-2 mb-3">
                   <BookMarked className="text-blue-400" size={20} />
                   <span className="text-blue-800 font-semibold text-[18px]">{skill}</span>
@@ -83,11 +125,26 @@ const SuggestedCourses = () => {
                       key={course.courseId}
                       className="border border-blue-200 rounded-xl p-4 bg-blue-50 shadow-sm hover:bg-blue-100/70 transition relative group flex flex-col h-full"
                     >
-                      {/* Tên khoá học */}
-                      <div className="flex items-center gap-2 mb-2">
-                        <BookOpen className="text-blue-400" size={17} />
-                        <span className="font-semibold text-blue-900 text-base">Tên khoá học:</span>
-                        <span className="font-semibold text-blue-800">{truncate(course.title, 38)}</span>
+                      {/* Tên khoá học + Favorite */}
+                      <div className="flex items-center gap-2 mb-2 justify-between">
+                        <div className="flex items-center gap-2">
+                          <BookOpen className="text-blue-400" size={17} />
+                          <span className="font-semibold text-blue-900 text-base">Tên khoá học:</span>
+                          <span className="font-semibold text-blue-800">{truncate(course.title, 38)}</span>
+                        </div>
+                        {/* Nút favorite */}
+                        <button
+                          className="ml-2 active:scale-90 transition"
+                          onClick={() => handleAddFavorite(course.courseId)}
+                          disabled={favoriteMap[course.courseId] || favoriteLoading[course.courseId]}
+                          title={favoriteMap[course.courseId] ? "Đã lưu vào yêu thích" : "Thêm vào yêu thích"}
+                        >
+                          {favoriteMap[course.courseId]
+                            ? <FaHeartCircleCheck size={28} className="text-pink-500 drop-shadow" />
+                            : <FaHeartCirclePlus size={28}
+                              className={`text-gray-400 hover:text-pink-500 transition duration-150 ${favoriteLoading[course.courseId] ? "animate-pulse" : ""}`}
+                            />}
+                        </button>
                       </div>
                       {/* Độ khó & rating */}
                       <div className="flex flex-wrap gap-3 items-center text-xs mb-1 mt-2">
@@ -141,10 +198,10 @@ const SuggestedCourses = () => {
       {/* --- MODAL chi tiết khóa học --- */}
       {selectedCourse && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center transition animate-fade-in"
-             onClick={() => setSelectedCourse(null)}
+          onClick={() => setSelectedCourse(null)}
         >
           <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 relative animate-fade-in max-h-[92vh] flex flex-col"
-               onClick={e => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
           >
             <button
               className="absolute top-3 right-4 text-2xl font-bold text-gray-400 hover:text-red-500"

@@ -7,6 +7,7 @@ import { FaChalkboardTeacher } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { useContext } from "react";
 import { UserContext } from "../../context/UserContext";
+import SidebarProfile from "../../components/user/SidebarProfile";
 
 const UserProfile = () => {
  const { setUser: setUserContext } = useContext(UserContext);
@@ -90,131 +91,110 @@ const UserProfile = () => {
     }
   };
 
-  const sidebarLinks = [
-    { label: "Thông tin tài khoản", icon: <FiUser className="text-purple-500" />, to: "/profile" },
-    { label: "Khóa học yêu thích", icon: <FaChalkboardTeacher className="text-black" />, to: "/favouriteCourses" },
-    { label: "Kỹ năng yêu thích", icon: <FiHeart className="text-sky-500" />, to: "/favouriteskills" },
-    { label: "Trạng thái tài khoản", icon: <FiCheckCircle className="text-blue-700" />, to: "/account-status" }
-  ];
+ 
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="md:col-span-1 bg-white border-r shadow-sm p-4 rounded-lg">
-          <div className="space-y-4">
-            {sidebarLinks.map((item, index) => (
-              <Link
-    key={index}
-    to={item.to}
-    className={`flex items-center gap-2 p-3 rounded hover:bg-gray-100 transition ${
-      location.pathname === item.to ? "font-bold text-indigo-700 bg-indigo-50" : "text-gray-700"
-    }`}
-  >
-    <div className="flex items-center gap-2">
-      {item.icon}
-      <span>{item.label}</span>
-    </div>
-  </Link>
-            ))}
+ return (
+  <div className="max-w-7xl mx-auto px-6 py-8 flex gap-8">
+    <SidebarProfile />
+
+    <div className="flex-1 flex flex-col items-center">
+      {/* Phần Avatar + Thông tin cơ bản */}
+      <div className="w-full max-w-2xl flex flex-col items-center gap-3 mb-10">
+        <div className="relative group cursor-pointer">
+          <img
+            src={user.avatar || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"}
+            alt="avatar"
+            className="w-36 h-36 rounded-full border-4 border-blue-300 object-cover shadow-lg transition-all duration-300 group-hover:brightness-95 group-hover:scale-105"
+            onClick={handleAvatarClick}
+          />
+          <div
+            className="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={handleAvatarClick}
+          >
+            <span className="text-white text-base font-semibold tracking-wide">
+              Thay ảnh
+            </span>
           </div>
+          <input type="file" ref={fileInputRef} onChange={handleAvatarChange} className="hidden" accept="image/*" />
         </div>
+        <div className="font-extrabold text-2xl text-blue-800 text-center">{user.fullName}</div>
+        <div className="text-gray-500 text-base text-center">{user.email}</div>
+      </div>
 
-        <div className="md:col-span-3">
-          <div className="max-w-4xl mx-auto py-4 px-6">
-            <div className="flex flex-col items-center gap-4 mb-12">
-              <div className="relative group">
-                <img
-                  src={user.avatar || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"}
-                  alt="avatar"
-                  className="w-32 h-32 rounded-full border-4 border-blue-200 object-cover shadow-lg transition-all duration-300 group-hover:border-blue-400"
-                  onClick={handleAvatarClick}
-                />
-                <div
-                  className="absolute inset-0 flex items-center justify-center rounded-full bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                  onClick={handleAvatarClick}
-                >
-                  <span className="text-white text-sm">Thay ảnh</span>
-                </div>
-                <input type="file" ref={fileInputRef} onChange={handleAvatarChange} className="hidden" accept="image/*" />
-              </div>
-              <div className="font-bold text-2xl text-blue-800">{user.fullName}</div>
-              <div className="text-gray-500 text-lg">{user.email}</div>
-            </div>
+      {/* Thông tin chi tiết & Form */}
+      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8">
+        <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+          <FormField
+            label="Họ và tên"
+            field="fullName"
+            value={user.fullName}
+            editing={edit.fullName}
+            onEdit={handleEdit}
+            onChange={handleChange}
+            onBlur={() => setEdit((e) => ({ ...e, fullName: false }))}
+          />
+          <FormField
+            label="Số điện thoại"
+            field="phone"
+            value={user.phone}
+            editing={edit.phone}
+            onEdit={handleEdit}
+            onChange={handleChange}
+            onBlur={() => setEdit((e) => ({ ...e, phone: false }))}
+          />
+          <div>
+            <label className="font-semibold text-blue-800 block mb-1">Email</label>
+            <div className="flex items-center h-10 text-gray-700">{user.email}</div>
+          </div>
+          <div>
+            <label className="font-semibold text-blue-800 block mb-1">Vai trò</label>
+            <div className="flex items-center h-10 text-gray-700 capitalize">{user.role}</div>
+          </div>
+          <div className="col-span-1 md:col-span-2 flex justify-center mt-8">
+            <button
+              type="submit"
+              className="bg-blue-700 hover:bg-blue-800 text-white font-bold py-3 px-14 rounded-full shadow-lg text-lg transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              Lưu thay đổi
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 
-            <div className="bg-white rounded-2xl shadow-lg p-8">
-              <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-                <FormField
-                  label="Họ và tên"
-                  field="fullName"
-                  value={user.fullName}
-                  editing={edit.fullName}
-                  onEdit={handleEdit}
-                  onChange={handleChange}
-                  onBlur={() => setEdit((e) => ({ ...e, fullName: false }))}
-                />
-                <FormField
-                  label="Số điện thoại"
-                  field="phone"
-                  value={user.phone}
-                  editing={edit.phone}
-                  onEdit={handleEdit}
-                  onChange={handleChange}
-                  onBlur={() => setEdit((e) => ({ ...e, phone: false }))}
-                />
-                <div>
-                  <label className="font-bold text-blue-800 block mb-1">Email</label>
-                  <div className="flex items-center h-10 text-gray-600">{user.email}</div>
-                </div>
-                <div>
-                  <label className="font-bold text-blue-800 block mb-1">Vai trò</label>
-                  <div className="flex items-center h-10 text-gray-600 capitalize">{user.role}</div>
-                </div>
-                <div className="col-span-1 md:col-span-2 flex justify-center mt-10">
-                  <button
-                    type="submit"
-                    className="bg-blue-800 hover:bg-blue-700 text-white font-bold py-3 px-16 rounded-full shadow-lg text-lg transition-all duration-300 hover:scale-105"
-                  >
-                    Lưu thay đổi
-                  </button>
-                </div>
-              </form>
-            </div>
+    {/* Modal Preview */}
+    {showModal && (
+      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <div className="bg-white p-7 rounded-2xl shadow-2xl text-center max-w-sm w-full animate-fade-in">
+          <h3 className="text-lg font-bold mb-4 text-blue-800">Xem trước ảnh đại diện</h3>
+          <img src={previewImage} alt="Preview" className="w-32 h-32 mx-auto rounded-full object-cover border-4 border-blue-300 mb-5" />
+          <div className="flex justify-center gap-4">
+            <button
+              className="px-5 py-2 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition"
+              onClick={() => {
+                setUser((prev) => ({ ...prev, avatar: previewImage }));
+                setChangedAvatar(true);
+                setShowModal(false);
+              }}
+            >
+              Dùng ảnh này
+            </button>
+            <button
+              className="px-5 py-2 bg-gray-200 text-gray-800 rounded-full font-semibold hover:bg-gray-400 transition"
+              onClick={() => {
+                setShowModal(false);
+                setPreviewImage(null);
+              }}
+            >
+              Huỷ
+            </button>
           </div>
         </div>
       </div>
-
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl shadow-xl text-center max-w-sm w-full">
-            <h3 className="text-lg font-bold mb-4 text-blue-800">Xem trước ảnh đại diện</h3>
-            <img src={previewImage} alt="Preview" className="w-32 h-32 mx-auto rounded-full object-cover border-4 border-blue-300 mb-4" />
-            <div className="flex justify-center gap-4">
-              <button
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-                onClick={() => {
-                  setUser((prev) => ({ ...prev, avatar: previewImage }));
-                  setChangedAvatar(true);
-                  setShowModal(false);
-                }}
-              >
-                Dùng ảnh này
-              </button>
-              <button
-                className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition"
-                onClick={() => {
-                  setShowModal(false);
-                  setPreviewImage(null);
-                }}
-              >
-                Huỷ
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
+    )}
+  </div>
+);
+}
 
 const FormField = ({ label, field, value, editing, onEdit, onChange, onBlur }) => (
   <div>

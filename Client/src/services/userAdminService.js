@@ -18,5 +18,12 @@ export const userAdminService = {
   
   disableUser: async (email) => {
     return await apiService.post(ENDPOINTS.admin.disableUser(email));
+  },
+  createAdminAccount: async (data) => {
+    const {email, password, phone,fullName,roleId} = data;
+    return await apiService.post(ENDPOINTS.systemAdmin.createAccount,{email, password, phone, fullName, roleId});
+  }
+  ,changeRole : async (userId, newRoleId) => {
+    return await apiService.post(ENDPOINTS.systemAdmin.changeRole(userId, newRoleId));
   }
 };

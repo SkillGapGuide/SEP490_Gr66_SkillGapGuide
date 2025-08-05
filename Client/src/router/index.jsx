@@ -10,6 +10,8 @@ import ContentManagerLayout from "../layouts/ContentManagerLayout";
 import AnalyzeUpload from "../pages/user/AnalyzeUpload";
 import AnalyzeResult from "../pages/user/AnalyzeResult";
 
+
+
 // Phần User (lazy import các page lớn)
 const Home = lazy(() => import("../pages/Home"));
 const Login = lazy(() => import("../pages/Login"));
@@ -26,6 +28,7 @@ const UserProfile = lazy(() => import("../pages/user/UserProfile"));
 const ServicePayment = lazy(() => import("../pages/user/ServicePayment"));
 const ServiceRating = lazy(() => import("../pages/user/ServiceRating"));
 const SuggestedCourses = lazy(() => import("../pages/user/SuggestedCourses"));
+const FileUploadHistory = lazy(() => import("../pages/user/FileUploadHistory"));
 const AddCVChooseAvailableCareer = lazy(() =>
   import("../pages/user/AddCVChooseAvailableCareer")
 );
@@ -43,6 +46,7 @@ const AnalysisJobDescription = lazy(() =>
 );
 const FavoriteSkills = lazy(() => import("../pages/user/FavoriteSkills"));
 const FavoriteCourses = lazy(() => import("../pages/user/FavouriteCourses"));
+const FavoriteJobs = lazy(() => import("../pages/user/FavoriteJobs"));
 const CourseTracking = lazy(() => import("../pages/user/CourseTracking"));
 const MatchingJobs = lazy(() => import("../pages/user/JobMatches"));
 const CVUploadOptions = lazy(() => import("../pages/user/CVUploadOptions"));
@@ -106,7 +110,9 @@ const router = createBrowserRouter([
       { path: "analysisjobdescription", element: <AnalysisJobDescription /> },
       { path: "favouriteskills", element: <FavoriteSkills /> },
       { path: "favouriteCourses", element: <FavoriteCourses /> },
+      {path:"favouriteJobs",element:<FavoriteJobs/>},
       { path: "coursetracking", element: <CourseTracking /> },
+      {path:"action-history", element: <FileUploadHistory />},
       { path: "terms-of-service", element: <TermsEndUserPage /> },
 
       // ----- Nested route phân tích -----
