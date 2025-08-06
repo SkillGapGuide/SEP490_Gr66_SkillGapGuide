@@ -34,7 +34,7 @@ public class JobMatchService {
         // Get job information and CV information from the database
         Integer userId = userService.getUserIdFromContext();
         Cv cv = cvRepository.findByUserId(userId);
-        String cvText = cvService.extractTextFromPdf(cv.getFilePath());
+        String cvText = cvService.extractTextFromFile(cv.getFilePath(),cv.getFileType());
         double[] cvEmbedding = embedService.fetchEmbeddingNomicv15(cvText);
         List<Job> jobList = jobRepository.getJobsByCvId(cv.getId());
         if (jobList.isEmpty()) {
