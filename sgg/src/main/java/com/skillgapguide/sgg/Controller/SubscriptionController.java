@@ -4,6 +4,7 @@ import com.skillgapguide.sgg.Dto.SubscriptionDTO;
 import com.skillgapguide.sgg.Dto.UserSubscriptionRequest;
 import com.skillgapguide.sgg.Entity.Subscription;
 import com.skillgapguide.sgg.Entity.UserSubscriptionHistory;
+import com.skillgapguide.sgg.Exception.SubscriptionAlreadyExistsException;
 import com.skillgapguide.sgg.Response.EHttpStatus;
 import com.skillgapguide.sgg.Response.Response;
 import com.skillgapguide.sgg.Service.SubscriptionService;
@@ -46,6 +47,15 @@ public class SubscriptionController {
             return new Response<>(EHttpStatus.OK, "Cập nhật gói cước thành công", updatedSubscription);
         } else {
             return new Response<>(EHttpStatus.BAD_REQUEST, "Không tìm thấy gói cước với ID: " + subscription.getSubscriptionId(), null);
+        }
+    }
+    @PostMapping("/create-subscription")
+    public Response<Subscription> createSubscription(@RequestBody Subscription subscription) {
+        try {
+            Subscription createdSubscription = subscriptionService.createNewSubscription(subscription);
+            return new Response<>(EHttpStatus.OK, "Tạo gói cước thành công", createdSubscription);
+        } catch (SubscriptionAlreadyExistsException e) {
+            return new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
 }
