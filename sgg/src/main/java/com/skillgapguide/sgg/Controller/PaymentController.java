@@ -333,5 +333,8 @@ public class PaymentController {
     public Response<?> getQr(@RequestParam int typeRegister){
         return new Response<>(EHttpStatus.OK,paymentService.getPaymentQr(typeRegister));
     }
-
+    @PostMapping("/checkPayment")
+    public  Response<?> checkPayment(){
+        return  new Response<>(EHttpStatus.OK,paymentService.checkPayment());
+    }
 }
