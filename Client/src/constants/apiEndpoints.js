@@ -141,5 +141,12 @@ export const ENDPOINTS = {
   skillGap :{
     getSkillGap: "/api/gap/getSkillGap",
     getCommentSkill:"/api/gap/getCommentSkill",
+  },
+  subscription: {
+    createSubscription: "/api/subscription/create",
+    getSubscriptionById: "/api/subscription/get-subscription-by-id",
+    getAllSubscriptions: "/api/subscription/get-all-subscriptions",
+    updateSubscription: "/api/subscription/edit-subscription",
+    deleteSubscription: "/api/subscription/delete/{id}",
   }
 };

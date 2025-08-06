@@ -330,7 +330,10 @@ INSERT INTO `skill_gap_guide`.`staticpage`
 VALUES
     ('Home','Năm Bắt Đầu','2019','2024-06-17',1),
     ('Home','Tên trang','SkillGapGuide','2024-06-17',1),
-    ('Home','Số điện thoại liên hệ','559282 - 978','2024-06-17',1),
+    ('Home','Ảnh 1','','2024-06-17',1),
+    ('Home','Ảnh 2','','2024-06-17',1),
+    ('Home','Ảnh 3','','2024-06-17',1),
+    ('Home','Khẩu Hiệu','Khám phá, phân tích và phát triển kỹ năng đúng hướng','2024-06-17',1),
     ('AboutUs','Về chúng tôi','SkillGapGuide là một dự án nghiên cứu nhằm giải quyết khoảng cách ngày càng tăng giữa những gì người tìm việc cung cấp và những gì nhà tuyển dụng mong đợi. Ra đời từ phản hồi thu thập được trong các chương trình định hướng nghề nghiệp và thực tập, dự án này xem xét lý do tại sao nhiều sinh viên mới tốt nghiệp và những người muốn thay đổi nghề nghiệp gặp khó khăn trong việc đáp ứng các yêu cầu công việc. Bằng cách phân tích các tin đăng tuyển dụng, CV và nhu cầu của ngành, chúng tôi mong muốn cung cấp những hiểu biết rõ ràng về sự không phù hợp của kỹ năng và giúp nâng cao sự sẵn sàng cho nghề nghiệp.','2024-06-17',1),
     ('AboutUs','Sứ mệnh','Sứ mệnh của chúng tôi là làm nổi bật những khoảng trống kỹ năng ngăn cản người tìm việc đạt được mục tiêu của họ. Thông qua nghiên cứu dựa trên dữ liệu, chúng tôi mong muốn hỗ trợ sinh viên, nhà giáo dục và cố vấn nghề nghiệp trong việc tìm hiểu nhu cầu thị trường lao động và định hình các hệ thống hướng dẫn tốt hơn. Chúng tôi tin rằng những con đường rõ ràng hơn sẽ dẫn đến những lựa chọn nghề nghiệp mạnh mẽ hơn, tự tin hơn.','2024-06-17',1),
     ('SocialLink','Facebook','https://www.facebook.com/yourpage','2024-06-17',1),
