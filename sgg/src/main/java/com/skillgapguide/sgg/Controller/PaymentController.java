@@ -2,9 +2,13 @@ package com.skillgapguide.sgg.Controller;
 
 import com.skillgapguide.sgg.Dto.PaymentDTO;
 import com.skillgapguide.sgg.Entity.Payment;
+import com.skillgapguide.sgg.Entity.Subscription;
 import com.skillgapguide.sgg.Entity.User;
+import com.skillgapguide.sgg.Entity.UserSubscriptionHistory;
 import com.skillgapguide.sgg.Repository.PaymentRepository;
+import com.skillgapguide.sgg.Repository.SubscriptionRepository;
 import com.skillgapguide.sgg.Repository.UserRepository;
+import com.skillgapguide.sgg.Repository.UserSubscriptionHistoryRepository;
 import com.skillgapguide.sgg.Service.VnPayService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -31,6 +35,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Date;
@@ -48,6 +53,8 @@ public class PaymentController {
     @Autowired
     private PaymentRepository paymentRepo;
     private final PaymentService paymentService;
+    private final SubscriptionRepository subscriptionRepository;
+    private final UserSubscriptionHistoryRepository userSubscriptionHistoryRepository;
     @GetMapping("/filter")
     public Response<Page<PaymentDTO>> filterPaymentsByStatus(
             @RequestParam String status,
@@ -190,23 +197,24 @@ public class PaymentController {
         document.add(table);
         document.close();
     }
+
     @GetMapping("/create")
-    public ResponseEntity<Map<String, Object>> createPayment(@RequestParam double amount, HttpServletRequest request) throws Exception {
+    public ResponseEntity<Map<String, Object>> createPayment(
+            @RequestParam Integer subscriptionId,
+            HttpServletRequest request) throws Exception {
+
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String orderInfo = "Thanh toán đơn hàng #" + System.currentTimeMillis();
         String ipAddr = request.getRemoteAddr();
 
-        // 👉 Gửi userId vào service để nhúng vào TxnRef
-        String url = vnPayService.createPaymentUrl(amount, orderInfo, ipAddr, user.getUserId());
+        String paymentUrl = vnPayService.createPaymentUrl(user.getUserId(), subscriptionId, ipAddr);
 
-        Map<String, Object> response = Map.of(
-                "paymentUrl", url,
-                "message", "Redirect to payment"
-        );
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of(
+                "paymentUrl", paymentUrl,
+                "message", "Redirect to VNPAY"
+        ));
     }
 
     @GetMapping("/vnpay-return")
@@ -217,10 +225,67 @@ public class PaymentController {
             double amount = Double.parseDouble(params.get("vnp_Amount")) / 100;
             String txnRef = params.get("vnp_TxnRef");
 
-            Integer userId = Integer.parseInt(txnRef.split("_")[0]);
+            // Tách userId và subscriptionId từ TxnRef
+            String[] parts = txnRef.split("_");
+            if (parts.length < 2) {
+                return ResponseEntity.badRequest().body(
+                        new Response<>(EHttpStatus.BAD_REQUEST, "Dữ liệu TxnRef không hợp lệ", Map.of("txnRef", txnRef)));
+            }
+
+            Integer userId = Integer.parseInt(parts[0]);
+            Integer subscriptionId = Integer.parseInt(parts[1]);
+
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
 
+            Subscription newSubscription = subscriptionRepository.findById(subscriptionId)
+                    .orElseThrow(() -> new RuntimeException("Subscription not found"));
+
+            // Kiểm tra downgrade
+            Subscription currentSubscription = subscriptionRepository.findById(user.getSubscriptionId()).orElse(null);
+            int currentType = currentSubscription != null ? currentSubscription.getType() : 0;
+            int newType = newSubscription.getType();
+
+            if (currentType >= newType) {
+                return ResponseEntity.badRequest().body(
+                        new Response<>(EHttpStatus.BAD_REQUEST,
+                                "Bạn đang sử dụng gói cao hơn hoặc tương đương, không thể mua gói thấp hơn!",
+                                Map.of("currentType", currentType, "newType", newType)));
+            }
+
+            // Nếu là nâng cấp: cập nhật UserSubscriptionHistory hiện tại (nếu có) thành EXPIRED
+            List<UserSubscriptionHistory> activeHistories = userSubscriptionHistoryRepository.findByUserAndStatus(user, "ACTIVE");
+            LocalDateTime now = LocalDateTime.now();
+            for (UserSubscriptionHistory history : activeHistories) {
+                history.setStatus("EXPIRED");
+                history.setUpdatedAt(now);
+                userSubscriptionHistoryRepository.save(history);
+            }
+
+            // Cập nhật user: roleId theo type, subscriptionId
+            int roleId;
+            switch (newType) {
+                case 2 -> roleId = 5; // PRO
+                case 3 -> roleId = 6; // PREMIUM
+                default -> roleId = 4; // BASIC
+            }
+
+            user.setRoleId(roleId);
+            user.setSubscriptionId(subscriptionId);
+            userRepository.save(user);
+
+            // Ghi lại user_subscription_history
+            UserSubscriptionHistory history = new UserSubscriptionHistory();
+            history.setUser(user);
+            history.setSubscription(newSubscription);
+            history.setStartDate(now);
+            history.setEndDate(now.plusDays(1));
+            history.setStatus("ACTIVE");
+            history.setCreatedAt(now);
+            history.setUpdatedAt(now);
+            userSubscriptionHistoryRepository.save(history);
+
+            // Ghi vào bảng Payment
             Payment payment = new Payment();
             payment.setAmount(amount);
             payment.setDate(new Date());
@@ -238,13 +303,13 @@ public class PaymentController {
 
             if ("00".equals(status)) {
                 return ResponseEntity.ok(
-                        new Response<>(EHttpStatus.OK, "Thanh toán thành công", data)
-                );
+                        new Response<>(EHttpStatus.OK, "Thanh toán thành công", data));
             } else {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
                         .body(new Response<>(EHttpStatus.BAD_REQUEST, "Thanh toán thất bại", data));
             }
+
         } catch (Exception e) {
             Map<String, Object> errorData = Map.of("error", e.getMessage());
 
@@ -253,6 +318,8 @@ public class PaymentController {
                     .body(new Response<>(EHttpStatus.BAD_REQUEST, "Lỗi khi xử lý callback từ VNPAY", errorData));
         }
     }
+
+
     @PostMapping("/getPaymentFromCassio")
     public void handleWebhook(@RequestBody String payload, @RequestHeader("secure-token") String webhookKey) throws Exception {
         String expectedKey = "FakfLNi92MNKL2n";

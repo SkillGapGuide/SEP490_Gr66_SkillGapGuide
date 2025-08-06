@@ -44,7 +44,7 @@ public class JobScrapingService {
 
     private static final String CHROME_DRIVER_PATH = "sgg/drivers/chromedriver.exe";
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
-    private static final int TIMEOUT_SECONDS = 25;
+    private static final int TIMEOUT_SECONDS = 4;
 
     private WebDriver createChromeDriver() {
         System.setProperty("webdriver.chrome.driver", CHROME_DRIVER_PATH);
@@ -262,7 +262,7 @@ public class JobScrapingService {
     // Remove deletion logic from these methods
     @Transactional
     public void scrapeAndSaveTop10JobsByCategory(String categoryListUrl) {
-        int n = 4;
+        int n = 5;
         List<String> jobLinks = scrapeJobLinksFromListPage(categoryListUrl);
         if (jobLinks == null || jobLinks.isEmpty()) {
             System.out.println("Không tìm thấy job nào ở URL: " + categoryListUrl);
@@ -304,7 +304,7 @@ public class JobScrapingService {
             try {
                 System.out.println("Bắt đầu cào jobs từ: " + url);
                 int before = (int) jobRepository.count();
-                scrapeAndSaveTop10JobsByCategory(url);
+                scrapeAndSaveJob(url);
                 int after = (int) jobRepository.count();
                 int jobsAdded = after - before;
                 totalJobs += jobsAdded;

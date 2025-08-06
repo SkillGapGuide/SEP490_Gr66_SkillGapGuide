@@ -3,10 +3,12 @@ package com.skillgapguide.sgg.Controller;
 import com.skillgapguide.sgg.Dto.CourseDTO;
 import com.skillgapguide.sgg.Dto.ScrapeResultDTO;
 import com.skillgapguide.sgg.Entity.Course;
+import com.skillgapguide.sgg.Entity.UserFavoriteCourse;
 import com.skillgapguide.sgg.Response.EHttpStatus;
 import com.skillgapguide.sgg.Response.Response;
 import com.skillgapguide.sgg.Service.CourseService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,8 +38,12 @@ public class CourseController {
             @PathVariable Integer userId,
             @RequestParam(defaultValue = "1") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize) {
+        Page<UserFavoriteCourse> favoriteCoursesPage = courseService.getFavoriteCoursesByUserId(userId, pageNo, pageSize);
+        if (favoriteCoursesPage.isEmpty()) {
+            return new Response<>(EHttpStatus.OK, "Không tìm thấy khóa học yêu thích nào", null);
+        }
         return new Response<>(EHttpStatus.OK, "Lấy danh sách tất cả khóa học yêu thích thành công",
-                courseService.getFavoriteCoursesByUserId(userId, pageNo, pageSize));
+                favoriteCoursesPage);
     }
 
     @PostMapping("/addCourseToFavorites/{userId}/{courseId}")

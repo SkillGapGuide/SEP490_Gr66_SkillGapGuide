@@ -3,9 +3,9 @@ Create database skill_gap_guide;
 use skill_gap_guide;
 -- Bảng lưu các vai trò (ví dụ: admin, user)
 CREATE TABLE Role (
-    role_id INT NOT NULL AUTO_INCREMENT,
-    name NVARCHAR(255) NOT NULL,
-    PRIMARY KEY (role_id)
+                      role_id INT NOT NULL AUTO_INCREMENT,
+                      name NVARCHAR(255) NOT NULL,
+                      PRIMARY KEY (role_id)
 );
 CREATE TABLE user_status (
                              status_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -19,8 +19,9 @@ INSERT INTO user_status (name) VALUES
 CREATE TABLE Subscription (
                               subscription_id INT NOT NULL AUTO_INCREMENT,
                               type int NOT NULL,
-                              price double,
                               status NVARCHAR(255) NOT NULL,
+                              subscription_name VARCHAR(100),
+                              price BIGINT,
                               PRIMARY KEY (subscription_id)
 );
 -- Bảng lưu các khóa học
@@ -36,6 +37,7 @@ CREATE TABLE Course (
                         create_at DateTime,
                         PRIMARY KEY (course_id)
 );
+
 -- Bảng Người dùng (User), liên kết đến Role và Subscription
 CREATE TABLE User (
                       user_id INT NOT NULL AUTO_INCREMENT,
@@ -55,6 +57,7 @@ CREATE TABLE User (
                       FOREIGN KEY (role_id) REFERENCES Role(role_id),
                       FOREIGN KEY (subscription_id) REFERENCES Subscription(subscription_id)
 );
+
 -- Bảng Thanh toán (Payment), liên kết đến User
 CREATE TABLE Payment (
                          payment_id INT NOT NULL AUTO_INCREMENT,
@@ -226,7 +229,6 @@ create table user_cv_skills(
                                cv_id int ,
                                FOREIGN KEY (cv_id) REFERENCES CV(id) on delete cascade
                                );
-
 create table user_cv_skills_embedding(
                                          id INT AUTO_INCREMENT PRIMARY KEY,
                                          skill nvarchar(255),
@@ -283,16 +285,16 @@ CREATE TABLE job_cv_score (
         ON DELETE CASCADE
 );
 
-INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`,`price`, `status`)VALUES    (1,     1, 0,    'active');
-INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`,`price`, `status`)VALUES    (2,     2,  100000,   'active');
-INSERT INTO `skill_gap_guide`.`subscription`(`subscription_id`, `type`,`price`, `status`)VALUES    (3,     3,  200000 ,  'active');
-
-INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (1,     'System Admin');
-INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (2,     'Content Manager');
-INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (3,     'Finance Admin');
-INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (4,     'Free User');
-INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES    (5,     'Pro User');
-INSERT INTO `skill_gap_guide`.`role`(`role_id`, `name`)VALUES		(6,'Premium User');
+INSERT INTO Subscription (type, status, subscription_name, price) VALUES
+                                                                      (1, 'active', 'Trial', 0),
+                                                                      (2, 'active', 'Basic Monthly', 100000),
+                                                                      (3, 'active', 'Premium Monthly', 200000);
+INSERT INTO `skill_gap_guide`.`role`(`name`)VALUES    ('System Admin');
+INSERT INTO `skill_gap_guide`.`role`(`name`)VALUES    ('Content Manager');
+INSERT INTO `skill_gap_guide`.`role`(`name`)VALUES    ('Finance Admin');
+INSERT INTO `skill_gap_guide`.`role`(`name`)VALUES	('Free User');
+INSERT INTO `skill_gap_guide`.`role`(`name`)VALUES	('Pro User');
+INSERT INTO `skill_gap_guide`.`role`(`name`)VALUES	('Premium User');
 INSERT INTO Course (title, rating, difficulty, description, provider, url, status, create_at)
 VALUES
     ('Introduction to Python', 4.5, 'Beginner', 'Learn the basics of Python programming.', 'Coursera', 'https://www.coursera.org/python', 'Active', '2025-06-25 10:00:00'),

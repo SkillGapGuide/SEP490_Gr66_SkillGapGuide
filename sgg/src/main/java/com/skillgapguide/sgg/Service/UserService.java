@@ -149,9 +149,11 @@ public class  UserService {
         // Role mapping
         switch (user.getRoleId()) {
             case 1 -> userDTO.setRole("System Admin");
-            case 2 -> userDTO.setRole("Business Admin");
-            case 3 -> userDTO.setRole("Free User");
-            case 4 -> userDTO.setRole("Premium User");
+            case 2 -> userDTO.setRole("Content Manager");
+            case 3 -> userDTO.setRole("Finance Admin");
+            case 4 -> userDTO.setRole("Free User");
+            case 5 -> userDTO.setRole("Pro User");
+            case 6 -> userDTO.setRole("Premium User");
             default -> userDTO.setRole("Unknown");
         }
         return userDTO;
@@ -176,11 +178,22 @@ public class  UserService {
         dto.setFullName(user.getFullName());
 
         switch (user.getRoleId()) {
-            case 3 -> {
+            case 4 -> {
                 dto.setRole("Free User");
                 dto.setPremium(false);
             }
-            case 4 -> {
+            case 5 -> {
+                dto.setRole("Pro User");
+                dto.setPremium(true);
+
+                // Lấy thông tin đăng ký từ bảng lịch sử
+                userSubscriptionHistoryRepository.findTopByUser_UserIdAndStatusOrderByStartDateDesc(user.getUserId(), "ACTIVE")
+                        .ifPresent(history -> {
+                            dto.setSubscriptionStart(history.getStartDate());
+                            dto.setSubscriptionEnd(history.getEndDate());
+                        });
+            }
+            case 6 -> {
                 dto.setRole("Premium User");
                 dto.setPremium(true);
 
@@ -226,7 +239,7 @@ public class  UserService {
         Role role = roleRepository.findById(request.getRoleId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy vai trò với id: " + request.getRoleId()));
 
-        if (!role.getName().contains("Admin")) {
+        if (!role.getName().toLowerCase().contains("Admin") && !role.getName().toLowerCase().contains("manager")) {
             return "Chỉ có thể tạo các vai trò dạng Admin!";
         }
 
@@ -240,7 +253,7 @@ public class  UserService {
         user.setFullName(request.getFullName());
         user.setPhone(request.getPhone());
         user.setRoleId(role.getRoleId());
-        user.setSubscriptionId(2);
+        user.setSubscriptionId(1);
         user.setStatus(status);
         user.setAvatar(null);
         user.setProvider(User.Provider.valueOf("LOCAL"));

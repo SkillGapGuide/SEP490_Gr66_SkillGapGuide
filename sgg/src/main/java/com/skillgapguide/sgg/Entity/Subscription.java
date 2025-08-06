@@ -3,6 +3,8 @@ package com.skillgapguide.sgg.Entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigInteger;
+
 @Data
 @Entity
 @Table(name = "Subscription")
@@ -14,8 +16,10 @@ public class Subscription {
     private Integer subscriptionId;
 
     @Column(nullable = false)
-    private String type;
-
+    private Integer type;
+    @Column(name = "subscription_name")
+    private String subscriptionName;
+    private BigInteger price;
     @Column(nullable = false)
     private String status;
 }
