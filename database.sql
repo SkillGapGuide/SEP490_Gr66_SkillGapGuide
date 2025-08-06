@@ -222,24 +222,33 @@ CREATE TABLE job_specializations (
 );
 create table user_cv_skills(
                                id INT AUTO_INCREMENT PRIMARY KEY,
-                               skill nvarchar(100),
+                               skill nvarchar(255),
                                cv_id int ,
                                FOREIGN KEY (cv_id) REFERENCES CV(id) on delete cascade
                                );
+CREATE TABLE user_favorite_missing_skill (
+	id int AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    skill_id INT NOT NULL,
+    status nvarchar(100),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (skill_id) REFERENCES user_cv_skills(id)
+);
 create table user_cv_skills_embedding(
                                          id INT AUTO_INCREMENT PRIMARY KEY,
-                                         skill nvarchar(100),
+                                         skill nvarchar(255),
                                          embedding_json JSON
 );
 create table job_des_skills(
                                id INT AUTO_INCREMENT PRIMARY KEY,
-                               skill nvarchar(100),
+                               skill nvarchar(255),
                                job_id int ,
                                FOREIGN KEY (job_id) REFERENCES job(job_id) on delete cascade
 );
 create table job_des_skills_embedding(
                                          id INT AUTO_INCREMENT PRIMARY KEY,
-                                         skill nvarchar(100),
+                                         skill nvarchar(255),
                                          embedding_json JSON
 );
 CREATE TABLE job_cv_skills_score (
@@ -256,7 +265,7 @@ CREATE TABLE job_cv_skills_score (
 );
 create table job_match_embedding(
                                          id INT AUTO_INCREMENT PRIMARY KEY,
-                                         `text` nvarchar(100),
+                                         `text` nvarchar(255),
                                          embedding_json JSON
 );
 CREATE TABLE job_cv_score (
