@@ -2,14 +2,11 @@ package com.skillgapguide.sgg.Service;
 
 import com.skillgapguide.sgg.Dto.UserFavoriteMissingSkillResponse;
 import com.skillgapguide.sgg.Entity.Cv;
-import com.skillgapguide.sgg.Entity.Skill;
 import com.skillgapguide.sgg.Entity.UserCvSkills;
 import com.skillgapguide.sgg.Entity.UserFavoriteMissingSkill;
 import com.skillgapguide.sgg.Repository.CVRepository;
-import com.skillgapguide.sgg.Repository.SkillRepository;
 import com.skillgapguide.sgg.Repository.UserCvSkillsRepository;
 import com.skillgapguide.sgg.Repository.UserFavoriteMissingSkillRepository;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
