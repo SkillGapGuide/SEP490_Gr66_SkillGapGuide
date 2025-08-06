@@ -5,6 +5,7 @@ import com.skillgapguide.sgg.Entity.Cv;
 import com.skillgapguide.sgg.Entity.UserCvSkills;
 import com.skillgapguide.sgg.Entity.UserFavoriteMissingSkill;
 import com.skillgapguide.sgg.Repository.CVRepository;
+import com.skillgapguide.sgg.Repository.JobDesSkillsRepository;
 import com.skillgapguide.sgg.Repository.UserCvSkillsRepository;
 import com.skillgapguide.sgg.Repository.UserFavoriteMissingSkillRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,18 +22,14 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserFavoriteMissingSkillService {
     private final UserFavoriteMissingSkillRepository userFavoriteMissingSkillRepository;
-    private final UserCvSkillsRepository skillRepository;
-    private final CVRepository cvRepository;
-    private static final Logger logger = LoggerFactory.getLogger(UserFavoriteMissingSkillService.class);
-
+    private final JobDesSkillsRepository skillRepository;
     public Page<UserFavoriteMissingSkillResponse> getFavoriteMissingSkillsByUserId(Integer userId, int pageNo, int pageSize) {
         Pageable pageable = Pageable.ofSize(pageSize).withPage(pageNo - 1);
         return userFavoriteMissingSkillRepository.findUserFavoriteMissingSkillsByUserId(userId, pageable);
     }
 
     public UserFavoriteMissingSkill addMissingSkillToFavorites(Integer userId, Integer skillId) {
-        Cv cv = cvRepository.findByUserId(userId);
-        UserCvSkills skill = skillRepository.findById(skillId)
+        skillRepository.findById(skillId)
                 .orElseThrow(() -> new IllegalArgumentException("Skill không tồn tại"));
 
         Optional<UserFavoriteMissingSkill> existingFavorite =
