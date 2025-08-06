@@ -25,68 +25,26 @@ public class CosineSimilarityService {
         jobCvSkillScoreRepository.deleteByJobIdAndCvId(jobId,cvId);
         List<UserCvSkills> userCvSkillsList = userCvSkillsRepository.findByCvId(cvId);
         List<JobDesSkills> jobDesSkillsList = jobDesSkillsRepository.findByJobId(jobId);
-        int m = userCvSkillsList.size();
-        int n = jobDesSkillsList.size();
-        int size = Math.max(m, n);              // square dimension
+        // Lặp qua từng Job Skill
+        for (JobDesSkills jobSkill : jobDesSkillsList) {
+            double bestScore = -1.0;
+            UserCvSkills bestCvSkill = null;
 
-        // 1. Build similarity matrix with padding.
-        double[][] similarity = new double[size][size];
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (i < m && j < n) {
-                    similarity[i][j] = getCosine(userCvSkillsList.get(i), jobDesSkillsList.get(j));
-                } else {
-                    similarity[i][j] = 0.0;   // dummy row or column
+            // Tìm CV skill có score cao nhất
+            for (UserCvSkills cvSkill : userCvSkillsList) {
+                double score = getCosine(cvSkill, jobSkill);
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestCvSkill = cvSkill;
                 }
             }
-        }
-
-        // 2. Convert to cost matrix (Hungarian minimizes cost).
-        double[][] cost = new double[size][size];
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                cost[i][j] = 1.0 - similarity[i][j];
-            }
-        }
-
-        // 3. Solve assignment.
-        HungarianAlgorithm hungarian = new HungarianAlgorithm(cost);
-        int[] assignment = hungarian.execute(); // assignment[i] = column chosen for row i (or -1)
-
-        // 4. Persist results.
-        Set<Integer> matchedJobIndexes = new HashSet<>();
-        for (int cvIdx = 0; cvIdx < assignment.length; cvIdx++) {
-            int jobIdx = assignment[cvIdx];
-            if (jobIdx == -1) continue;           // no assignment (should not happen in square matrix)
-
-            matchedJobIndexes.add(jobIdx);
+            // Lưu vào DB (cho phép null nếu không match)
             JobCvSkillScore row = new JobCvSkillScore();
-            if (cvIdx < m && jobIdx < n) {
-                // Real CV skill ↔ real Job skill.
-                row.setJobSkill(jobDesSkillsList.get(jobIdx).getId());
-                row.setCvSkill(userCvSkillsList.get(cvIdx).getId());
-                row.setScore(similarity[cvIdx][jobIdx]);
-            } else if (jobIdx < n) {
-                // Dummy CV skill ↔ real Job skill → No match.
-                row.setJobSkill(jobDesSkillsList.get(jobIdx).getId());
-                row.setCvSkill(null);
-                row.setScore(0.0);
-            } else {
-                // Real CV skill ↔ dummy Job skill → CV skill not used. Skip persisting if not needed.
-                continue;
-            }
-            jobCvSkillScoreRepository.save(row);
-        }
+            row.setJobSkill(jobSkill.getId());
+            row.setCvSkill(bestCvSkill != null ? bestCvSkill.getId() : null);
+            row.setScore(bestScore >= 0 ? bestScore : 0.0);
 
-        // 5. For Job skills left unmatched (possible when m < n).
-        for (int j = 0; j < n; j++) {
-            if (!matchedJobIndexes.contains(j)) {
-                JobCvSkillScore row = new JobCvSkillScore();
-                row.setJobSkill(jobDesSkillsList.get(j).getId());
-                row.setCvSkill(null);
-                row.setScore(0.0);
-                jobCvSkillScoreRepository.save(row);
-            }
+            jobCvSkillScoreRepository.save(row);
         }
     }
 
