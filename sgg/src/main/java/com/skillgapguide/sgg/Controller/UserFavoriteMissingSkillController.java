@@ -25,4 +25,14 @@ public class UserFavoriteMissingSkillController {
         return new Response<>(EHttpStatus.OK, "Thêm kỹ năng thiếu vào danh sách yêu thích thành công",
                 userFavoriteMissingSkillService.addMissingSkillToFavorites(userId, skillId));
     }
+    @DeleteMapping("/remove-favorite-missing-skill/{userId}/{skillId}")
+    public Response<?> removeFavoriteMissingSkill(@PathVariable Integer userId, @PathVariable Integer skillId) {
+        userFavoriteMissingSkillService.removeFavoriteMissingSkill(userId, skillId);
+        return new Response<>(EHttpStatus.OK, "Xóa kỹ năng thiếu khỏi danh sách yêu thích thành công", null);
+    }
+//    @DeleteMapping("/remove-all-favorite-missing-skills/{userId}")
+//    public Response<?> removeAllFavoriteMissingSkills(@PathVariable Integer userId) {
+//        userFavoriteMissingSkillService.removeAllFavoriteMissingSkills(userId);
+//        return new Response<>(EHttpStatus.OK, "Xóa tất cả kỹ năng thiếu khỏi danh sách yêu thích thành công", null);
+//    }
 }

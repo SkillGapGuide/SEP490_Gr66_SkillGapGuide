@@ -13,9 +13,8 @@ public class UserFavoriteMissingSkill {
     private Integer id;
     @Column(name = "user_id")
     private Integer userId;
-    @ManyToOne
-    @JoinColumn(name = "skill_id", referencedColumnName = "skill_id")
-    private Skill skill;
+    @Column(name = "skill_id")
+    private Integer skillId;
     @Basic
     @Column(name = "status")
     private String status;
