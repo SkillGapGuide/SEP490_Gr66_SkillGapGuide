@@ -26,8 +26,8 @@ public class LMStudioService {
                 "messages", List.of(
                         Map.of("role", "user", "content", prompt)
                 ),
-                "temperature", 0.7,
-                "max_tokens", 10000,
+                "temperature", 0.2,
+                "max_tokens", 8192,
                 "stream", false
         );
         return webClient.post()
@@ -39,12 +39,12 @@ public class LMStudioService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .flatMap(this::parseAiResponse)
-                .timeout(Duration.ofMinutes(2))
+                .timeout(Duration.ofMinutes(4))
                 .onErrorResume(e -> Mono.just("Lỗi: " + e.getMessage()));
     }
     public Mono<String> callNomicApi(String prompt) {
         Map<String, Object> requestBody = Map.of(
-                "model", "text-embedding-nomic-embed-text-v2-moe",
+                "model", "text-embedding-nomic-embed-text-v1.5",
                 "input", prompt
         );
         return webClient.post()

@@ -30,7 +30,7 @@ public class EmbedService {
     private JobDesSkillsEmbeddingRepository jobDesSkillsEmbeddingRepository;
     @Autowired
     private JobMatchEmbeddingRepository jobMatchEmbeddingRepository;
-    public static double[] fetchEmbedding(String text) throws JSONException, IOException, InterruptedException {
+    public static double[] fetchEmbeddingNomicv2(String text) throws JSONException, IOException, InterruptedException {
         String prompt="search_query: " + text ;
         HttpClient client = HttpClient.newHttpClient();
         String requestBody = "{\"text\": \"" + prompt + "\"}";
@@ -71,7 +71,7 @@ public class EmbedService {
                 }
                 return vector;
             } else {
-                double[] vector = fetchEmbedding(skill);
+                double[] vector = fetchEmbeddingNomicv15(skill.toLowerCase());
                 saveCvSkillEmbedding(skill, vector);
                 return vector;
             }
@@ -91,7 +91,7 @@ public class EmbedService {
                 }
                 return vector;
             } else {
-                double[] vector = fetchEmbedding(skill);
+                double[] vector = fetchEmbeddingNomicv15(skill.toLowerCase());
                 saveJobSkillEmbedding(skill, vector);
                 return vector;
             }

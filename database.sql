@@ -71,7 +71,6 @@ CREATE TABLE Payment (
                          PRIMARY KEY (payment_id),
                          FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
-
 -- Bảng Phản hồi (Feedback), liên kết đến User
 CREATE TABLE FeedBack (
                           feedback_id INT NOT NULL AUTO_INCREMENT,
@@ -82,7 +81,6 @@ CREATE TABLE FeedBack (
                           PRIMARY KEY (feedback_id),
                           FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
-
 -- Bảng CV, liên kết đến User
 CREATE TABLE CV (
                     id INT NOT NULL AUTO_INCREMENT,
@@ -94,8 +92,6 @@ CREATE TABLE CV (
                     PRIMARY KEY (id),
                     FOREIGN KEY (user_id) REFERENCES User(user_id)
 );
-
--- Bảng Công việc (Job), liên kết đến JobCategory
 CREATE TABLE Job (
                      job_id INT NOT NULL AUTO_INCREMENT,
                      cv_id int,
@@ -147,7 +143,6 @@ CREATE TABLE User_Favorite_Course (
                                       FOREIGN KEY (user_id) REFERENCES User(user_id),
                                       FOREIGN KEY (course_id) REFERENCES Course(course_id)
 );
-
 -- Bảng Nội dung (Content)
 CREATE TABLE StaticPage (
                             id INT NOT NULL AUTO_INCREMENT,
@@ -200,14 +195,12 @@ CREATE TABLE user_subscription_history (
                                            FOREIGN KEY (user_id) REFERENCES User(user_id),
                                            FOREIGN KEY (subscription_id) REFERENCES Subscription(subscription_id)
 );
-
 -- job category
 CREATE TABLE occupation_groups(  -- domain or aria
                                   id INT AUTO_INCREMENT PRIMARY KEY,
                                   name VARCHAR(100) NOT NULL,
                                   status nvarchar(100)
 );
-
 CREATE TABLE occupation (
                             id INT AUTO_INCREMENT PRIMARY KEY,
                             name VARCHAR(100) NOT NULL,
@@ -215,7 +208,6 @@ CREATE TABLE occupation (
                             status nvarchar(100),
                             FOREIGN KEY (occupation_groups_id) REFERENCES occupation_groups(id)
 );
-
 CREATE TABLE specializations (
                                  id INT AUTO_INCREMENT PRIMARY KEY,
                                  name VARCHAR(100) NOT NULL,
@@ -233,38 +225,70 @@ CREATE TABLE job_specializations (
 );
 create table user_cv_skills(
                                id INT AUTO_INCREMENT PRIMARY KEY,
-                               skill nvarchar(100),
+                               skill nvarchar(255),
                                cv_id int ,
                                FOREIGN KEY (cv_id) REFERENCES CV(id) on delete cascade
 );
 create table user_cv_skills_embedding(
                                          id INT AUTO_INCREMENT PRIMARY KEY,
-                                         skill nvarchar(100),
+                                         skill nvarchar(255),
                                          embedding_json JSON
 );
 create table job_des_skills(
                                id INT AUTO_INCREMENT PRIMARY KEY,
-                               skill nvarchar(100),
+                               skill nvarchar(255),
                                job_id int ,
                                FOREIGN KEY (job_id) REFERENCES job(job_id) on delete cascade
 );
+CREATE TABLE user_favorite_missing_skill (
+	id int AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    skill_id INT NOT NULL,
+    status nvarchar(100),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (skill_id) REFERENCES job_des_skills(id)
+);
 create table job_des_skills_embedding(
                                          id INT AUTO_INCREMENT PRIMARY KEY,
-                                         skill nvarchar(100),
+                                         skill nvarchar(255),
                                          embedding_json JSON
 );
-create table job_cv_skills_score(
-                                    id INT AUTO_INCREMENT PRIMARY KEY,
-                                    job_skill int ,
-                                    cv_skill int ,
-                                    score double,
-                                    FOREIGN KEY (job_skill) REFERENCES job_des_skills(id) on delete cascade,
-                                    FOREIGN KEY (cv_skill) REFERENCES user_cv_skills(id) on delete cascade
+CREATE TABLE job_cv_skills_score (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    job_skill INT,
+    cv_skill INT,
+    score DOUBLE,
+    FOREIGN KEY (job_skill)
+        REFERENCES job_des_skills (id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (cv_skill)
+        REFERENCES user_cv_skills (id)
+        ON DELETE CASCADE
 );
+create table job_match_embedding(
+                                         id INT AUTO_INCREMENT PRIMARY KEY,
+                                         `text` nvarchar(255),
+                                         embedding_json JSON
+);
+CREATE TABLE job_cv_score (
+
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    job_id INT,
+    cv_id INT,
+    score DOUBLE,
+    FOREIGN KEY (job_id)
+        REFERENCES job (job_id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (cv_id)
+        REFERENCES CV (id)
+        ON DELETE CASCADE
+);
+
 INSERT INTO Subscription (type, status, subscription_name, price) VALUES
-(1, 'active', 'Trial', 0),
-(2, 'active', 'Basic Monthly', 100000),
-(3, 'active', 'Premium Monthly', 200000);
+                                                                      (1, 'active', 'Trial', 0),
+                                                                      (2, 'active', 'Basic Monthly', 100000),
+                                                                      (3, 'active', 'Premium Monthly', 200000);
 INSERT INTO `skill_gap_guide`.`role`(`name`)VALUES    ('System Admin');
 INSERT INTO `skill_gap_guide`.`role`(`name`)VALUES    ('Content Manager');
 INSERT INTO `skill_gap_guide`.`role`(`name`)VALUES    ('Finance Admin');
@@ -350,6 +374,3 @@ Cải thiện chất lượng dịch vụ và trải nghiệm người dùng
 Gửi thông báo liên quan đến khóa học, cập nhật hoặc ưu đãi (nếu bạn đồng ý)','2024-06-17',1),
     ('Terms','Chấp nhận điều khoản','Bằng cách truy cập và sử dụng website của chúng tôi, bạn đồng ý tuân thủ các điều khoản dưới đây.','2024-06-17',1)
 ;
-
-
-

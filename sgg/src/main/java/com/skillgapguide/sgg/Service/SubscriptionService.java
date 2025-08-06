@@ -4,6 +4,7 @@ import com.skillgapguide.sgg.Dto.UserSubscriptionRequest;
 import com.skillgapguide.sgg.Entity.Subscription;
 import com.skillgapguide.sgg.Entity.User;
 import com.skillgapguide.sgg.Entity.UserSubscriptionHistory;
+import com.skillgapguide.sgg.Exception.SubscriptionAlreadyExistsException;
 import com.skillgapguide.sgg.Repository.SubscriptionRepository;
 import com.skillgapguide.sgg.Repository.UserRepository;
 import com.skillgapguide.sgg.Repository.UserSubscriptionHistoryRepository;
@@ -71,5 +72,16 @@ public class SubscriptionService {
         newSubscription.setStatus(subscription.getStatus());
         subscriptionRepository.save(newSubscription);
         return newSubscription;
+    }
+    public Subscription createNewSubscription(Subscription subscription) {
+        if (subscriptionRepository.existsSubscriptionBySubscriptionName(subscription.getSubscriptionName())) {
+            throw new SubscriptionAlreadyExistsException("Gói cước với tên " + subscription.getSubscriptionName() + " đã tồn tại");
+        }
+        Subscription newSubscription = new Subscription();
+        newSubscription.setSubscriptionName(subscription.getSubscriptionName());
+        newSubscription.setType(subscription.getType());
+        newSubscription.setPrice(subscription.getPrice());
+        newSubscription.setStatus(subscription.getStatus());
+        return subscriptionRepository.save(newSubscription);
     }
 }

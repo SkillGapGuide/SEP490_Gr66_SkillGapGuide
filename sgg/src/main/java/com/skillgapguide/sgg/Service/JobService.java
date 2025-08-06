@@ -9,6 +9,8 @@ import com.skillgapguide.sgg.Entity.*;
 import com.skillgapguide.sgg.Repository.*;
 import com.skillgapguide.sgg.Response.EHttpStatus;
 import com.skillgapguide.sgg.Response.Response;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -43,7 +45,7 @@ public class JobService {
     private JobRepository jobRepository;
     @Autowired
     private AuditLogRepository auditLogRepository;
-    private final String UPLOAD_DIR = "D:/JdData/";
+    private final String UPLOAD_DIR = "C:/JdData/";
     public List<String> loadMultiFile(MultipartFile[] files){
         jobDeleteService.deleteJob(); // delete job
         jobDeleteService.deleteFileJobDes(); // delete file job description
@@ -85,6 +87,12 @@ public class JobService {
             jobMetadata.setFileType(fileExtension);
             jobMetadata.setUploadDate(LocalDateTime.now());
             jobDesFileRepository.save(jobMetadata);
+            AuditLog auditLog = new AuditLog();
+            auditLog.setUserId(userId);
+            auditLog.setAction("UPLOAD_JOB_DESCRIPTION");
+            auditLog.setDescription("User uploaded job description file: " + fileName);
+            auditLog.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+            auditLogRepository.save(auditLog);
             return "File JD đã được upload thành công: " + fileName;
         } catch (IOException e) {
             e.printStackTrace();
@@ -92,33 +100,55 @@ public class JobService {
         }
     }
 
-    public static String extractTextFromPdf(String filePath) throws IOException {
+    public static String extractTextFromFile(String filePath, String fileType) throws IOException {
         try {
-            StringBuilder text = new StringBuilder();
-            PdfDocument pdfDoc = new PdfDocument(new PdfReader(filePath));
-            int pages = pdfDoc.getNumberOfPages();
-            for (int i = 1; i <= pages; i++) {
-                text.append(PdfTextExtractor.getTextFromPage(pdfDoc.getPage(i)));
+            if (fileType.equals("pdf")) {
+                StringBuilder text = new StringBuilder();
+                PdfDocument pdfDoc = new PdfDocument(new PdfReader(filePath));
+                int pages = pdfDoc.getNumberOfPages();
+                for (int i = 1; i <= pages; i++) {
+                    text.append(PdfTextExtractor.getTextFromPage(pdfDoc.getPage(i)));
+                }
+                pdfDoc.close();
+                return text.toString();
+            } else if (fileType.equals("docx")) {
+                try (XWPFDocument doc = new XWPFDocument(Files.newInputStream(Paths.get(filePath)))) {
+                    XWPFWordExtractor extractor = new XWPFWordExtractor(doc);
+                    return extractor.getText();
+                }
+            } else {
+                throw new IllegalArgumentException("Unsupported file type: " + filePath);
             }
-            pdfDoc.close();
-            return text.toString();
         } catch (IOException ioException) {
-            throw new IOException(ioException.getMessage());
+            ioException.printStackTrace();
+            return "Upload file JD thất bại";
         }
     }
 
-    public void extractJd(String filePath, int userId, String fileName) throws IOException {
-        String text = extractTextFromPdf(filePath);
+    public void extractJd(String filePath, int userId, String fileType) throws IOException {
+        String text = extractTextFromFile(filePath,fileType);
             try {
-                String prompt = "Hãy phân tích job description dưới đây và trích xuất tất cả các yêu cầu kỹ năng của ứng viên, title, description, company. Chỉ trả về kết quả dưới dạng JSON theo mẫu sau, không thêm bất kỳ nội dung nào khác:\n" +
-                        "{\n" +
-                        "\"skills\": [\n" +
-                        "],\n" +
-                        "\"title\": \"\",\n" +
-                        "\"description\": \"\",\n" +
-                        "\"company\": \"\"" +
-                        "}\n" +
-                        "JD:\n" + text;
+                String prompt = """
+Hãy phân tích nội dung JD dưới đây và trích xuất các thông tin sau:
+
+- Tên vị trí (title)
+- Mô tả công việc (description)
+- Tên công ty (company)
+- Danh sách tất cả các kỹ năng yêu cầu (skills)
+
+⚠️ Yêu cầu:
+- Nếu JD bằng tiếng Việt, kết quả phải giữ nguyên bằng tiếng Việt (không dịch sang tiếng Anh).
+- Trả về đúng định dạng JSON như sau, không thêm bất kỳ nội dung nào khác ngoài JSON:
+
+{
+  "title": "",
+  "description": "",
+  "company": "",
+  "skills": []
+}
+
+JD:
+""" + text;
 
                 LMStudioService service = new LMStudioService(WebClient.builder());
                 String content = service.callMistralApi(prompt).block();
@@ -136,15 +166,11 @@ public class JobService {
                     jobNew.setCvId(cv.getId());
                     jobRepository.save(jobNew);
 
-                    saveJobSkillsToDb(skills,jobNew.getJobId());
-                    AuditLog auditLog = new AuditLog();
-                    auditLog.setUserId(userId);
-                    auditLog.setAction("UPLOAD_JOB_DESCRIPTION");
-                    auditLog.setDescription("User uploaded job description file: " + fileName);
-                    auditLog.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-                    auditLogRepository.save(auditLog);
+                    saveJobSkillsToDb(skills, jobNew.getJobId());
+
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
+                    throw new IllegalStateException("Lỗi khi phân tích JD: " + e.getMessage());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -185,7 +211,7 @@ public class JobService {
             for (JobDesFile jobDesFile : jobDesFiles) {
                 Path path = Paths.get(jobDesFile.getFilePath());
                 String fileName = jobDesFile.getFileName();
-                extractJd(path.toAbsolutePath().toString(), userId, fileName);
+                extractJd(path.toAbsolutePath().toString(), userId, jobDesFile.getFileType());
             }
         } else if(option == 2|| option== 3){
             List<Job> jobList = jobRepository.getJobsByCvId(cv.getId());
@@ -193,13 +219,20 @@ public class JobService {
                 throw new IllegalStateException("Chưa upload job description");
             }
             for( Job job : jobList) {
-                String prompt = "Hãy phân tích job description dưới đây và trích xuất tất cả các yêu cầu kỹ năng của ứng viên. Chỉ trả về kết quả dưới dạng JSON theo mẫu sau, không thêm bất kỳ nội dung nào khác:\n" +
-                        "{\n" +
-                        "\"skills\": [\n" +
-                        "]" +
-                        "}\n" +
-                        "JD:\n" + job.getDescription();
+                String prompt = """
+Hãy phân tích nội dung JD dưới đây và trích xuất tất cả các kỹ năng yêu cầu của ứng viên.
 
+⚠️ Yêu cầu:
+- Giữ nguyên kỹ năng theo ngôn ngữ gốc của JD (nếu JD là tiếng Việt thì không được dịch sang tiếng Anh).
+- Chỉ trả về duy nhất định dạng JSON như sau, không thêm bất kỳ nội dung nào khác:
+
+{
+  "skills": [
+  ]
+}
+
+JD:
+""" + job.getDescription();
                 LMStudioService service = new LMStudioService(WebClient.builder());
                 String content = service.callMistralApi(prompt).block();
                 try {
