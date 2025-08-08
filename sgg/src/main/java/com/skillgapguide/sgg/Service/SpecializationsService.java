@@ -26,7 +26,8 @@ public class SpecializationsService {
                 specialization.getName(),
                 specialization.getOccupation().getId(),
                 specialization.getOccupation().getName(),
-                specialization.getStatus()
+                specialization.getStatus(),
+                specialization.getUrl()
         );
     }
 
@@ -56,12 +57,17 @@ public class SpecializationsService {
             throw new IllegalArgumentException("Tên chuyên ngành đã tồn tại");
         }
 
+        if (specializationRepository.findByUrlIgnoreCase(dto.getUrl().trim()).isPresent()) {
+            throw new IllegalArgumentException("Url đã tồn tại");
+        }
+
         JobGroup occupation = occupationRepository.findById(dto.getOccupationId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy ngành nghề với ID: " + dto.getOccupationId()));
 
         Specialization specialization = new Specialization();
         specialization.setName(dto.getName().trim());
         specialization.setStatus(dto.getStatus().trim());
+        specialization.setUrl(dto.getUrl().trim());
         specialization.setOccupation(occupation);
 
         Specialization saved = specializationRepository.save(specialization);
@@ -70,6 +76,7 @@ public class SpecializationsService {
         result.setId(saved.getId());
         result.setName(saved.getName());
         result.setStatus(saved.getStatus());
+        result.setUrl(saved.getUrl());
         result.setOccupationId(occupation.getId());
         result.setOccupationName(occupation.getName());
 
@@ -95,12 +102,19 @@ public class SpecializationsService {
             throw new IllegalArgumentException("Tên chuyên ngành đã tồn tại.");
         }
 
+        Optional<Specialization> existingUrl = specializationRepository.findByUrlIgnoreCase(dto.getUrl().trim());
+        if (existingUrl.isPresent() && !existingUrl.get().getId().equals(id)) {
+            throw new IllegalArgumentException("Url đã tồn tại.");
+        }
+
         JobGroup occupation = occupationRepository.findById(dto.getOccupationId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy ngành nghề với ID: " + dto.getOccupationId()));
 
         specialization.setName(dto.getName().trim());
         specialization.setStatus(dto.getStatus().trim());
+        specialization.setUrl(dto.getUrl().trim());
         specialization.setOccupation(occupation);
+
 
          specializationRepository.save(specialization);
     }
@@ -139,7 +153,8 @@ public class SpecializationsService {
                         specialization.getName(),
                         specialization.getOccupation().getId(),
                         specialization.getOccupation().getName(),
-                        specialization.getStatus()
+                        specialization.getStatus(),
+                        specialization.getUrl()
                 ))
                 .collect(Collectors.toList());
     }
@@ -157,7 +172,8 @@ public class SpecializationsService {
                 s.getName(),
                 s.getOccupation().getId(),
                 s.getOccupation().getName(),
-                s.getStatus()
+                s.getStatus(),
+                s.getUrl()
         );
     }
 }

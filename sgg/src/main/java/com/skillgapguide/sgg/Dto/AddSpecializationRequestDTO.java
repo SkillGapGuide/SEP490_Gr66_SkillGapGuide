@@ -11,4 +11,5 @@ public class AddSpecializationRequestDTO {
     private String name;
     private Integer occupationId;
     private String status;
+    private String url;
 }
