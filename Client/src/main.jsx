@@ -35,9 +35,9 @@ if (token) {
 }
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  
     <UserProvider>
       <App />
     </UserProvider>
-  </StrictMode>
+  
 )

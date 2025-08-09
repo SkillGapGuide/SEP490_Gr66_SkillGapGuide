@@ -1,66 +1,71 @@
 import { Link, useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
-import { useState, useEffect, memo, useRef ,useContext } from "react";
+import { useState, useEffect, memo, useRef, useContext } from "react";
 import { UserContext } from "../context/UserContext";
+import defaultAvatar from "../assets/default_avatar.png";
+
 const Header = memo(function Header() {
-  const [openMenu, setOpenMenu] = useState(null);
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [userAvatar, setUserAvatar] = useState("/default_avatar.png"); // Default avatar
+  const [userAvatar, setUserAvatar] = useState(defaultAvatar);
   const profileMenuRef = useRef(null);
-const { user } = useContext(UserContext); // <-- Lấy user từ context
- 
+  const { user } = useContext(UserContext);
+
+  // --- helper: chuẩn hoá avatar URL ---
+  const normalizeAvatar = (raw) => {
+    if (!raw) return null;
+    const url = String(raw).trim();
+
+    // data/blob url dùng luôn
+    if (url.startsWith("data:") || url.startsWith("blob:")) return url;
+
+    // http(s) đầy đủ (vd: lh3.googleusercontent.com)
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+
+    // còn lại coi như path tương đối từ BE -> ghép base
+    const base = import.meta.env.VITE_API_URL || "";
+    return `${base}/${url.replace(/^\/+/, "")}`;
+  };
+
   useEffect(() => {
     const checkLoginStatus = () => {
-      setIsLoggedIn(!!localStorage.getItem('token'));
+      setIsLoggedIn(!!localStorage.getItem("token"));
     };
-
-    // Kiểm tra khi component mount
     checkLoginStatus();
-
-    // Lắng nghe sự thay đổi từ event custom
-    window.addEventListener('authStateChanged', checkLoginStatus);
-
-    return () => {
-      window.removeEventListener('authStateChanged', checkLoginStatus);
-    };
+    window.addEventListener("authStateChanged", checkLoginStatus);
+    return () => window.removeEventListener("authStateChanged", checkLoginStatus);
   }, []);
 
   useEffect(() => {
-    // Click outside to close profile menu
     const handleClickOutside = (event) => {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
         setShowProfileMenu(false);
       }
     };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // set avatar từ context (có normalize + fallback default)
   useEffect(() => {
-    if (user && user.avatar) {
-      setUserAvatar(user.avatar);
-    } else {
-      setUserAvatar("/default-avatar.png");
-    }
+    const src = normalizeAvatar(user?.avatar) || defaultAvatar;
+    setUserAvatar(src);
   }, [user]);
 
   const handleLogout = async () => {
     try {
       await authService.logout();
       setIsLoggedIn(false);
-      navigate('/login');
+      navigate("/login");
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     }
   };
 
-  // Menu có submenu
   const menus = [
     { label: "Trang chủ", to: "/" },
+    { label: "Phân tích", to: "/analyze/upload" },
     {
       label: "Về chúng tôi",
       submenu: [
@@ -68,13 +73,7 @@ const { user } = useContext(UserContext); // <-- Lấy user từ context
         { label: "Liên hệ", to: "/contact" },
       ],
     },
-    {
-      label: "Thanh toán",
-      submenu: [
-        { label: "Học phí", to: "/pricing" },
-        { label: "Hỗ trợ", to: "/support" },
-      ],
-    },
+    { label: "Gói dịch vụ", to: "/servicepayment" },
   ];
 
   return (
@@ -87,25 +86,17 @@ const { user } = useContext(UserContext); // <-- Lấy user từ context
 
         {/* Menu */}
         <ul className="flex-1 flex items-center gap-8 text-white font-normal text-lg">
-          {menus.map((menu, i) =>
+          {menus.map((menu) =>
             menu.submenu ? (
-              <li
-                key={menu.label}
-                className="relative group"
-                onMouseEnter={() => setOpenMenu(i)}
-                onMouseLeave={() => setOpenMenu(null)}
-              >
+              <li key={menu.label} className="relative group">
                 <span className="flex items-center gap-1 hover:text-blue-100 cursor-pointer py-2">
                   {menu.label}
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </span>
-                {/* Dropdown with padding to prevent hover gap */}
-                <div className="absolute left-0 top-full pt-2">
-                  <ul className={`bg-white rounded-lg shadow-xl text-gray-700 overflow-hidden ${
-                    openMenu === i ? "block" : "hidden"
-                  }`}>
+                <div className="absolute left-0 top-full transform translate-y-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <ul className="bg-white rounded-lg shadow-xl text-gray-700 overflow-hidden min-w-[180px]">
                     {menu.submenu.map((item) => (
                       <li key={item.to}>
                         <Link
@@ -121,10 +112,7 @@ const { user } = useContext(UserContext); // <-- Lấy user từ context
               </li>
             ) : (
               <li key={menu.label}>
-                <Link
-                  to={menu.to}
-                  className="hover:underline"
-                >
+                <Link to={menu.to} className="hover:underline">
                   {menu.label}
                 </Link>
               </li>
@@ -132,32 +120,44 @@ const { user } = useContext(UserContext); // <-- Lấy user từ context
           )}
         </ul>
 
-        {/* Button Đăng ký/Đăng nhập/Profile */}
+        {/* Login / Register / Profile */}
         <div className="flex items-center gap-2 ml-4">
           {!isLoggedIn ? (
             <>
-              <Link to="/login" className="bg-white text-blue-900 font-semibold rounded-xl px-5 py-1.5 shadow hover:bg-blue-100 transition border border-blue-200">
+              <Link
+                to="/login"
+                className="bg-white text-blue-900 font-semibold rounded-xl px-5 py-1.5 shadow hover:bg-blue-100 transition border border-blue-200"
+              >
                 Đăng Nhập
               </Link>
-              <Link to="/register" className="bg-white text-blue-900 font-semibold rounded-xl px-5 py-1.5 shadow hover:bg-blue-100 transition border border-blue-200">
+              <Link
+                to="/register"
+                className="bg-white text-blue-900 font-semibold rounded-xl px-5 py-1.5 shadow hover:bg-blue-100 transition border border-blue-200"
+              >
                 Đăng Kí
               </Link>
             </>
           ) : (
             <div className="flex items-center gap-3">
               <div className="relative" ref={profileMenuRef}>
-                <button 
+                <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                   className="flex items-center gap-2 bg-white rounded-full p-1 hover:ring-2 hover:ring-blue-300 transition"
                 >
-                  <img 
-                    src={userAvatar} 
-                    alt="Profile" 
+                  <img
+                    src={userAvatar}
+                    alt="Profile"
                     className="w-8 h-8 rounded-full object-cover"
+                    referrerPolicy="no-referrer"
+                    loading="lazy"
+                    decoding="async"
+                    onError={(e) => {
+                      if (e.currentTarget.src !== defaultAvatar) {
+                        e.currentTarget.src = defaultAvatar;
+                      }
+                    }}
                   />
                 </button>
-
-                {/* Profile Dropdown Menu */}
                 {showProfileMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl z-50">
                     <div className="py-1">

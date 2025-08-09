@@ -2,18 +2,19 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AnalysisResult from "./AddCVWriteJobDescription";
 import TopMenu from "./TopMenu";
+import { useCVWizardStore } from "../../stores/cvWizardStore"; // Sửa ở đây!
 import { useAnalysisStore } from "../../stores/useAnalysisStore";
 
-// Nếu reload vào result mà chưa có data thì quay lại upload
+// Chỉ redirect nếu chưa upload CV
 export default function AnalyzeResult() {
   const navigate = useNavigate();
-  const skills = useAnalysisStore((s) => s.skills);
+  const cvUploaded = useCVWizardStore((s) => s.cvUploaded); // Đổi sang dùng cvUploaded
 
   useEffect(() => {
-    if (!skills || skills.length === 0) {
+    if (!cvUploaded) {
       navigate("/analyze/upload");
     }
-  }, [skills, navigate]);
+  }, [cvUploaded, navigate]);
 
   return (
     <div>

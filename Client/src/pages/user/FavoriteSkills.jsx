@@ -4,9 +4,11 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { FiUser, FiHeart, FiCheckCircle } from "react-icons/fi";
 import { FaChalkboardTeacher } from "react-icons/fa";
 import { userService } from "../../services/userService"; // Đảm bảo path đúng
+import SidebarProfile from "../../components/user/SidebarProfile";
 
 const FavoriteSkills = () => {
-  const userId = 5; // hoặc lấy từ context/auth nếu có
+  const userId = 2
+  ; // hoặc lấy từ context/auth nếu có
   const [skills, setSkills] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1); // 🟢 page bắt đầu từ 1
@@ -47,52 +49,12 @@ const FavoriteSkills = () => {
     setSkills(updated);
   };
 
-  const sidebarLinks = [
-    {
-      label: "Thông tin tài khoản",
-      icon: <FiUser className="text-purple-500" />,
-      to: "/profile",
-    },
-    {
-      label: "Khóa học yêu thích",
-      icon: <FaChalkboardTeacher className="text-black" />,
-      to: "/favouriteCourses",
-    },
-    {
-      label: "Kỹ năng yêu thích",
-      icon: <FiHeart className="text-sky-500" />,
-      to: "/favouriteskills",
-    },
-    {
-      label: "Trạng thái tài khoản",
-      icon: <FiCheckCircle className="text-blue-700" />,
-      to: "/account-status",
-    },
-  ];
+ 
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 flex gap-8">
       {/* Sidebar */}
-      <div className="w-[230px] bg-white rounded-xl shadow-md py-6 flex flex-col justify-between text-[15px] font-medium">
-        <div className="space-y-4">
-          {sidebarLinks.map((item, index) => (
-            <Link
-              key={index}
-              to={item.to}
-              className={`flex items-center gap-2 p-3 rounded hover:bg-gray-100 transition ${
-                location.pathname === item.to
-                  ? "font-bold text-indigo-700 bg-indigo-50"
-                  : "text-gray-700"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                {item.icon}
-                <span>{item.label}</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
+      <SidebarProfile/>
 
       {/* Main content */}
       <div className="flex-1">
@@ -108,27 +70,35 @@ const FavoriteSkills = () => {
         </div>
 
         <div className="space-y-4">
-          {filteredSkills.map((skill, index) => (
-            <div
-              key={index}
-              className="relative border border-gray-200 bg-white rounded-xl p-4 shadow-sm hover:shadow transition"
-            >
-              <p className="text-sm text-blue-600 font-semibold mb-1">
-                {skill.category}
-              </p>
-              <h3 className="text-base font-medium text-gray-900 mb-1">
-                {skill.title}
-              </h3>
-              <p className="text-sm text-gray-600">{skill.description}</p>
-              <button
-                onClick={() => handleDelete(index)}
-                className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
-                title="Xóa kỹ năng"
-              >
-                <AiOutlineDelete className="w-5 h-5" />
-              </button>
-            </div>
-          ))}
+          
+           {filteredSkills.length === 0 ? (
+    <div className="text-center text-gray-400 py-10 italic">
+      <FiHeart className="mx-auto mb-2 text-3xl text-pink-400" />
+      Bạn chưa có kỹ năng yêu thích nào!
+    </div>
+  ) : (
+    filteredSkills.map((skill, index) => (
+      <div
+        key={index}
+        className="relative border border-gray-200 bg-white rounded-xl p-4 shadow-sm hover:shadow transition"
+      >
+        <p className="text-sm text-blue-600 font-semibold mb-1">
+          {skill.category}
+        </p>
+        <h3 className="text-base font-medium text-gray-900 mb-1">
+          {skill.title}
+        </h3>
+        <p className="text-sm text-gray-600">{skill.description}</p>
+        <button
+          onClick={() => handleDelete(index)}
+          className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
+          title="Xóa kỹ năng"
+        >
+          <AiOutlineDelete className="w-5 h-5" />
+        </button>
+      </div>
+    ))
+  )}
         </div>
 
         {/* Pagination */}

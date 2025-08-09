@@ -1,6 +1,7 @@
 import { apiService } from './api';
 import { ENDPOINTS } from '../constants/apiEndpoints';
-
+import axios from "axios";
+const BASE_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:8080';
 export const paymentService = {
   // /api/payment/vnpay-return?param1=xxx&param2=yyy ...
   vnpayReturn: async (params) => {
@@ -34,18 +35,35 @@ export const paymentService = {
     );
   },
 
-  // /api/payment/export/pdf
-  exportPdf: async () => {
-    return await apiService.get(ENDPOINTS.payment.exportPdf, { responseType: 'blob' });
+ 
+
+
+exportPdf: async () => {
+    // Không truyền responseType vào params
+    const token = localStorage.getItem("token");
+    return await axios.get(
+      BASE_URL + "/api/payment/export/pdf",
+      {
+        responseType: "blob",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
+    );
   },
 
-  // /api/payment/export/excel
   exportExcel: async () => {
-    return await apiService.get(ENDPOINTS.payment.exportExcel, { responseType: 'blob' });
+    const token = localStorage.getItem("token");
+    return await axios.get(
+      BASE_URL + "/api/payment/export/excel",
+      {
+        responseType: "blob",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
+    );
   },
 
-  // /api/payment/create?amount=xxx
-  create: async (amount) => {
-    return await apiService.get(ENDPOINTS.payment.create,  { amount } );
+
+  // /api/payment/create?subscriptionId = 2 ? 3
+  create: async (subscriptionId) => {
+    return await apiService.get(ENDPOINTS.payment.create,  { subscriptionId } );
   },
 };
