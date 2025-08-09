@@ -13,4 +13,5 @@ public class SpecializationDTO {
     private Integer occupationId;
     private String occupationName;
     private String status;
+    private String url;
 }

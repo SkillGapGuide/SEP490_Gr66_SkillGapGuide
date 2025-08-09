@@ -279,7 +279,7 @@ public class PaymentController {
             history.setUser(user);
             history.setSubscription(newSubscription);
             history.setStartDate(now);
-            history.setEndDate(now.plusDays(1));
+            history.setEndDate(now.plusDays(30));
             history.setStatus("ACTIVE");
             history.setCreatedAt(now);
             history.setUpdatedAt(now);
@@ -333,5 +333,8 @@ public class PaymentController {
     public Response<?> getQr(@RequestParam int typeRegister){
         return new Response<>(EHttpStatus.OK,paymentService.getPaymentQr(typeRegister));
     }
-
+    @PostMapping("/checkPayment")
+    public  Response<?> checkPayment(){
+        return  new Response<>(EHttpStatus.OK,paymentService.checkPayment());
+    }
 }
