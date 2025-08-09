@@ -7,7 +7,8 @@ import { userService } from "../../services/userService"; // Đảm bảo path �
 import SidebarProfile from "../../components/user/SidebarProfile";
 
 const FavoriteSkills = () => {
-  const userId = 5; // hoặc lấy từ context/auth nếu có
+  const userId = 2
+  ; // hoặc lấy từ context/auth nếu có
   const [skills, setSkills] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1); // 🟢 page bắt đầu từ 1
@@ -69,27 +70,35 @@ const FavoriteSkills = () => {
         </div>
 
         <div className="space-y-4">
-          {filteredSkills.map((skill, index) => (
-            <div
-              key={index}
-              className="relative border border-gray-200 bg-white rounded-xl p-4 shadow-sm hover:shadow transition"
-            >
-              <p className="text-sm text-blue-600 font-semibold mb-1">
-                {skill.category}
-              </p>
-              <h3 className="text-base font-medium text-gray-900 mb-1">
-                {skill.title}
-              </h3>
-              <p className="text-sm text-gray-600">{skill.description}</p>
-              <button
-                onClick={() => handleDelete(index)}
-                className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
-                title="Xóa kỹ năng"
-              >
-                <AiOutlineDelete className="w-5 h-5" />
-              </button>
-            </div>
-          ))}
+          
+           {filteredSkills.length === 0 ? (
+    <div className="text-center text-gray-400 py-10 italic">
+      <FiHeart className="mx-auto mb-2 text-3xl text-pink-400" />
+      Bạn chưa có kỹ năng yêu thích nào!
+    </div>
+  ) : (
+    filteredSkills.map((skill, index) => (
+      <div
+        key={index}
+        className="relative border border-gray-200 bg-white rounded-xl p-4 shadow-sm hover:shadow transition"
+      >
+        <p className="text-sm text-blue-600 font-semibold mb-1">
+          {skill.category}
+        </p>
+        <h3 className="text-base font-medium text-gray-900 mb-1">
+          {skill.title}
+        </h3>
+        <p className="text-sm text-gray-600">{skill.description}</p>
+        <button
+          onClick={() => handleDelete(index)}
+          className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
+          title="Xóa kỹ năng"
+        >
+          <AiOutlineDelete className="w-5 h-5" />
+        </button>
+      </div>
+    ))
+  )}
         </div>
 
         {/* Pagination */}

@@ -30,9 +30,18 @@ export default memo(function LoginForm() {
         // First set in context
         setUser(userData);
         // Then explicitly store in localStorage
-
+  // Điều hướng theo role
+      if (userData.role === "System Admin") {
+        navigate("/admin");
+      } else if (userData.role === "Finance Admin") {
+        navigate("/finance");
+      } else if (userData.role === "Content Manager") {
+        navigate("/content-manager");
+      } else {
+        navigate("/about-us");
+      }
         console.log("🔐 User saved:", userData);
-        navigate("/");
+       
       } catch (error) {
         console.error("Login failed:", error);
         setLoginError(error.message);
@@ -49,7 +58,7 @@ export default memo(function LoginForm() {
 
       // Then explicitly store in localStorage
 
-      navigate("/"); // or wherever you want to redirect
+     
     } catch (error) {
       console.error("Google login failed:", error);
       setLoginError("Đăng nhập thất bại: " + error.message);

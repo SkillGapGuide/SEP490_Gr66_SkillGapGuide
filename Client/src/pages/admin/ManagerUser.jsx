@@ -60,15 +60,11 @@ function ManagerUser() {
   }, [search, role, status, page, pageSize]); // Update dependencies
 
   // Update view detail handler to fetch user details
-  const handleViewDetail = async (user) => {
-    try {
-      const userDetail = await userAdminService.getUserByEmail(user.email);
-      setSelectedUser(userDetail);
-      setShowDetail(true);
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-    }
-  };
+  const handleViewDetail = (user) => {
+  setSelectedUser(user);
+  setShowDetail(true);
+};
+
 
   // Xử lý sort click
   // const handleSort = (field) => {

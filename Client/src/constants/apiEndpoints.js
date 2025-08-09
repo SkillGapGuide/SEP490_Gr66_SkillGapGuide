@@ -143,7 +143,7 @@ export const ENDPOINTS = {
     getCommentSkill:"/api/gap/getCommentSkill",
   },
   subscription: {
-    createSubscription: "/api/subscription/create",
+    createSubscription: "/api/subscription/create-subscription",
     getSubscriptionById: "/api/subscription/get-subscription-by-id",
     getAllSubscriptions: "/api/subscription/get-all-subscriptions",
     updateSubscription: "/api/subscription/edit-subscription",

@@ -57,6 +57,7 @@ const SuggestedCourses = () => {
 
   if (isCourseLoading) {
     return (
+      
       <div className="flex flex-col items-center justify-center min-h-[60vh] bg-white">
         <BookOpen className="animate-bounce mb-2 text-blue-500" size={36} />
         <span className="animate-pulse text-blue-700 font-semibold text-base">
@@ -67,8 +68,10 @@ const SuggestedCourses = () => {
   }
 
   return (
-    <div className="bg-white min-h-screen p-4 md:p-6 max-w-6xl mx-auto">
-      <TopMenu />
+    <>
+    <TopMenu />
+     <div className="bg-white min-h-screen p-4 md:p-6 max-w-6xl mx-auto ">
+    
       <h2 className="text-2xl font-bold text-blue-700 mb-6 flex gap-2 items-center">
         <BookOpen className="text-blue-500" /> Danh sách khóa học gợi ý
       </h2>
@@ -254,7 +257,10 @@ const SuggestedCourses = () => {
         </div>
       )}
     </div>
+    </>
+   
   );
 };
+
 
 export default SuggestedCourses;

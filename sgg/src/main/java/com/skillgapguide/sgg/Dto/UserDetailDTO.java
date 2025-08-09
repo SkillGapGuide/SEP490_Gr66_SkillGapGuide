@@ -14,6 +14,7 @@ public class UserDetailDTO {
     private String role;
     private String subscription;
     private String status;
+    public UserDetailDTO() {}
 
     public UserDetailDTO(String name, String email, String phone, String role, String subscription, String status) {
         this.name = name;

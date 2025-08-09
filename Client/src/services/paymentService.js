@@ -62,8 +62,8 @@ exportPdf: async () => {
   },
 
 
-  // /api/payment/create?amount=xxx
-  create: async (amount) => {
-    return await apiService.get(ENDPOINTS.payment.create,  { amount } );
+  // /api/payment/create?subscriptionId = 2 ? 3
+  create: async (subscriptionId) => {
+    return await apiService.get(ENDPOINTS.payment.create,  { subscriptionId } );
   },
 };

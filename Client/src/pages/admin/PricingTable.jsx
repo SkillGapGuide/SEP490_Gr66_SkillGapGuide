@@ -1,15 +1,30 @@
 import { useState, useEffect } from "react";
-import { Pencil, X, BadgeCheck, BadgeX, Loader } from "lucide-react";
+import {
+  Pencil,
+  X,
+  BadgeCheck,
+  BadgeX,
+  Loader,
+  PlusCircle,
+} from "lucide-react";
 import { MdOutlinePriceChange } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import { subscriptionService } from "../../services/subscriptionService";
+import { showError, showSuccess } from "../../utils/alert";
 
 const PricingTable = () => {
   const [pricingPackages, setPricingPackages] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [editData, setEditData] = useState(null);
+  const [createData, setCreateData] = useState({
+    subscriptionName: "",
+    price: "",
+    status: "active",
+  });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     fetchSubscriptions();
@@ -28,18 +43,27 @@ const PricingTable = () => {
     }
   };
 
+  // Chỉnh sửa
   const handleEdit = (pkg) => {
     setEditData({
       ...pkg,
       price: pkg.price,
       subscriptionName: pkg.subscriptionName || pkg.name,
-      status: pkg.status || "ACTIVE"
+      status: pkg.status || "ACTIVE",
     });
     setShowEditModal(true);
   };
 
+  // Lưu chỉnh sửa
   const handleSave = async () => {
-    if (!editData) return;
+    if (!editData || editData.subscriptionName.length == 0 || !editData.price) {
+      showError("Vui lòng nhập đầy đủ thông tin các trường thông tin !");
+      return;
+    }
+    if (editData.price < 0) {
+      showError("Giá không được nhỏ hơn 0!");
+      return;
+    }
     try {
       setSaving(true);
       await subscriptionService.updateSubscription({
@@ -49,13 +73,76 @@ const PricingTable = () => {
         subscriptionName: editData.subscriptionName,
         status: editData.status,
       });
+      showSuccess("Cập nhật gói thành công!");
       setShowEditModal(false);
       setEditData(null);
       await fetchSubscriptions();
     } catch (err) {
-      alert("Cập nhật thất bại!");
+      showError("Cập nhật thất bại!");
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Hiện modal tạo mới
+  const handleShowCreate = () => {
+    setCreateData({
+      subscriptionName: "",
+      price: "",
+      status: "active",
+    });
+    setShowCreateModal(true);
+  };
+
+  // Lưu gói mới
+  const handleCreate = async () => {
+    if (!createData.subscriptionName || !createData.price) {
+      showError("Vui lòng nhập đầy đủ thông tin các trường thông tin !");
+      return;
+    }
+    if (createData.price < 0) {
+      showError("Giá không được nhỏ hơn 0!");
+      return;
+    }
+    try {
+      setCreating(true);
+      // Tìm type lớn nhất hiện tại
+      const maxType = Math.max(
+        0,
+        ...pricingPackages.map((x) => Number(x.type) || 0)
+      );
+      // Kiểm tra trùng tên gói với giá trùng
+      const isDuplicate = pricingPackages.some(
+        (x) =>
+          (x.subscriptionName?.trim().toLowerCase() ===
+            createData.subscriptionName.trim().toLowerCase() ||
+            x.name?.trim().toLowerCase() ===
+              createData.subscriptionName.trim().toLowerCase()) &&
+          String(x.price) === String(createData.price)
+      );
+      if (isDuplicate) {
+        showError("Tên gói và giá đã tồn tại!");
+        setCreating(false);
+        return;
+      }
+      await subscriptionService.createSubscription({
+        type: maxType + 1,
+        price: createData.price,
+        subscriptionName: createData.subscriptionName,
+        status: createData.status,
+      });
+      showSuccess("Tạo gói thành công!");
+      setShowCreateModal(false);
+      setCreateData({
+        subscriptionName: "",
+        price: "",
+        status: "active",
+      });
+      await fetchSubscriptions();
+    } catch (err) {
+      showError("Tạo mới thất bại!");
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -65,7 +152,15 @@ const PricingTable = () => {
       <div className="flex items-center gap-2 mb-6">
         <MdOutlinePriceChange className="text-indigo-600" size={32} />
         <h1 className="text-2xl font-bold text-indigo-800">Gói đánh giá</h1>
-        {loading && <Loader className="animate-spin text-indigo-500 ml-2" size={22} />}
+        {loading && (
+          <Loader className="animate-spin text-indigo-500 ml-2" size={22} />
+        )}
+        <button
+          onClick={handleShowCreate}
+          className="ml-auto flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 shadow transition"
+        >
+          <PlusCircle size={18} /> Tạo gói mới
+        </button>
       </div>
       {/* TABLE */}
       <div className="overflow-x-auto">
@@ -80,7 +175,10 @@ const PricingTable = () => {
               </th>
               <th className="border px-6 py-3 font-semibold">
                 <div className="flex items-center gap-2">
-                  <MdOutlinePriceChange className="inline text-pink-500" size={18} />
+                  <MdOutlinePriceChange
+                    className="inline text-pink-500"
+                    size={18}
+                  />
                   Mức giá (VNĐ)
                 </div>
               </th>
@@ -97,7 +195,10 @@ const PricingTable = () => {
           </thead>
           <tbody>
             {pricingPackages.map((pkg, index) => (
-              <tr key={pkg.subscriptionId || index} className="hover:bg-indigo-50 transition">
+              <tr
+                key={pkg.subscriptionId || index}
+                className="hover:bg-indigo-50 transition"
+              >
                 <td className="border px-6 py-3 font-semibold text-gray-800 flex items-center gap-2">
                   <BadgeCheck className="text-indigo-400" size={17} />
                   {pkg.subscriptionName || pkg.name}
@@ -122,7 +223,10 @@ const PricingTable = () => {
                     onClick={() => handleEdit(pkg)}
                     title="Chỉnh sửa gói"
                   >
-                    <Pencil className="text-blue-700 group-hover:scale-110 transition" size={18} />
+                    <Pencil
+                      className="text-blue-700 group-hover:scale-110 transition"
+                      size={18}
+                    />
                   </button>
                 </td>
               </tr>
@@ -154,7 +258,9 @@ const PricingTable = () => {
             </button>
             <div className="flex items-center gap-2 mb-2">
               <Pencil className="text-blue-700" size={20} />
-              <h2 className="text-lg font-bold text-indigo-800">Chỉnh sửa gói</h2>
+              <h2 className="text-lg font-bold text-indigo-800">
+                Chỉnh sửa gói
+              </h2>
             </div>
             <div className="flex flex-col gap-4">
               <div>
@@ -163,7 +269,12 @@ const PricingTable = () => {
                   type="text"
                   className="bg-blue-50 px-3 py-2 rounded text-sm w-full mt-1 border border-gray-200 focus:ring-2 focus:ring-blue-200"
                   value={editData.subscriptionName}
-                  onChange={e => setEditData({ ...editData, subscriptionName: e.target.value })}
+                  onChange={(e) =>
+                    setEditData({
+                      ...editData,
+                      subscriptionName: e.target.value,
+                    })
+                  }
                 />
               </div>
               <div>
@@ -173,7 +284,9 @@ const PricingTable = () => {
                   min={0}
                   className="bg-blue-50 px-3 py-2 rounded text-sm w-full mt-1 border border-gray-200 focus:ring-2 focus:ring-pink-100"
                   value={editData.price}
-                  onChange={e => setEditData({ ...editData, price: e.target.value })}
+                  onChange={(e) =>
+                    setEditData({ ...editData, price: e.target.value })
+                  }
                 />
               </div>
               <div>
@@ -183,9 +296,11 @@ const PricingTable = () => {
                     <input
                       type="radio"
                       name="status"
-                      value="ACTIVE"
-                      checked={editData.status === "ACTIVE"}
-                      onChange={() => setEditData({ ...editData, status: "ACTIVE" })}
+                      value="active"
+                      checked={editData.status === "active"}
+                      onChange={() =>
+                        setEditData({ ...editData, status: "active" })
+                      }
                       className="accent-green-600"
                     />
                     <span className="flex items-center gap-1 text-green-600">
@@ -196,9 +311,11 @@ const PricingTable = () => {
                     <input
                       type="radio"
                       name="status"
-                      value="INACTIVE"
-                      checked={editData.status === "INACTIVE"}
-                      onChange={() => setEditData({ ...editData, status: "INACTIVE" })}
+                      value="inactive"
+                      checked={editData.status === "inactive"}
+                      onChange={() =>
+                        setEditData({ ...editData, status: "inactive" })
+                      }
                       className="accent-gray-500"
                     />
                     <span className="flex items-center gap-1 text-gray-400">
@@ -212,8 +329,106 @@ const PricingTable = () => {
                 className="mt-2 bg-blue-700 text-white py-2 rounded font-semibold hover:bg-blue-800 flex items-center justify-center gap-2"
                 disabled={saving}
               >
-                {saving ? <Loader className="animate-spin" size={17} /> : <Pencil size={16} />}
+                {saving ? (
+                  <Loader className="animate-spin" size={17} />
+                ) : (
+                  <Pencil size={16} />
+                )}
                 {saving ? "Đang lưu..." : "Lưu thay đổi"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal tạo mới */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg border shadow-xl w-[350px] p-7 relative animate-fadeIn">
+            <button
+              onClick={() => setShowCreateModal(false)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-red-500"
+              title="Đóng"
+            >
+              <X size={22} />
+            </button>
+            <div className="flex items-center gap-2 mb-2">
+              <PlusCircle className="text-blue-700" size={20} />
+              <h2 className="text-lg font-bold text-indigo-800">Tạo gói mới</h2>
+            </div>
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="text-sm font-semibold">Tên gói</label>
+                <input
+                  type="text"
+                  className="bg-blue-50 px-3 py-2 rounded text-sm w-full mt-1 border border-gray-200 focus:ring-2 focus:ring-blue-200"
+                  value={createData.subscriptionName}
+                  onChange={(e) =>
+                    setCreateData({
+                      ...createData,
+                      subscriptionName: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold">Giá (VNĐ)</label>
+                <input
+                  type="number"
+                  min={0}
+                  className="bg-blue-50 px-3 py-2 rounded text-sm w-full mt-1 border border-gray-200 focus:ring-2 focus:ring-pink-100"
+                  value={createData.price}
+                  onChange={(e) =>
+                    setCreateData({ ...createData, price: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold">Trạng thái</label>
+                <div className="flex gap-4 mt-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="status"
+                      value="active"
+                      checked={createData.status === "active"}
+                      onChange={() =>
+                        setCreateData({ ...createData, status: "active" })
+                      }
+                      className="accent-green-600"
+                    />
+                    <span className="flex items-center gap-1 text-green-600">
+                      <BadgeCheck size={15} /> Active
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="status"
+                      value="inactive"
+                      checked={createData.status === "active"}
+                      onChange={() =>
+                        setCreateData({ ...createData, status: "inactive" })
+                      }
+                      className="accent-gray-500"
+                    />
+                    <span className="flex items-center gap-1 text-gray-400">
+                      <BadgeX size={15} /> Inactive
+                    </span>
+                  </label>
+                </div>
+              </div>
+              <button
+                onClick={handleCreate}
+                className="mt-2 bg-blue-700 text-white py-2 rounded font-semibold hover:bg-blue-800 flex items-center justify-center gap-2"
+                disabled={creating}
+              >
+                {creating ? (
+                  <Loader className="animate-spin" size={17} />
+                ) : (
+                  <PlusCircle size={16} />
+                )}
+                {creating ? "Đang tạo..." : "Tạo mới"}
               </button>
             </div>
           </div>

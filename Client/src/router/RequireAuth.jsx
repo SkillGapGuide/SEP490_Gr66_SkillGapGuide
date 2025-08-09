@@ -1,23 +1,24 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, Outlet } from "react-router-dom";
+import { useContext } from "react";
+import { UserContext } from "../context/UserContext";
 
-// Giả sử bạn lưu role vào localStorage hoặc context, ở đây demo đơn giản:
-const getUserRole = () => {
-  // Lấy role từ context/store hoặc localStorage (ví dụ)
-  return localStorage.getItem("role"); // "admin" hoặc "user"
-};
-
-export default function RequireAuth({ allowedRoles, children }) {
+export default function RequireAuth({ allowedRoles }) {
   const location = useLocation();
-  const role = getUserRole();
+  const { user, loading } = useContext(UserContext);
 
-  if (!role) {
-    // Chưa đăng nhập → về trang login
+  if (loading) {
+    return <div className="p-4">Đang tải...</div>;
+  }
+
+  if (!user) {
+    // Chưa login
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-  if (!allowedRoles.includes(role)) {
-    // Không đủ quyền → về home hoặc báo lỗi
-    return <Navigate to="/" replace />;
+
+  if (!allowedRoles.includes(user.role)) {
+    // Sai quyền
+    return <Navigate to="/403" replace />;
   }
-  // Có quyền → render layout/route con
-  return children;
+
+  return <Outlet />;
 }

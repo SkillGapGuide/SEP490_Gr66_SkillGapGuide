@@ -16,4 +16,13 @@ export const subscriptionService = {
             status: data.status,
         });
     }
+    , 
+    createSubscription: async (data) => {
+        return await apiService.post(ENDPOINTS.subscription.createSubscription, {
+            type: data.type,
+            price: data.price,
+            subscriptionName: data.subscriptionName,
+            status: data.status,
+        });
+    },
 }

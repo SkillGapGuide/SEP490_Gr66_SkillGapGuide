@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { lazy } from "react";
+import RequireAuth from "./RequireAuth"; // import file mới tạo
 
 // Layouts
 import ErrorBoundary from "../components/ErrorBoundary";
@@ -13,6 +14,7 @@ import AnalyzeResult from "../pages/user/AnalyzeResult";
 
 
 // Phần User (lazy import các page lớn)
+const Forbidden = lazy(() => import("../pages/Forbidden"));
 const Home = lazy(() => import("../pages/Home"));
 const Login = lazy(() => import("../pages/Login"));
 const Register = lazy(() => import("../pages/Register"));
@@ -139,46 +141,55 @@ const router = createBrowserRouter([
   // Admin routes
   {
     path: "/admin",
-    element: <AdminLayout />,
-    errorElement: <ErrorBoundary />,
+    element: <RequireAuth allowedRoles={["System Admin"]} />, // Chỉ ADMIN
     children: [
-      // Các route con của admin sẽ được định nghĩa ở đây
-      { path: "users", element: <ManagerUser /> },
-
-      { path: "pricingtable", element: <PricingTable /> }
-      
-
+      {
+        element: <AdminLayout />,
+        children: [
+          {index: true, element: <ManagerUser /> },
+          { path: "users", element: <ManagerUser /> },
+          { path: "pricingtable", element: <PricingTable /> },
+        ],
+      },
     ],
   },
   {
     path: "/finance",
-    element: <FinanceLayout />,
-    errorElement: <ErrorBoundary />,
+    element: <RequireAuth allowedRoles={["Finance Admin"]} />,
     children: [
-      // Các route con của admin sẽ được định nghĩa ở đây
-      { path: "dashboard", element: <AdminDashboard /> },
-
-      { path: "paymentmanagement", element: <PaymentManagement /> }
-
+      {
+        element: <FinanceLayout />,
+        children: [
+          { index: true, element: <AdminDashboard /> },
+          { path: "dashboard", element: <AdminDashboard /> },
+          { path: "paymentmanagement", element: <PaymentManagement /> },
+        ],
+      },
     ],
   },
+
+  // Content Manager routes
   {
     path: "/content-manager",
-    element: <ContentManagerLayout />,
-    errorElement: <ErrorBoundary />,
+    element: <RequireAuth allowedRoles={["CONTENT MANAGER"]} />,
     children: [
-      // Các route con của admin sẽ được định nghĩa ở đây
-
-      { path: "static-content", element: <StaticContentManager /> },
-      { path: "about-us", element: <AboutUsManager /> },
-      { path: "feedback", element: <AdminFeedbackManager /> },
-      { path: "social-link", element: <SocialLinksManager /> },
-      { path: "tag-skills", element: <TagSkillManager /> },
-      { path: "homepage-manage", element: <HomePageManager /> },
-      { path: "course-management", element: <CourseTable /> },
-      { path: "job-management", element: <JobTablePage /> },
+      {
+        element: <ContentManagerLayout />,
+        children: [
+          { path: "static-content", element: <StaticContentManager /> },
+          { path: "about-us", element: <AboutUsManager /> },
+          { path: "feedback", element: <AdminFeedbackManager /> },
+          { path: "social-link", element: <SocialLinksManager /> },
+          { path: "tag-skills", element: <TagSkillManager /> },
+          { path: "homepage-manage", element: <HomePageManager /> },
+          { path: "course-management", element: <CourseTable /> },
+          { path: "job-management", element: <JobTablePage /> },
+        ],
+      },
     ],
   },
+    { path: "/403", element: <Forbidden /> },
+
 
   // 404
   {
