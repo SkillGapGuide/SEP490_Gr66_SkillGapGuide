@@ -58,7 +58,7 @@ public class AuthService {
         newUser.setPassword(passwordEncoder.encode(request.password()));
 
         // 4. Gán vai trò và gói đăng ký mặc định
-        newUser.setRoleId(3); // Giả sử 1 là vai trò "USER"
+        newUser.setRoleId(4); // Giả sử 1 là vai trò "USER"
         newUser.setSubscriptionId(1); // Gói mặc định
         newUser.setProvider(User.Provider.LOCAL);
         // 5. Lưu người dùng vào cơ sở dữ liệu
@@ -169,7 +169,7 @@ public class AuthService {
             newUser.setFullName(request.getName());
             newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString())); // random password
             newUser.setAvatar(request.getAvatar() != null ? request.getAvatar() : "https://example.com/default-avatar.png");
-            newUser.setRoleId(3);
+            newUser.setRoleId(4);
             newUser.setSubscriptionId(1);
             newUser.setProvider(User.Provider.GOOGLE);
             newUser.setPhone("0000000000");

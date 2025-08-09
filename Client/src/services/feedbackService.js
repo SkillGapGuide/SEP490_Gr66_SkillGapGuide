@@ -12,6 +12,13 @@ export const feedbackService = {
         const response = await apiService.get(`${ENDPOINTS.feedback.getAllFeedbacks}?${queryParams}`);
         return response;
     },
+    
+    createFeedback: async (feedbackData) => {
+        const {content,star,userId} = feedbackData;
+        const createdAt = new Date().toISOString();
+        const response = await apiService.post(ENDPOINTS.feedback.createFeedback, {userId, content, star, createdAt});
+        return response;
+    }
 
     // getFeedbackByEmail: async (email) => {
     //     const response = await apiService.get(ENDPOINTS.feedback.getFeedbackByEmail(email));

@@ -1,27 +1,29 @@
+// Java
 package com.skillgapguide.sgg.Service;
 
+import com.skillgapguide.sgg.Entity.Cv;
+import com.skillgapguide.sgg.Entity.Job;
+import com.skillgapguide.sgg.Entity.User;
+import com.skillgapguide.sgg.Repository.CVRepository;
 import com.skillgapguide.sgg.Repository.JobCategoryRepository;
 import com.skillgapguide.sgg.Repository.JobRepository;
 import com.skillgapguide.sgg.Repository.SpecializationRepository;
+import com.skillgapguide.sgg.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.stereotype.Service;
-import com.skillgapguide.sgg.Entity.Job;
-import com.skillgapguide.sgg.Entity.JobCategory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.transaction.annotation.Transactional;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.github.mabinogi233.undetected_chromedriver.ChromeDriverBuilder;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,229 +33,69 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class JobScrapingService {
     private final JobRepository jobRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private CVRepository cvRepository;
+    @Autowired
+    private JobDeleteService jobDeleteService;
     private final SpecializationRepository specializationRepository;
     private final JobCategoryRepository jobCategoryRepository;
 
-    @Transactional // Đảm bảo các thao tác DB được thực hiện trong một giao dịch
-    public void scrapeAndSaveJob(String jobDetailUrl) {
-        if (specializationRepository.existsSpecializationByUrl(jobDetailUrl)) {
-            System.out.println(">>> CÔNG VIỆC ĐÃ TỒN TẠI, BỎ QUA: " + jobDetailUrl);
-            return; // Dừng thực thi phương thức ngay lập tức.
-        }
-        System.setProperty("webdriver.chrome.driver", "sgg/drivers/chromedriver.exe"); // Cập nhật đường dẫn đến chromedriver
-        // Cấu hình Chrome để tránh bị phát hiện là bot
+    private static final String CHROME_DRIVER_PATH = "drivers/chromedriver.exe";
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
+    private static final int TIMEOUT_SECONDS = 4;
+
+    private WebDriver createChromeDriver() {
+        System.setProperty("webdriver.chrome.driver", CHROME_DRIVER_PATH);
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new");
-        options.addArguments("--disable-gpu");
-        options.addArguments("--window-size=1920,1080");
-        options.addArguments("--disable-blink-features=AutomationControlled");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--disable-dev-shm-usage");
-        options.addArguments("--disable-extensions");
-        options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36");
-        options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
-        options.setExperimentalOption("useAutomationExtension", false);
+        options.addArguments(
+                "--headless=new",
+                "--disable-gpu",
+                "--window-size=1920,1080",
+                "--disable-blink-features=AutomationControlled",
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-extensions",
+                "--user-agent=" + USER_AGENT
+        );
+        return new ChromeDriverBuilder().build(options, CHROME_DRIVER_PATH);
+    }
 
-        WebDriver driver = null;
-        try {
-            // Khởi tạo trình duyệt Chrome với các cấu hình
-            driver = new ChromeDriver(options);
-            JavascriptExecutor js = (JavascriptExecutor) driver;
+    private void loadPageAndWait(WebDriver driver, WebDriverWait wait, String url) {
+        driver.get(url);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("h1.job-detail__info--title")));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.job-detail__company--information-item.company-field div.company-value")));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.job-description__item--content")));
+        scrollToLoadContent(driver);
+    }
 
-            // Ẩn automation indicator để tránh bị phát hiện
-            js.executeScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
-
-            // 1. Mở URL bằng Selenium
-            System.out.println("🔍 Đang truy cập: " + jobDetailUrl);
-            driver.get(jobDetailUrl);
-
-            // Chờ trang load với timeout dài hơn
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(25));
-
-            // Đợi cho title xuất hiện
-            By titleSelector = By.cssSelector("h1.job-detail__info--title");
-            wait.until(ExpectedConditions.visibilityOfElementLocated(titleSelector));
-
-            // Đợi cho category xuất hiện
-            By categorySelector = By.cssSelector("div.job-detail__company--information-item.company-field div.company-value");
-            wait.until(ExpectedConditions.visibilityOfElementLocated(categorySelector));
-
-            // Đợi cho description xuất hiện - QUAN TRỌNG
-            By descriptionSelector = By.cssSelector("div.job-description__item--content");
-            wait.until(ExpectedConditions.visibilityOfElementLocated(descriptionSelector));
-
-            // Scroll để trigger lazy loading nếu có
-            js.executeScript("window.scrollTo(0, document.body.scrollHeight/2);");
-            Thread.sleep(1000);
-            js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
-
-            // Thêm thời gian chờ dài hơn để đảm bảo content load đầy đủ
-            Thread.sleep(3000); // Tăng từ 2s lên 3s
-            // 2. Lấy HTML của trang sau khi đã được render đầy đủ
-            String pageSource = driver.getPageSource();
-
-            // === 3. Phân tích và trích xuất dữ liệu với error handling chi tiết ===
-            Document doc = Jsoup.parse(pageSource);
-
-            String title = "";
-            String company = "";
-            String categoryName = "";
-            String fullDescription = "";
-
-            try {
-                Element titleElement = doc.selectFirst("h1.job-detail__info--title");
-                title = titleElement != null ? titleElement.text().trim() : "";
-                if (title.isEmpty()) {
-                    System.out.println("⚠️ WARNING: Không tìm thấy title cho job: " + jobDetailUrl);
-                }
-            } catch (Exception e) {
-                System.out.println("❌ ERROR: Lỗi khi lấy title: " + e.getMessage());
-            }
-
-            try {
-                Element companyElement = doc.selectFirst("a.name");
-                company = companyElement != null ? companyElement.text().trim() : "";
-                if (company.isEmpty()) {
-                    System.out.println("⚠️ WARNING: Không tìm thấy company cho job: " + jobDetailUrl);
-                }
-            } catch (Exception e) {
-                System.out.println("❌ ERROR: Lỗi khi lấy company: " + e.getMessage());
-            }
-
-            try {
-                Element categoryElement = doc.selectFirst("div.job-detail__company--information-item.company-field div.company-value");
-                categoryName = categoryElement != null ? categoryElement.text().trim() : "Khác";
-                if (categoryName.isEmpty()) {
-                    categoryName = "Khác";
-                }
-            } catch (Exception e) {
-                categoryName = "Khác";
-                System.out.println("❌ ERROR: Lỗi khi lấy category: " + e.getMessage());
-            }
-
-            // === Cải thiện việc lấy description với nhiều fallback strategies ===
-            try {
-                StringBuilder descriptionBuilder = new StringBuilder();
-
-                // Strategy 1: Selector chính
-                Elements descriptionItems = doc.select("div.job-description__item--content p, div.job-description__item--content div, div.job-description__item--content li, div.job-description__item--content span");
-
-                if (descriptionItems.isEmpty()) {
-                    // Strategy 2: Fallback selector
-                    descriptionItems = doc.select("div.job-description p, div.job-description div, div.job-description li");
-                }
-
-                if (descriptionItems.isEmpty()) {
-                    // Strategy 3: Selector tổng quát hơn
-                    descriptionItems = doc.select("[class*=job-description] p, [class*=job-description] div, [class*=job-description] li");
-                }
-
-                if (descriptionItems.isEmpty()) {
-                    // Strategy 4: Lấy toàn bộ job-description container
-                    Element descElement = doc.selectFirst("div[class*=job-description]");
-                    if (descElement != null) {
-                        fullDescription = descElement.html().trim();
-                    }
-                } else {
-                    // Xử lý từng element và filter content có ý nghĩa
-                    for (Element item : descriptionItems) {
-                        String itemHtml = item.html().trim();
-                        // Chỉ lấy content có ý nghĩa (> 10 chars và không phải whitespace)
-                        if (!itemHtml.isEmpty() && itemHtml.length() > 10 && !itemHtml.matches("\\s*")) {
-                            descriptionBuilder.append(itemHtml).append("\n");
-                        }
-                    }
-                    fullDescription = descriptionBuilder.toString().trim();
-                }
-
-                // Logging chi tiết để debug
-                if (fullDescription.isEmpty()) {
-                    System.out.println("⚠️ WARNING: Description TRỐNG cho job: " + title + " | URL: " + jobDetailUrl);
-                    // Debug info
-                    Elements debugElements = doc.select("div[class*=description]");
-                    System.out.println("🔍 DEBUG: Tìm thấy " + debugElements.size() + " elements chứa 'description'");
-                    if (!debugElements.isEmpty()) {
-                        Element first = debugElements.first();
-                        System.out.println("🔍 DEBUG: Class đầu tiên: " + first.className());
-                        String preview = first.text();
-                        if (preview.length() > 100) {
-                            System.out.println("🔍 DEBUG: Preview text: " + preview.substring(0, 100) + "...");
-                        } else {
-                            System.out.println("🔍 DEBUG: Preview text: " + preview);
-                        }
-                    }
-                } else {
-                    System.out.println("✅ INFO: Job '" + title + "' - Description: " + fullDescription.length() + " ký tự");
-                }
-
-            } catch (Exception e) {
-                System.out.println("❌ ERROR: Lỗi khi lấy description cho job '" + title + "': " + e.getMessage());
-                e.printStackTrace();
-                fullDescription = "";
-            }
-
-            // === 4. Lưu vào database nếu có đủ thông tin ===
-            if (!title.isEmpty() && !company.isEmpty()) {
-                String finalCategoryName = categoryName;
-                Job job = new Job();
-                job.setTitle(title);
-                job.setCompany(company);
-                job.setDescription(fullDescription);
-                job.setStatus("ACTIVE");
-                job.setSourceUrl(jobDetailUrl);
-                jobRepository.save(job);
-
-                System.out.println("✅ ĐÃ LƯU THÀNH CÔNG: " + title + " | " + company + " | Description: " + fullDescription.length() + " ký tự");
-            } else {
-                System.out.println("❌ KHÔNG THỂ LƯU: Thiếu thông tin cơ bản cho " + jobDetailUrl);
-                System.out.println("   - Title: " + (title.isEmpty() ? "THIẾU" : "✓"));
-                System.out.println("   - Company: " + (company.isEmpty() ? "THIẾU" : "✓"));
-            }
-
-        } catch (Exception e) {
-            System.err.println("❌ LỖI NGHIÊM TRỌNG khi cào job: " + jobDetailUrl);
-            e.printStackTrace();
-        } finally {
-            // Rất quan trọng: Luôn đóng trình duyệt sau khi dùng xong để giải phóng bộ nhớ
-            if (driver != null) {
-                driver.quit();
-            }
-        }
+    private void scrollToLoadContent(WebDriver driver) {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("window.scrollBy(0, 1000);");
+        try { Thread.sleep(1000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        js.executeScript("window.scrollBy(0, 1000);");
+        try { Thread.sleep(1000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 
     public List<String> scrapeJobLinksFromListPage(String listPageUrl) {
-        System.setProperty("webdriver.chrome.driver", "sgg/drivers/chromedriver.exe"); // Đường dẫn chromedriver của bạn
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new");
-        options.addArguments("--disable-gpu");
-        options.addArguments("--window-size=1920,1080");
-        options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36");
-
         WebDriver driver = null;
         List<String> jobLinks = new ArrayList<>();
-
         try {
-            driver = new ChromeDriver(options);
+            driver = createChromeDriver();
             driver.get(listPageUrl);
-
-            // Đợi cho đến khi danh sách job hiển thị (chỉ cần 1 job là đủ)
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
             wait.until(ExpectedConditions.visibilityOfElementLocated(
                     By.cssSelector("div.job-item-search-result.bg-highlight.job-ta div.body div.body-box div.body-content div.title-block div h3.title a")
             ));
-
-            // Lấy tất cả các link job
             List<WebElement> linkElements = driver.findElements(
                     By.cssSelector("div.job-item-search-result.bg-highlight.job-ta div.body div.body-box div.body-content div.title-block div h3.title a")
-
             );
-
             jobLinks = linkElements.stream()
                     .map(e -> e.getAttribute("href"))
                     .filter(href -> href != null && !href.isEmpty())
                     .distinct()
                     .collect(Collectors.toList());
-
         } catch (Exception e) {
             System.err.println("Lỗi khi lấy danh sách link job từ: " + listPageUrl);
             e.printStackTrace();
@@ -262,52 +104,216 @@ public class JobScrapingService {
         }
         return jobLinks;
     }
+    private static final int DESCRIPTION_MAX_LENGTH = 7000;
+    // Java
+    @Transactional
+    public boolean scrapeAndSaveJob(String jobDetailUrl) {
+//        if (specializationRepository.existsSpecializationByUrl(jobDetailUrl)) {
+//            System.out.println(">>> CÔNG VIỆC ĐÃ TỒN TẠI, BỎ QUA: " + jobDetailUrl);
+//            return false;
+//        }
+        WebDriver driver = null;
+        boolean saved = false;
+        try {
+            driver = createChromeDriver();
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
+            loadPageAndWait(driver, wait, jobDetailUrl);
 
+            String pageSource = driver.getPageSource();
+            Document doc = Jsoup.parse(pageSource);
+
+            String title = "";
+            String company = "";
+            String categoryName = "Khác";
+            String fullDescription = "";
+
+            try {
+                Element titleElement = doc.selectFirst("h1.job-detail__info--title");
+                title = titleElement != null ? titleElement.text().trim() : "";
+            } catch (Exception e) {
+                System.out.println("❌ ERROR: Lỗi khi lấy title: " + e.getMessage());
+            }
+
+            try {
+                Element companyElement = doc.selectFirst("a.name");
+                company = companyElement != null ? companyElement.text().trim() : "";
+            } catch (Exception e) {
+                System.out.println("❌ ERROR: Lỗi khi lấy company: " + e.getMessage());
+            }
+
+            try {
+                Element categoryElement = doc.selectFirst("div.job-detail__company--information-item.company-field div.company-value");
+                categoryName = categoryElement != null ? categoryElement.text().trim() : "Khác";
+                if (categoryName.isEmpty()) categoryName = "Khác";
+            } catch (Exception e) {
+                categoryName = "Khác";
+                System.out.println("❌ ERROR: Lỗi khi lấy category: " + e.getMessage());
+            }
+
+            try {
+                StringBuilder descriptionBuilder = new StringBuilder();
+                Elements descriptionItems = doc.select("div.job-description__item--content p, div.job-description__item--content div, div.job-description__item--content li, div.job-description__item--content span");
+                if (descriptionItems.isEmpty()) {
+                    descriptionItems = doc.select("div.job-description p, div.job-description div, div.job-description li");
+                }
+                if (descriptionItems.isEmpty()) {
+                    descriptionItems = doc.select("[class*=job-description] p, [class*=job-description] div, [class*=job-description] li");
+                }
+                if (descriptionItems.isEmpty()) {
+                    Element descElement = doc.selectFirst("div[class*=job-description]");
+                    if (descElement != null) {
+                        fullDescription = descElement.html().trim();
+                    }
+                    if (fullDescription.length() > DESCRIPTION_MAX_LENGTH) {
+                        System.out.println("❌ BỎ QUA: Description quá dài (" + fullDescription.length() + " ký tự) cho " + jobDetailUrl);
+                        return false;
+                    }
+                } else {
+                    for (Element item : descriptionItems) {
+                        String itemHtml = item.html().trim();
+                        if (!itemHtml.isEmpty() && itemHtml.length() > 10 && !itemHtml.matches("\\s*")) {
+                            descriptionBuilder.append(itemHtml).append("\n");
+                        }
+                    }
+                    fullDescription = descriptionBuilder.toString().trim();
+                }
+            } catch (Exception e) {
+                System.out.println("❌ ERROR: Lỗi khi lấy description cho job '" + title + "': " + e.getMessage());
+                fullDescription = "";
+            }
+
+            Integer cvId = null;
+            try {
+                String email = SecurityContextHolder.getContext().getAuthentication().getName();
+                Integer userId = userRepository.findByEmail(email)
+                        .map(User::getUserId)
+                        .orElse(null);
+                Cv cv = userId != null ? cvRepository.findByUserId(userId) : null;
+                if (cv != null) {
+                    cvId = cv.getId();
+                }
+            } catch (Exception e) {
+                System.out.println("❌ ERROR: Lỗi khi lấy user/cv: " + e.getMessage());
+            }
+
+
+            if (!title.isEmpty() && !company.isEmpty() && cvId != null) {
+                try {
+                    Job job = new Job();
+                    job.setTitle(title);
+                    job.setCvId(cvId);
+                    job.setCompany(company);
+                    job.setDescription(fullDescription);
+                    job.setStatus("ACTIVE");
+                    job.setSourceUrl(jobDetailUrl);
+                    jobRepository.save(job);
+                    saved = true;
+                } catch (Exception e) {
+                    System.err.println("❌ Lỗi khi lưu job vào database: " + jobDetailUrl + " - " + e.getMessage());
+                }
+            } else {
+                System.out.println("❌ BỎ QUA: Thiếu thông tin cơ bản cho " + jobDetailUrl);
+            }
+        } catch (Exception e) {
+            System.err.println("❌ LỖI NGHIÊM TRỌNG khi cào job: " + jobDetailUrl + " - " + e.getMessage());
+        } finally {
+            if (driver != null) driver.quit();
+        }
+        return saved;
+    }
+
+    // Refactored: sleep only between jobs, handle errors per job, keep selectors
+    @Transactional
+    public void scrapeJobsWithCvCleanup(String type, Object param) {
+        Integer cvId = getCurrentCvId();
+        if (cvId != null && jobRepository.existsByCvId(cvId)) {
+            jobDeleteService.deleteJobsByCvId(cvId);
+        }
+        switch (type) {
+            case "category":
+                scrapeAndSaveTop10JobsByCategory((String) param);
+                break;
+            case "specialization":
+                scrapeAndSaveTop10JobsBySpecialization((String) param);
+                break;
+            case "multiple":
+                scrapeAndSaveTop4JobsFromMultipleCategories((List<String>) param);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown scrape type: " + type);
+        }
+    }
+
+    // Helper to get current user's cvId
+    public Integer getCurrentCvId() {
+        try {
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
+            Integer userId = userRepository.findByEmail(email)
+                    .map(User::getUserId)
+                    .orElse(null);
+            Cv cv = userId != null ? cvRepository.findByUserId(userId) : null;
+            return cv != null ? cv.getId() : null;
+        } catch (Exception e) {
+            System.out.println("❌ ERROR: Lỗi khi lấy user/cv: " + e.getMessage());
+            return null;
+        }
+    }
+
+    // Remove deletion logic from these methods
     @Transactional
     public void scrapeAndSaveTop10JobsByCategory(String categoryListUrl) {
-        int n = 10;
-        // 1. Lấy danh sách link job từ trang category (danh sách việc làm theo lĩnh vực)
+        int n = 5;
         List<String> jobLinks = scrapeJobLinksFromListPage(categoryListUrl);
-
         if (jobLinks == null || jobLinks.isEmpty()) {
             System.out.println("Không tìm thấy job nào ở URL: " + categoryListUrl);
             return;
         }
-
-        // 2. Chỉ lấy tối đa n link đầu tiên
         final List<String> topNJobLinks = jobLinks.stream().limit(n).collect(Collectors.toList());
-        System.out.println("🚀 BẮT ĐẦU CÀO " + topNJobLinks.size() + " JOBS");
-
-        // 3. Lặp và crawl từng job với delay ngẫu nhiên
         int count = 0;
-        for (final String jobUrl : topNJobLinks) {
+        for (int i = 0; i < topNJobLinks.size(); i++) {
+            String jobUrl = topNJobLinks.get(i);
             try {
-                System.out.println("\n" + "=".repeat(80));
-                System.out.println("📝 CÀO JOB " + (count + 1) + "/" + topNJobLinks.size() + ": " + jobUrl);
-                System.out.println("=".repeat(80));
-
-                scrapeAndSaveJob(jobUrl);
-                count++;
-
-                // Thêm delay ngẫu nhiên để tránh pattern detection
-                if (count < topNJobLinks.size()) {
-                    int randomDelay = 3000 + (int) (Math.random() * 2000); // 3-5 giây ngẫu nhiên
-                    System.out.println("⏳ Chờ " + (randomDelay / 1000) + " giây trước khi cào job tiếp theo...");
-                    Thread.sleep(randomDelay);
+                boolean saved = scrapeAndSaveJob(jobUrl);
+                if (saved) {
+                    count++;
+                    System.out.println("✅ Đã lưu thành công: " + jobUrl);
+                } else {
+                    System.out.println("❌ Không lưu được job: " + jobUrl);
                 }
             } catch (Exception e) {
                 System.err.println("❌ Lỗi khi crawl job: " + jobUrl + " - " + e.getMessage());
-                e.printStackTrace();
-                // Delay dài hơn khi có lỗi để tránh bị chặn
-                try {
-                    Thread.sleep(4000);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                }
+            }
+            if (i < topNJobLinks.size() - 1) {
+                int randomDelay = 3000 + (int) (Math.random() * 2000);
+                try { Thread.sleep(randomDelay); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
             }
         }
         System.out.println("\n🎉 HOÀN THÀNH: Đã crawl " + count + "/" + topNJobLinks.size() + " jobs từ: " + categoryListUrl);
+    }
 
+    @Transactional
+    public void scrapeAndSaveTop4JobsFromMultipleCategories(List<String> categoryUrls) {
+        int maxLinks = 5;
+        int totalJobs = 0;
+        List<String> urlsToProcess = categoryUrls.stream().limit(maxLinks).collect(Collectors.toList());
+        for (String url : urlsToProcess) {
+            if (url == null || url.isEmpty()) {
+                System.out.println("URL bị thiếu hoặc trống, bỏ qua.");
+                continue;
+            }
+            try {
+                System.out.println("Bắt đầu cào jobs từ: " + url);
+                int before = (int) jobRepository.count();
+                scrapeAndSaveJob(url);
+                int after = (int) jobRepository.count();
+                int jobsAdded = after - before;
+                totalJobs += jobsAdded;
+                System.out.println("Đã cào " + jobsAdded + " jobs từ: " + url);
+            } catch (Exception e) {
+                System.err.println("Lỗi khi cào jobs từ URL: " + url + " - " + e.getMessage());
+            }
+        }
+        System.out.println("Tổng số jobs đã cào thành công: " + totalJobs);
     }
 
     @Transactional
@@ -320,4 +326,5 @@ public class JobScrapingService {
         }
         scrapeAndSaveTop10JobsByCategory(url);
     }
+
 }

@@ -4,6 +4,8 @@ import { supabase } from '../config/supabase';
 import { userService } from '../services/userService';
 import { useContext } from 'react';
 import { UserContext } from '../context/UserContext';
+import { retry } from '../utils/retry'; // Import hàm retry từ utils
+// Copy hàm retry vào đầu file hoặc import từ utils
 
 export default function AuthCallbackPage() {
   const navigate = useNavigate();
@@ -19,16 +21,25 @@ export default function AuthCallbackPage() {
           return;
         }
 
-        // Gọi API để lấy thông tin profile từ backend
-        const profile = await userService.viewProfile();
+        // Retry lấy profile (max 6 lần, mỗi lần cách nhau 800ms)
+        const profile = await retry(() => userService.viewProfile(), 6, 800);
         console.log('✅ Profile loaded:', profile);
 
-        setUser(profile); // lưu vào context
-        localStorage.setItem('user', JSON.stringify(profile)); // lưu vào localStorage
+        setUser(profile);
 
-        navigate('/'); // điều hướng về trang chính
+        // Điều hướng theo role
+        if (profile.role === "System Admin") {
+          navigate("/admin");
+        } else if (profile.role === "Finance Admin") {
+          navigate("/finance");
+        } else if (profile.role === "Content Manager") {
+          navigate("/content-manager");
+        } else {
+          navigate("/about-us");
+        }
       } catch (err) {
         console.error("OAuth login finalization error:", err);
+        // Thông báo UI: "Tài khoản chưa được khởi tạo, vui lòng thử lại sau!"
       }
     };
 

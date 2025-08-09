@@ -1,96 +1,41 @@
 package com.skillgapguide.sgg.Entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.sql.Timestamp;
 
 @Entity
+@Data
 @jakarta.persistence.Table(name = "audit_log", schema = "skill_gap_guide", catalog = "")
 public class AuditLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @jakarta.persistence.Column(name = "log_id")
-    private int logId;
-
-    public int getLogId() {
-        return logId;
-    }
-
-    public void setLogId(int logId) {
-        this.logId = logId;
-    }
-
+    private Integer logId;
     @Basic
     @Column(name = "user_id")
     private Integer userId;
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
 
     @Basic
     @Column(name = "action")
     private String action;
 
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-
     @Basic
     @Column(name = "entity_type")
     private String entityType;
-
-    public String getEntityType() {
-        return entityType;
-    }
-
-    public void setEntityType(String entityType) {
-        this.entityType = entityType;
-    }
 
     @Basic
     @Column(name = "entity_id")
     private Integer entityId;
 
-    public Integer getEntityId() {
-        return entityId;
-    }
-
-    public void setEntityId(Integer entityId) {
-        this.entityId = entityId;
-    }
-
     @Basic
     @Column(name = "description")
     private String description;
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     @Basic
     @Column(name = "created_at")
     private Timestamp createdAt;
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
 
     @Override
     public boolean equals(Object o) {

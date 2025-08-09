@@ -12,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface SpecializationRepository extends JpaRepository<Specialization, Integer> {
     Optional<Specialization> findByNameIgnoreCase(String name);
+    Optional<Specialization> findByUrlIgnoreCase(String url);
     List<Specialization> findByStatusIgnoreCase(String status);
     List<Specialization> findByNameContainingIgnoreCase(String name);
 

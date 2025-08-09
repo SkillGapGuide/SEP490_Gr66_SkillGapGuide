@@ -26,7 +26,7 @@ const { setUser } = useContext(UserContext);
         data.phone
       );
       
-      setRegisterSuccess(response || 'Đăng ký thành công, vui lòng kiểm tra email để xác thực tài khoản');
+      setRegisterSuccess( 'Đăng ký thành công, vui lòng kiểm tra email để xác thực tài khoản');
       
       // Delay navigation to allow user to read the message
       setTimeout(() => {

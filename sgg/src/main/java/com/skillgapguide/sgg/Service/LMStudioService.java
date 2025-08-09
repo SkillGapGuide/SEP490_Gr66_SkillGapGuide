@@ -16,18 +16,18 @@ public class LMStudioService {
 
     public LMStudioService(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder
-                .baseUrl("http://26.20.213.66:1234")
+                .baseUrl("http://localhost:1234")
                 .build();
     }
 
-    public Mono<String> callLMApi(String prompt) {
+    public Mono<String> callMistralApi(String prompt) {
         Map<String, Object> requestBody = Map.of(
                 "model", "mistralai/mistral-7b-instruct-v0.3",
                 "messages", List.of(
                         Map.of("role", "user", "content", prompt)
                 ),
-                "temperature", 0.7,
-                "max_tokens", 2048,
+                "temperature", 0.2,
+                "max_tokens", 8192,
                 "stream", false
         );
         return webClient.post()
@@ -39,6 +39,22 @@ public class LMStudioService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .flatMap(this::parseAiResponse)
+                .timeout(Duration.ofMinutes(4))
+                .onErrorResume(e -> Mono.just("Lỗi: " + e.getMessage()));
+    }
+    public Mono<String> callNomicApi(String prompt) {
+        Map<String, Object> requestBody = Map.of(
+                "model", "text-embedding-nomic-embed-text-v1.5",
+                "input", prompt
+        );
+        return webClient.post()
+                .uri("/v1/embeddings")
+                .header("Authorization", "Bearer lm-studio")
+                .header("Accept", MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(String.class)
                 .timeout(Duration.ofMinutes(2))
                 .onErrorResume(e -> Mono.just("Lỗi: " + e.getMessage()));
     }

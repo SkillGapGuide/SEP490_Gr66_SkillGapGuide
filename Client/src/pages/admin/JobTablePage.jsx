@@ -22,7 +22,8 @@ export default function JobSkillAdmin() {
     name: "",
     status: "Enable",
     occupationGroupId: null,
-    occupationId: null, // For occupation
+    occupationId: null,
+    url: "", // For occupation
   });
 
   // Fetch data on mount
@@ -33,6 +34,7 @@ export default function JobSkillAdmin() {
         careerService.viewOccupations(),
         careerService.viewSpecialization(),
       ]);
+
       setGroups(Array.isArray(g) ? g : g?.data || []);
       setOccupations(Array.isArray(o) ? o : o?.data || []);
       setSpecializations(Array.isArray(s) ? s : s?.data || []);
@@ -106,7 +108,7 @@ export default function JobSkillAdmin() {
     try {
       const response = await careerService.addOccupations(data);
       if (response.status === 400) {
-        throw new Error(response?.message || "Đã xảy ra lỗi khi thêm nghề 2.");
+        throw new Error(response?.message || "Đã xảy ra lỗi khi thêm nghề .");
       }
       const { id, name, status, occupationGroup } = response.result;
 
@@ -158,7 +160,10 @@ export default function JobSkillAdmin() {
     try {
       const response = await careerService.addSpecialization(data);
       showSuccess("Thêm vị trí chuyên môn thành công!");
-      setSpecializations([...specializations, response.result]);
+      const created = response.result?.id
+        ? { ...response.result, url: response.result.url ?? data.url ?? "" }
+        : { ...data, id: response.result?.id, url: data.url ?? "" };
+      setSpecializations([...specializations, created]);
     } catch (error) {
       // Kiểm tra lỗi từ response của backend
       if (error.response && error.response.status === 400) {
@@ -177,7 +182,12 @@ export default function JobSkillAdmin() {
       setSpecializations(
         specializations.map((spec) =>
           spec.id === id
-            ? { ...spec, ...response.result, occupationId: data.occupationId }
+            ? {
+                ...spec,
+                ...response.result,
+                occupationId: data.occupationId,
+                url: response.result?.url ?? data.url ?? spec.url ?? "",
+              }
             : spec
         )
       );
@@ -198,7 +208,17 @@ export default function JobSkillAdmin() {
   // Show modal (type: group/occupation/specialization, data: record or null, parent: for occupation/specialization)
   const openModal = (type, data = null, parent = null) => {
     setModal({ type, data, parent });
-    setForm(data || {}); // for edit, fill form, for add, empty
+    setForm(
+      data
+        ? { ...data, url: data.url ?? "", status: data.status ?? "Enable" }
+        : {
+            name: "",
+            status: "Enable",
+            occupationGroupId: null,
+            occupationId: null,
+            url: "",
+          }
+    );
   };
 
   const closeModal = () => setModal({ type: null, data: null, parent: null });
@@ -235,11 +255,13 @@ export default function JobSkillAdmin() {
           await handleEditSpecialization(modal.data.id, {
             ...formData,
             occupationId: form.occupationId,
+            url: form.url?.trim() || "",
           });
         } else {
           await handleAddSpecialization({
             ...formData,
             occupationId: modal.parent.id,
+            url: form.url?.trim() || "",
           });
         }
       }
@@ -396,6 +418,17 @@ export default function JobSkillAdmin() {
                               >
                                 <StatusDot status={s.status} />
                                 {s.name}
+                                {s.url && (
+                                  <a
+                                    href={s.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="underline text-blue-600 hover:text-blue-800 ml-1"
+                                    title="Mở liên kết"
+                                  >
+                                    🔗
+                                  </a>
+                                )}
                                 <button
                                   className="inline-block text-blue-500 hover:bg-blue-200 p-1 rounded-full"
                                   title="Cập nhật"
@@ -670,6 +703,18 @@ export default function JobSkillAdmin() {
                       setForm((f) => ({ ...f, name: e.target.value }))
                     }
                   />
+                  {/* URL (tuỳ chọn) */}
+                  <input
+                    type="url"
+                    placeholder="Liên kết tham khảo (https://...)"
+                    className="w-full px-3 py-2 border rounded-lg mt-2"
+                    value={form.url || ""}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, url: e.target.value }))
+                    }
+                    pattern="https?://.*"
+                    title="Hãy nhập URL bắt đầu bằng http:// hoặc https://"
+                  />
                   {/* Nếu là cập nhật, cho phép chọn lại nghề */}
                   {modal.data && (
                     <select
@@ -741,6 +786,16 @@ export default function JobSkillAdmin() {
                       <li key={s.id} className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-indigo-400" />
                         <span>{s.name}</span>
+                        {s.url && (
+                          <a
+                            href={s.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="underline text-blue-600 hover:text-blue-800 text-sm"
+                          >
+                            (link)
+                          </a>
+                        )}
                         <button
                           className="ml-2 p-1 rounded-full hover:bg-blue-100 text-blue-500"
                           onClick={() =>

@@ -3,10 +3,13 @@ import { ENDPOINTS } from '../constants/apiEndpoints';
 
 export const scrapeJobService = {
   scrapeJob: async (url) => {
-    return await apiService.post(ENDPOINTS.scraper.scrapeJob, url);
+    return await apiService.post(ENDPOINTS.scraper.scrapeJob, {url});
   },
 
   crawlTenJobs: async (url) => {
-    return await apiService.post(ENDPOINTS.scraper.crawlTenJobs, url);
-  }
+    return await apiService.post(ENDPOINTS.scraper.crawlTenJobs, {url});
+  },
+  crawl5JobsByLinks: async (links) => {
+  return await apiService.post(ENDPOINTS.scraper.scraper1To5Jobs, { urls: links });
+}
 };

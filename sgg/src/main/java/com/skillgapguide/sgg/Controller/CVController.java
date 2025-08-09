@@ -8,6 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/CV")
 public class CVController {
@@ -28,7 +30,11 @@ public class CVController {
             return new Response<>(EHttpStatus.BAD_REQUEST,"Chỉ chấp nhận file PDF hoặc Word (.docx)");
         }
         return new Response<>(EHttpStatus.OK, cvService.uploadCv(fileName,fileExtension,file));
-
+    }
+    @GetMapping("/getCvSkill")
+    public Response<?> getCvSkill() throws IOException {
+        cvService.extractSkill();
+        return new Response<>(EHttpStatus.OK, cvService.getCvSkill());
     }
 
 }
