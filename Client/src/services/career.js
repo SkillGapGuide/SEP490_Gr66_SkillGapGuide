@@ -51,8 +51,8 @@ export const careerService = {
 //     return response;
 //   }
   editSpecialization: async (id, data) => {
-    const { name, occupationId, status } = data;
-    const response = await apiService.put(`${ENDPOINTS.carrer.editSpecialization.replace('{id}', id)}`, { name, occupationId, status });
+    const { name, occupationId, status,url } = data;
+    const response = await apiService.put(`${ENDPOINTS.carrer.editSpecialization.replace('{id}', id)}`, { name, occupationId, status, url });
     return response;
   },
 
@@ -89,8 +89,8 @@ export const careerService = {
      */
 
   addSpecialization: async (data) => {
-    const { name, occupationId, status } = data;
-    const response = await apiService.post(ENDPOINTS.carrer.addSpecialization, { name, occupationId, status });
+    const { name, occupationId, status,url } = data;
+    const response = await apiService.post(ENDPOINTS.carrer.addSpecialization, { name, occupationId, status, url });
     return response;
   },
  /**

@@ -56,6 +56,10 @@ const CVUploadOptions = ({ onNext }) => {
         careerService.viewOccupationsEnable(),
         careerService.viewSpecializationEnable(),
       ]);
+      console.log("Occupation Groups:", groups);
+      console.log("Occupations:", careers);
+      console.log("Specializations:", specs);
+      
       setOccupationGroups(groups || []);
       setOccupations(careers || []);
       setSpecializations(specs || []);

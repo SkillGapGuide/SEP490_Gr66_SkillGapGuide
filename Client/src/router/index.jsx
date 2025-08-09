@@ -171,11 +171,12 @@ const router = createBrowserRouter([
   // Content Manager routes
   {
     path: "/content-manager",
-    element: <RequireAuth allowedRoles={["CONTENT MANAGER"]} />,
+    element: <RequireAuth allowedRoles={["Content Manager"]} />,
     children: [
       {
         element: <ContentManagerLayout />,
         children: [
+          { index: true, element: <StaticContentManager /> },
           { path: "static-content", element: <StaticContentManager /> },
           { path: "about-us", element: <AboutUsManager /> },
           { path: "feedback", element: <AdminFeedbackManager /> },
