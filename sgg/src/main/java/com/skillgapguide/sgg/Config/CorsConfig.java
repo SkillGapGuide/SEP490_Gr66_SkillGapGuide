@@ -14,10 +14,8 @@ class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
 
-        // Allow frontend URL
-        config.addAllowedOrigin("http://localhost:5173");
-        config.addAllowedOrigin("http://localhost:1234");
-        config.addAllowedOrigin("https://red-bobcats-type.loca.lt");
+        // Allow all origins
+        config.addAllowedOriginPattern("*");
 
         // Allow common HTTP methods
         config.addAllowedMethod("GET");

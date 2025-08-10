@@ -361,19 +361,17 @@ INSERT INTO specializations (name, occupation_id, status) VALUES ('Quản lý da
 INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc/Phó giám đốc đầu tư', 39, 'Enable');
 INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn đầu tư', 39, 'Enable');
 
--- User Pro
-INSERT INTO skill_gap_guide.user (user_id, email, password, full_name, role_id, subscription_id, phone, avatar, provider, status_id)
-VALUES (7, 'pro1@example.com', '$2a$10$aabbcc', 'Pro User One', 5, 1, '0999000011', null, 'LOCAL', 2);
-
-INSERT INTO skill_gap_guide.user (user_id, email, password, full_name, role_id, subscription_id, phone, avatar, provider, status_id)
-VALUES (8, 'pro2@example.com', '$2a$10$aabbcc', 'Pro User Two', 5, 1, '0999000022', null, 'LOCAL', 2);
-
--- User Premium
-INSERT INTO skill_gap_guide.user (user_id, email, password, full_name, role_id, subscription_id, phone, avatar, provider, status_id)
-VALUES (9, 'premium1@example.com', '$2a$10$aabbcc', 'Premium User One', 6, 1, '0888000011', null, 'LOCAL', 2);
-
-INSERT INTO skill_gap_guide.user (user_id, email, password, full_name, role_id, subscription_id, phone, avatar, provider, status_id)
-VALUES (10, 'premium2@example.com', '$2a$10$aabbcc', 'Premium User Two', 6, 1, '0888000022', null, 'LOCAL', 2);
+-- Additional Users (using auto-increment)
+INSERT INTO skill_gap_guide.user (email, password, full_name, role_id, subscription_id, phone, avatar, provider, status_id)
+VALUES 
+('user4@skillgap.com', '$2a$10$aabbcc', 'User Four', 4, 1, '0999000044', null, 'LOCAL', 2),
+('user5@skillgap.com', '$2a$10$aabbcc', 'User Five', 4, 1, '0999000055', null, 'LOCAL', 2),
+('user6@skillgap.com', '$2a$10$aabbcc', 'User Six', 4, 1, '0999000066', null, 'LOCAL', 2),
+('pro1@skillgap.com', '$2a$10$aabbcc', 'Pro User One', 5, 1, '0999000011', null, 'LOCAL', 2),
+('pro2@skillgap.com', '$2a$10$aabbcc', 'Pro User Two', 5, 1, '0999000022', null, 'LOCAL', 2),
+('premium1@skillgap.com', '$2a$10$aabbcc', 'Premium User One', 6, 1, '0888000011', null, 'LOCAL', 2),
+('premium2@skillgap.com', '$2a$10$aabbcc', 'Premium User Two', 6, 1, '0888000022', null, 'LOCAL', 2);
+-- Payment data for the new users (user IDs will be 4,5,6,7,8,9,10 after auto-increment)
 INSERT INTO skill_gap_guide.payment (payment_id, user_id, amount, date, payment_method, transaction_code, qr_code_url, status) VALUES
 (3, 5, 99000, '2024-07-01 09:10:00', 'QR', 'TXN003', 'https://qr.example.com/3', 'SUCCESS'),
 (4, 5, 99000, '2024-07-15 12:15:00', 'BANK', 'TXN004', null, 'SUCCESS'),
