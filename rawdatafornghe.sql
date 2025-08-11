@@ -144,222 +144,217 @@ INSERT INTO specializations (name, occupation_id, status) VALUES ('Sales Directo
 INSERT INTO specializations (name, occupation_id, status) VALUES ('Chief Customer Officer (CCO)', 15, 'Enable');
 INSERT INTO specializations (name, occupation_id, status) VALUES ('Chuyên viên chính sách kinh doanh', 15, 'Enable');
 
--- Marketing (occupation_id = 17)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Digital Marketing', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Content Marketing', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Copywriter', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Content Creator', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('TikTok Content', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Social Content', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('SEO', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Email Marketing', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Social Media', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Affiliate Marketing', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('In-bound Marketing', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Growth Hacker', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Google Ads', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Facebook Ads', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Host Livestream/Streamer', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Marketing Planner', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Brand Marketing', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Product Marketing', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Trade Marketing', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Event Marketing', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('KOL/KOC Manager', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Global Marketing', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Marketing Manager', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Marketing Director', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc Marketing (CMO)', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Sales Marketing', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Marketing Admin', 17, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Marketing Operations', 17, 'Enable');
+-- Marketing (occupation_id = 16)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Digital Marketing', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Content Marketing', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Copywriter', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Content Creator', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('TikTok Content', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Social Content', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('SEO', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Email Marketing', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Social Media', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Affiliate Marketing', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('In-bound Marketing', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Growth Hacker', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Google Ads', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Facebook Ads', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Host Livestream/Streamer', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Marketing Planner', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Brand Marketing', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Product Marketing', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Trade Marketing', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Event Marketing', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('KOL/KOC Manager', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Global Marketing', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Marketing Manager', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Marketing Director', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc Marketing (CMO)', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Sales Marketing', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Marketing Admin', 16, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Marketing Operations', 16, 'Enable');
 
--- Quảng cáo/Sáng tạo (occupation_id = 18)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Campaign Manager', 18, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Media Planner/Buyer Executive', 18, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Media Placement Specialist', 18, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Creative Planner', 18, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Production Manager', 18, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Ad Operations Manager', 18, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Kiểm duyệt quảng cáo', 18, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Creative Director', 18, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Art Director', 18, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Photographer/Video Editor', 18, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Thiết kế đồ họa (Graphic Design)', 18, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Illustration', 18, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Animation Design', 18, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('3D Modeler', 18, 'Enable');
+-- Quảng cáo/Sáng tạo (occupation_id = 17)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Campaign Manager', 17, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Media Planner/Buyer Executive', 17, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Media Placement Specialist', 17, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Creative Planner', 17, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Production Manager', 17, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Ad Operations Manager', 17, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Kiểm duyệt quảng cáo', 17, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Creative Director', 17, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Art Director', 17, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Photographer/Video Editor', 17, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Thiết kế đồ họa (Graphic Design)', 17, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Illustration', 17, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Animation Design', 17, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('3D Modeler', 17, 'Enable');
 
--- Quan hệ Công chúng (PR) (occupation_id = 19)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Chuyên môn Quan hệ Công chúng', 19, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('PR Specialist', 19, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Quan hệ báo chí', 19, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Xử lý khủng hoảng truyền thông', 19, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Corporate Communication', 19, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Xây dựng và bảo vệ thương hiệu', 19, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Truyền thông nội bộ', 19, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Phát triển cộng đồng', 19, 'Enable');
+-- Quan hệ Công chúng (PR) (occupation_id = 18)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Chuyên môn Quan hệ Công chúng', 18, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('PR Specialist', 18, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Quan hệ báo chí', 18, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Xử lý khủng hoảng truyền thông', 18, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Corporate Communication', 18, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Xây dựng và bảo vệ thương hiệu', 18, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Truyền thông nội bộ', 18, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Phát triển cộng đồng', 18, 'Enable');
 
--- Quan hệ Chính phủ (occupation_id = 20)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Chuyên môn Quan hệ chính phủ', 20, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Quan hệ đối ngoại', 20, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Hợp tác quốc tế', 20, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Public Affairs Manager', 20, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Nghiên cứu chính sách', 20, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Goverment Affairs Manager', 20, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Vận động hành lang', 20, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Pháp chế', 20, 'Enable');
+-- Quan hệ Chính phủ (occupation_id = 19)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Chuyên môn Quan hệ chính phủ', 19, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Quan hệ đối ngoại', 19, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Hợp tác quốc tế', 19, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Public Affairs Manager', 19, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Nghiên cứu chính sách', 19, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Goverment Affairs Manager', 19, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Vận động hành lang', 19, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Pháp chế', 19, 'Enable');
 
--- Market Research and Analysis (occupation_id = 21)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Nghiên cứu thị trường (Market Research)', 21, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Business Intelligence', 21, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Quantitative Analyst', 21, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Data Analyst', 21, 'Enable');
+-- Market Research and Analysis (occupation_id = 20)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Nghiên cứu thị trường (Market Research)', 20, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Business Intelligence', 20, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Quantitative Analyst', 20, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Data Analyst', 20, 'Enable');
 
--- Sales dịch vụ Quảng cáo/Triển lãm/Sự kiện (occupation_id = 22)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Kinh doanh dịch vụ quảng cáo', 22, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Kinh doanh triển lãm', 22, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Kinh doanh tiệc/sự kiện/hội nghị', 22, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Kinh doanh mảng Nhà tài trợ', 22, 'Enable');
 
--- Software Engineering (occupation_id = 23)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Software Engineer', 23, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Backend Developer', 23, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Frontend Developer', 23, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Mobile Developer', 23, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Fullstack Developer', 23, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Blockchain Engineer', 23, 'Enable');
+-- Software Engineering (occupation_id = 21)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Software Engineer', 21, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Backend Developer', 21, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Frontend Developer', 21, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Mobile Developer', 21, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Fullstack Developer', 21, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Blockchain Engineer', 21, 'Enable');
 
--- Software Testing (occupation_id = 24)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Software Tester (Automation & Manual)', 24, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Automation Tester', 24, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Manual Tester', 24, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Game Tester', 24, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('QA Engineer', 24, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Process Quality Assurance (PQA)', 24, 'Enable');
+-- Software Testing (occupation_id = 22)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Software Tester (Automation & Manual)', 22, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Automation Tester', 22, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Manual Tester', 22, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Game Tester', 22, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('QA Engineer', 22, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Process Quality Assurance (PQA)', 22, 'Enable');
 
--- Artificial Intelligence (AI) (occupation_id = 25)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('AI Engineer', 25, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('AI Researcher', 25, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Data Labeling (Gán nhãn dữ liệu)', 25, 'Enable');
+-- Artificial Intelligence (AI) (occupation_id = 23)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('AI Engineer', 23, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('AI Researcher', 23, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Data Labeling (Gán nhãn dữ liệu)', 23, 'Enable');
 
--- Data Science (occupation_id = 26)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Data Analyst', 26, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Data Engineer', 26, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Data Scientist', 26, 'Enable');
+-- Data Science (occupation_id = 24)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Data Analyst', 24, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Data Engineer', 24, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Data Scientist', 24, 'Enable');
 
--- IT Infrastructure and Operations (occupation_id = 27)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('IT Helpdesk/IT support', 27, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('DevOps Engineer', 27, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Network Engineer', 27, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('System Engineer', 27, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('System Administrator', 27, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Database Administrator (DBA)', 27, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Cloud Engineer', 27, 'Enable');
+-- IT Infrastructure and Operations (occupation_id = 25)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('IT Helpdesk/IT support', 25, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('DevOps Engineer', 25, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Network Engineer', 25, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('System Engineer', 25, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('System Administrator', 25, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Database Administrator (DBA)', 25, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Cloud Engineer', 25, 'Enable');
 
--- Information Security (occupation_id = 28)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Chuyên viên Cyber Security', 28, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Chuyên viên IT Security', 28, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Chiến lược và phân tích bảo mật', 28, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Quản trị và vận hành bảo mật', 28, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Tuân thủ và kiểm toán bảo mật', 28, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Phòng chống lừa đảo và an ninh mạng', 28, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Bảo mật ứng dụng và phát triển', 28, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Mã hóa và bảo mật dữ liệu', 28, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Kiểm thử và đánh giá bảo mật', 28, 'Enable');
+-- Information Security (occupation_id = 26)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Chuyên viên Cyber Security', 26, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Chuyên viên IT Security', 26, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Chiến lược và phân tích bảo mật', 26, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Quản trị và vận hành bảo mật', 26, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Tuân thủ và kiểm toán bảo mật', 26, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Phòng chống lừa đảo và an ninh mạng', 26, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Bảo mật ứng dụng và phát triển', 26, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Mã hóa và bảo mật dữ liệu', 26, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Kiểm thử và đánh giá bảo mật', 26, 'Enable');
 
--- IoT/Embedded Engineer (occupation_id = 29)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Kỹ sư IoT (IoT Engineer)', 29, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Embedded Engineer/Lập trình nhúng', 29, 'Enable');
+-- IoT/Embedded Engineer (occupation_id = 27)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Kỹ sư IoT (IoT Engineer)', 27, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Embedded Engineer/Lập trình nhúng', 27, 'Enable');
 
--- IT Project Management (occupation_id = 30)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('IT Project Manager', 30, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Scrum Master', 30, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Kỹ sư cầu nối BrSE', 30, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('IT Comtor', 30, 'Enable');
+-- IT Project Management (occupation_id = 28)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('IT Project Manager', 28, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Scrum Master', 28, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Kỹ sư cầu nối BrSE', 28, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('IT Comtor', 28, 'Enable');
 
--- IT Management/Specialist (occupation_id = 31)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Software Architect', 31, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('System Architect', 31, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Solution Architect', 31, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Technical Leader', 31, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Technical Manager', 31, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Head of Engineering', 31, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Technical Director', 31, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Chief Technology Officer (CTO)', 31, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Chief Information Officer (CIO)', 31, 'Enable');
+-- IT Management/Specialist (occupation_id = 29)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Software Architect', 29, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('System Architect', 29, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Solution Architect', 29, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Technical Leader', 29, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Technical Manager', 29, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Head of Engineering', 29, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Technical Director', 29, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Chief Technology Officer (CTO)', 29, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Chief Information Officer (CIO)', 29, 'Enable');
 
--- Software Design (occupation_id = 32)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('UI/UX Design', 32, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Thiết kế đồ họa (Graphic Design)', 32, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Illustration', 32, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Animation Design', 32, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Interaction Designer', 32, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('3D Modeler', 32, 'Enable');
+-- Software Design (occupation_id = 30)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('UI/UX Design', 30, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Thiết kế đồ họa (Graphic Design)', 30, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Illustration', 30, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Animation Design', 30, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Interaction Designer', 30, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('3D Modeler', 30, 'Enable');
 
--- Product Management (occupation_id = 33)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Product Owner/Product Manager', 33, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Business Analyst (Phân tích nghiệp vụ)', 33, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Product Analyst/Research', 33, 'Enable');
+-- Product Management (occupation_id = 31)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Product Owner/Product Manager', 31, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Business Analyst (Phân tích nghiệp vụ)', 31, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Product Analyst/Research', 31, 'Enable');
 
--- Game Development (occupation_id = 34)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Game Developer', 34, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Concept Artist', 34, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Game Design', 34, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('AR/VR Developer', 34, 'Enable');
+-- Game Development (occupation_id = 32)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Game Developer', 32, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Concept Artist', 32, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Game Design', 32, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('AR/VR Developer', 32, 'Enable');
 
--- Tài chính (occupation_id = 35)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Chuyên môn Tài chính', 35, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Hoạch định tài chính', 35, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Định chế tài chính', 35, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Kiểm soát và báo cáo tài chính', 35, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn tài chính', 35, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc tài chính', 35, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Huy động vốn', 35, 'Enable');
+-- Tài chính (occupation_id = 33)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Chuyên môn Tài chính', 33, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Hoạch định tài chính', 33, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Định chế tài chính', 33, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Kiểm soát và báo cáo tài chính', 33, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn tài chính', 33, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc tài chính', 33, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Huy động vốn', 33, 'Enable');
 
--- Ngân hàng (occupation_id = 36)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Giao dịch viên', 36, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Chuyên viên xử lý nợ', 36, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Kinh doanh nguồn vốn', 36, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Kinh doanh ngoại hối, vàng, phái sinh', 36, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Tài trợ thương mại', 36, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc khối khách hàng cá nhân', 36, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc khối khách hàng doanh nghiệp', 36, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc khối nguồn vốn và thị trường', 36, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc kinh doanh bảo hiểm', 36, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc ngân hàng', 36, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Quan hệ khách hàng cá nhân/doanh nghiệp', 36, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn trả góp', 36, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Thẩm định tín dụng', 36, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Tác nghiệp tín dụng', 36, 'Enable');
+-- Ngân hàng (occupation_id = 34)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Giao dịch viên', 34, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Chuyên viên xử lý nợ', 34, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Kinh doanh nguồn vốn', 34, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Kinh doanh ngoại hối, vàng, phái sinh', 34, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Tài trợ thương mại', 34, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc khối khách hàng cá nhân', 34, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc khối khách hàng doanh nghiệp', 34, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc khối nguồn vốn và thị trường', 34, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc kinh doanh bảo hiểm', 34, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc ngân hàng', 34, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Quan hệ khách hàng cá nhân/doanh nghiệp', 34, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn trả góp', 34, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Thẩm định tín dụng', 34, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Tác nghiệp tín dụng', 34, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Kiểm soát tuân thủ', 34, 'Enable');
+
+-- Chứng khoán (occupation_id = 35)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Phân tích đầu tư chứng khoán', 35, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Quản lý danh mục đầu tư', 35, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn chứng khoán', 35, 'Enable');
+
+-- Thẩm định và quản trị rủi ro (occupation_id = 36)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Quản trị rủi ro', 36, 'Enable');
 INSERT INTO specializations (name, occupation_id, status) VALUES ('Kiểm soát tuân thủ', 36, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Phòng chống rửa tiền', 36, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Pháp chế', 36, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Thẩm định tín dụng', 36, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Quản lý thanh khoản', 36, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Định giá tài sản', 36, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Thu hồi nợ', 36, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc tuân thủ và pháp lý', 36, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc quản lý rủi ro (CRO)', 36, 'Enable');
 
--- Chứng khoán (occupation_id = 37)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Phân tích đầu tư chứng khoán', 37, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Quản lý danh mục đầu tư', 37, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn chứng khoán', 37, 'Enable');
-
--- Thẩm định và quản trị rủi ro (occupation_id = 38)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Quản trị rủi ro', 38, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Kiểm soát tuân thủ', 38, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Phòng chống rửa tiền', 38, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Pháp chế', 38, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Thẩm định tín dụng', 38, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Quản lý thanh khoản', 38, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Định giá tài sản', 38, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Thu hồi nợ', 38, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc tuân thủ và pháp lý', 38, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc quản lý rủi ro (CRO)', 38, 'Enable');
-
--- Đầu tư và Tài trợ (occupation_id = 39)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Phân tích đầu tư', 39, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Tài trợ thương mại', 39, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Mua bán và sáp nhập (M&A)', 39, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Quan hệ nhà đầu tư', 39, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Quản lý tài sản', 39, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Quản lý danh mục/quỹ', 39, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc/Phó giám đốc đầu tư', 39, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn đầu tư', 39, 'Enable');
+-- Đầu tư và Tài trợ (occupation_id = 37)
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Phân tích đầu tư', 37, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Tài trợ thương mại', 37, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Mua bán và sáp nhập (M&A)', 37, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Quan hệ nhà đầu tư', 37, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Quản lý tài sản', 37, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Quản lý danh mục/quỹ', 37, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc/Phó giám đốc đầu tư', 37, 'Enable');
+INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn đầu tư', 37, 'Enable');
 
 -- User Pro
 INSERT INTO skill_gap_guide.user (user_id, email, password, full_name, role_id, subscription_id, phone, avatar, provider, status_id)
@@ -527,7 +522,161 @@ UPDATE specializations
 SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-bao-bi-cr1cb2cl28?type_keyword=0&sba=1&category_family=r1~b2l28'
 WHERE id = 30;
 
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-sales-the-tap-cr1cb2cl29?type_keyword=0&sba=1&category_family=r1~b2l29'
+WHERE id = 31;
 
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-sales-ban-le-dich-vu-tieu-dung-khac-cr1cb2cl30?type_keyword=0&sba=1&category_family=r1~b2l30'
+WHERE id = 32;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-hoa-chat-cr1cb9cl50?type_keyword=0&sba=1&category_family=r1~b9l50'
+WHERE id = 33;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-o-to-xe-may-xe-dien-cr1cb9cl51?type_keyword=0&sba=1&category_family=r1~b9l51'
+WHERE id = 34;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-phu-tung-o-to-xe-may-xe-dien-cr1cb9cl52?type_keyword=0&sba=1&category_family=r1~b9l52'
+WHERE id = 35;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ban-hang-ky-thuat-dien-dien-tu-vien-thong-cr1cb15cl74?type_keyword=0&sba=1&category_family=r1~b15l74'
+WHERE id = 36;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ban-hang-ky-thuat-co-khi-cr1cb15cl75?type_keyword=0&sba=1&category_family=r1~b15l75'
+WHERE id = 37;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ban-hang-ky-thuat-it-cr1cb15cl76?type_keyword=0&sba=1&category_family=r1~b15l76'
+WHERE id = 38;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-horeca-cr1cb13cl67?type_keyword=0&sba=1&category_family=r1~b13l67'
+WHERE id = 39;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-sales-tour-kinh-doanh-du-lich-cr1cb13cl68?type_keyword=0&sba=1&category_family=r1~b13l68'
+WHERE id = 40;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-khach-doan-mice-cr1cb13cl69?type_keyword=0&sba=1&category_family=r1~b13l69'
+WHERE id = 41;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ban-ve-may-bay-ticketing-booker-cr1cb13cl70?type_keyword=0&sba=1&category_family=r1~b13l70'
+WHERE id = 42;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-khach-san-cr1cb13cl71?type_keyword=0&sba=1&category_family=r1~b13l71'
+WHERE id = 43;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-ota-cr1cb13cl72?type_keyword=0&sba=1&category_family=r1~b13l72'
+WHERE id = 44;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-thiet-bi-vat-tu-y-te-cr1cb10cl53?type_keyword=0&sba=1&category_family=r1~b10l53'
+WHERE id = 45;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-trinh-duoc-vien-cr1cb10cl54?type_keyword=0&sba=1&category_family=r1~b10l54'
+WHERE id = 46;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-duoc-si-ban-thuoc-cr1cb10cl55?type_keyword=0&sba=1&category_family=r1~b10l55'
+WHERE id = 47;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tu-van-tham-my-spa-cr1cb10cl56?type_keyword=0&sba=1&category_family=r1~b10l56'
+WHERE id = 48;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tu-van-nha-khoa-cr1cb10cl57?type_keyword=0&sba=1&category_family=r1~b10l57'
+WHERE id = 49;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-dich-vu-y-te-cr1cb10cl905?type_keyword=0&sba=1&category_family=r1~b10l905'
+WHERE id = 50;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-phan-mem-cr1cb5cl34?type_keyword=0&sba=1&category_family=r1~b5l34'
+WHERE id = 51;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-domain-hosting-server-cr1cb5cl35?type_keyword=0&sba=1&category_family=r1~b5l35'
+WHERE id = 52;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-thiet-bi-linh-kien-dien-cr1cb12cl62?type_keyword=0&sba=1&category_family=r1~b12l62'
+WHERE id = 53;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-thiet-bi-cong-nghiep-cr1cb12cl63?type_keyword=0&sba=1&category_family=r1~b12l63'
+WHERE id = 54;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-dich-vu-vien-thong-cr1cb12cl64?type_keyword=0&sba=1&category_family=r1~b12l64'
+WHERE id = 55;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-dien-mat-troi-cr1cb12cl65?type_keyword=0&sba=1&category_family=r1~b12l65'
+WHERE id = 56;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-hvac-cr1cb12cl66?type_keyword=0&sba=1&category_family=r1~b12l66'
+WHERE id = 57;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-dich-vu-quang-cao-cr1cb11cl58?type_keyword=0&sba=1&category_family=r1~b11l58'
+WHERE id = 58;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-trien-lam-cr1cb11cl59?type_keyword=0&sba=1&category_family=r1~b11l59'
+WHERE id = 59;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-tiec-su-kien-hoi-nghi-cr1cb11cl60?type_keyword=0&sba=1&category_family=r1~b11l60'
+WHERE id = 60;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-mang-nha-tai-tro-cr1cb11cl61?type_keyword=0&sba=1&category_family=r1~b11l61'
+WHERE id = 61;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-san-thuong-mai-dien-tu-cr1cb14cl73?type_keyword=0&sba=1&category_family=r1~b14l73'
+WHERE id = 62;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-sales-manager-truong-phong-kinh-doanh-cr1cb17cl83?type_keyword=0&sba=1&category_family=r1~b17l83'
+WHERE id = 63;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-sales-supervisor-giam-sat-ban-hang-cr1cb17cl82?type_keyword=0&sba=1&category_family=r1~b17l82'
+WHERE id = 64;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-asm-quan-ly-khu-vuc-vung-mien-cr1cb17cl85?type_keyword=0&sba=1&category_family=r1~b17l85'
+WHERE id = 65;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-ly-cua-hang-cua-hang-truong-cr1cb17cl86?type_keyword=0&sba=1&category_family=r1~b17l86'
+WHERE id = 66;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-sales-director-giam-doc-kinh-doanh-cr1cb17cl87?type_keyword=0&sba=1&category_family=r1~b17l87'
+WHERE id = 67;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-chief-customer-officer-cco-cr1cb17cl88?type_keyword=0&sba=1&category_family=r1~b17l88&u_sr_id=nMCTiLxkcor5THuoJgCHqrOteJjNxkq23Exna1iZ_1754926468&page=0'
+WHERE id = 68;
+
+UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-chuyen-vien-chinh-sach-kinh-doanh-cr1cb17cl1024?type_keyword=0&sba=1&category_family=r1~b17l1024'
+WHERE id = 69;
 
 
 
