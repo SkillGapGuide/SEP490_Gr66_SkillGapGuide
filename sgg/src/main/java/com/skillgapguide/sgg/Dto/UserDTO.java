@@ -10,4 +10,5 @@ public class UserDTO {
     private String phone;
     private String avatar;
     private String role;
+    private String provider;
 }

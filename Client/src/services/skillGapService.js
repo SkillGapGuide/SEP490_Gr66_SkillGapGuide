@@ -42,4 +42,26 @@ export const skillGapService = {
       throw new Error(error.message || "Fetch job skills failed");
     }
   }  ,
+
+  // option param 1 : job file -param 1
+  // option param 2 : link job -param 2
+  // option param 3 : auto scpare =param 3
+  analyzeJobDescription: async (option ) => {
+    try {
+      const response = await apiService.get(ENDPOINTS.job.analyzeJob, { option });
+      return response;
+    } catch (error) {
+      console.error("Error analyzing job description:", error);
+      throw new Error(error.message || "Analyze job description failed");
+    }
+  },
+   getJobMatchScore: async () => {
+    try {
+      const response = await apiService.get(ENDPOINTS.job.getJobMatchScore );
+      return response;
+    } catch (error) {
+      console.error("Error fetching job match score:", error);
+      throw new Error(error.message || "Fetch job match score failed")};
+    }
 };
+

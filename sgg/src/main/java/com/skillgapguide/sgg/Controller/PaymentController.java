@@ -18,6 +18,7 @@ import com.skillgapguide.sgg.Response.Response;
 import com.skillgapguide.sgg.Service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,6 +33,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import jakarta.servlet.http.HttpServletResponse;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -43,6 +47,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payment")
+
 //@SecurityRequirement(name = "Bearer Authentication")
 @RequiredArgsConstructor
 public class PaymentController {
@@ -55,6 +60,8 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final SubscriptionRepository subscriptionRepository;
     private final UserSubscriptionHistoryRepository userSubscriptionHistoryRepository;
+    @Value("${application.frontend-url}")
+    private String frontendUrl;
     @GetMapping("/filter")
     public Response<Page<PaymentDTO>> filterPaymentsByStatus(
             @RequestParam String status,
@@ -218,7 +225,7 @@ public class PaymentController {
     }
 
     @GetMapping("/vnpay-return")
-    public ResponseEntity<Response<Map<String, Object>>> paymentReturn(@RequestParam Map<String, String> params) {
+    public void paymentReturn(@RequestParam Map<String, String> params, HttpServletResponse response) throws IOException {
         try {
             String status = params.get("vnp_ResponseCode");
             String transactionNo = params.get("vnp_TransactionNo");
@@ -228,8 +235,8 @@ public class PaymentController {
             // Tách userId và subscriptionId từ TxnRef
             String[] parts = txnRef.split("_");
             if (parts.length < 2) {
-                return ResponseEntity.badRequest().body(
-                        new Response<>(EHttpStatus.BAD_REQUEST, "Dữ liệu TxnRef không hợp lệ", Map.of("txnRef", txnRef)));
+                response.sendRedirect(frontendUrl + "/payment-result?status=error&message=invalid_txnRef");
+                return;
             }
 
             Integer userId = Integer.parseInt(parts[0]);
@@ -247,13 +254,11 @@ public class PaymentController {
             int newType = newSubscription.getType();
 
             if (currentType >= newType) {
-                return ResponseEntity.badRequest().body(
-                        new Response<>(EHttpStatus.BAD_REQUEST,
-                                "Bạn đang sử dụng gói cao hơn hoặc tương đương, không thể mua gói thấp hơn!",
-                                Map.of("currentType", currentType, "newType", newType)));
+                response.sendRedirect(frontendUrl + "/payment-result?status=error&message=invalid_upgrade");
+                return;
             }
 
-            // Nếu là nâng cấp: cập nhật UserSubscriptionHistory hiện tại (nếu có) thành EXPIRED
+            // Hết hạn các gói đang ACTIVE
             List<UserSubscriptionHistory> activeHistories = userSubscriptionHistoryRepository.findByUserAndStatus(user, "ACTIVE");
             LocalDateTime now = LocalDateTime.now();
             for (UserSubscriptionHistory history : activeHistories) {
@@ -262,14 +267,13 @@ public class PaymentController {
                 userSubscriptionHistoryRepository.save(history);
             }
 
-            // Cập nhật user: roleId theo type, subscriptionId
+            // Cập nhật roleId & subscriptionId
             int roleId;
             switch (newType) {
                 case 2 -> roleId = 5; // PRO
                 case 3 -> roleId = 6; // PREMIUM
                 default -> roleId = 4; // BASIC
             }
-
             user.setRoleId(roleId);
             user.setSubscriptionId(subscriptionId);
             userRepository.save(user);
@@ -279,13 +283,13 @@ public class PaymentController {
             history.setUser(user);
             history.setSubscription(newSubscription);
             history.setStartDate(now);
-            history.setEndDate(now.plusDays(1));
+            history.setEndDate(now.plusDays(30));
             history.setStatus("ACTIVE");
             history.setCreatedAt(now);
             history.setUpdatedAt(now);
             userSubscriptionHistoryRepository.save(history);
 
-            // Ghi vào bảng Payment
+            // Ghi Payment
             Payment payment = new Payment();
             payment.setAmount(amount);
             payment.setDate(new Date());
@@ -293,32 +297,24 @@ public class PaymentController {
             payment.setTransactionCode(transactionNo);
             payment.setPaymentMethod("VNPAY");
             payment.setUserId(user.getUserId());
-
             Payment saved = paymentRepo.save(payment);
 
-            Map<String, Object> data = new HashMap<>();
-            data.put("status", status);
-            data.put("transactionCode", transactionNo);
-            data.put("paymentId", saved.getPaymentId());
-
+            // Redirect về frontend
             if ("00".equals(status)) {
-                return ResponseEntity.ok(
-                        new Response<>(EHttpStatus.OK, "Thanh toán thành công", data));
+                response.sendRedirect(frontendUrl + "/payment-result?status=success"
+                        + "&transactionCode=" + transactionNo
+                        + "&paymentId=" + saved.getPaymentId());
             } else {
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .body(new Response<>(EHttpStatus.BAD_REQUEST, "Thanh toán thất bại", data));
+                response.sendRedirect(frontendUrl + "/payment-result?status=failed"
+                        + "&transactionCode=" + transactionNo);
             }
 
         } catch (Exception e) {
-            Map<String, Object> errorData = Map.of("error", e.getMessage());
-
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new Response<>(EHttpStatus.BAD_REQUEST, "Lỗi khi xử lý callback từ VNPAY", errorData));
+            String errorUrl = frontendUrl + "/payment-result?status=error&message="
+                    + URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
+            response.sendRedirect(errorUrl);
         }
     }
-
 
     @PostMapping("/getPaymentFromCassio")
     public void handleWebhook(@RequestBody String payload, @RequestHeader("secure-token") String webhookKey) throws Exception {

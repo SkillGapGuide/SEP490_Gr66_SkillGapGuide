@@ -4,7 +4,7 @@ const BASE_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:8080';
 // 1. api instance - Cấu hình cơ bản axios
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 200000,// 180 giây timeout
+  timeout: 20 * 60 * 1000, // 20 phú
   // headers: {
   //   'Content-Type': 'application/json',
   // }
@@ -26,7 +26,14 @@ api.interceptors.request.use(
 
 // Response interceptor
 api.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    // Nếu là blob (responseType), trả về response đầy đủ
+    if (response.config && response.config.responseType === "blob") {
+      return response;
+    }
+    // Mặc định: trả về data như cũ cho API json
+    return response.data;
+  },
   (error) => {
     if (error.response) {
       const message = error.response.data?.message || '';

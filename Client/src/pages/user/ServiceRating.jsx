@@ -1,21 +1,34 @@
-import React, { useState } from "react";
+import React, { useState ,useContext} from "react";
 import TopMenu from "./TopMenu";
 import { FaStar } from "react-icons/fa";
-
+import { feedbackService } from "../../services/feedbackService";
+import { showConfirm,showError,showInfo,showSuccess } from "../../utils/alert";
+import { UserContext } from "../../context/UserContext";
 const ServiceRating = () => {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState("");
-
-  const handleSubmit = () => {
+    const { user } = useContext(UserContext); 
+  const handleSubmit = async() => {
     if (rating === 0 || comment.trim() === "") {
-      alert("Vui lòng chọn số sao và nhập nội dung đánh giá.");
+      showError("Vui lòng chọn số sao và nhập nội dung đánh giá.");
       return;
     }
-    alert(`Đánh giá đã gửi!\nSố sao: ${rating}\nNội dung: ${comment}`);
+    try {
+      
+    await feedbackService.createFeedback({
+      userId: user.id, // Replace with actual user ID
+      content: comment,
+      star: rating,
+    });
+    showInfo("Cảm ơn bạn đã gửi đánh giá!");
     setRating(0);
     setHover(0);
     setComment("");
+    } catch (error) {
+      
+    }
+    
   };
 
   return (

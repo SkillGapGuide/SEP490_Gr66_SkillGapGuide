@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { userAdminService } from "../../services/userAdminService";
+import { showError, showSuccess } from "../../utils/alert";
 
 // Update the roles and status constants to match API values
-const roles = ["Tất cả", "System Admin", "Premium User", "Free User"];
+const roles = ["Tất cả", "System Admin", "Premium User", "Free User","Content Manager", "Finance Admin","Pro User"];
 const statuses = ["Tất cả", "VERIFIED", "NOT_VERIFIED","BANNED"];
 
 const statusLabel = {
@@ -59,15 +60,11 @@ function ManagerUser() {
   }, [search, role, status, page, pageSize]); // Update dependencies
 
   // Update view detail handler to fetch user details
-  const handleViewDetail = async (user) => {
-    try {
-      const userDetail = await userAdminService.getUserByEmail(user.email);
-      setSelectedUser(userDetail);
-      setShowDetail(true);
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-    }
-  };
+  const handleViewDetail = (user) => {
+  setSelectedUser(user);
+  setShowDetail(true);
+};
+
 
   // Xử lý sort click
   // const handleSort = (field) => {
@@ -84,9 +81,27 @@ function ManagerUser() {
     );
   }
 
-  const handleCreateUser = (userData) => {
+  const handleCreateUser = async (userData) => {
     // Add API call here
-    console.log('Create user:', userData);
+   
+    const { name, email, phone, password, role } = userData;
+    const newUser = {
+      fullName: name,
+      email,
+      phone,    
+      password,
+      roleId: role
+      // roleId 3 is for "Người dùng" and 2 is for "Admin"
+    };
+    console.log("Creating user with data:", newUser);
+    try {
+       await userAdminService.createAdminAccount(newUser);
+       showSuccess("Tạo người dùng thành công");
+
+    } catch (error) {
+      showError("Error creating user: " + error.message);
+      
+    }
     setShowCreate(false);
   };
 
@@ -328,7 +343,7 @@ function CreateUserModal({ onClose, onSubmit }) {
     email: '',
     phone: '',
     password: '',
-    role: 'Người dùng'
+    role: 1 // Default to "Người quản lí hệ thống"
   });
 
   const handleSubmit = (e) => {
@@ -377,8 +392,9 @@ function CreateUserModal({ onClose, onSubmit }) {
               onChange={(e) => setFormData({...formData, role: e.target.value})}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="Người dùng">Người dùng</option>
-              <option value="Admin">Admin</option>
+              <option value="2">Người quản lí nội dung</option>
+              <option value="3">Người quản lí tài chính</option>
+              <option value="1">Người quản lí hệ thống </option>
             </select>
           </div>
           <div className="flex justify-end gap-2 mt-6">

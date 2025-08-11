@@ -11,8 +11,8 @@ export const courService = {
     return await apiService.get(`${ENDPOINTS.course.getAllCourses}?pageNo=${pageNo}&pageSize=${pageSize}`);
   },
 
-  scrapeAutomation: async (numPage=1, numItems=10) => {
-    return await apiService.post(`${ENDPOINTS.course.scrape}?numPage=${numPage}&numItems=${numItems}`);
+  scrapeAutomation: async (numPage=1, numItems=3,cvId) => {
+    return await apiService.post(`${ENDPOINTS.course.scrape}?numPage=${numPage}&numItems=${numItems}&cvId=${cvId}`);
   },
   addCourseManually: async (data) => {
   // Validate và chuẩn hóa đầu vào
@@ -86,8 +86,6 @@ export const courService = {
       ENDPOINTS.course.deleteAllFavoriteCourse.replace("{userId}", userId)
     );
   },
- crawl5JobsByLinks: async (links) => {
-  return await apiService.post(ENDPOINTS.scraper.scraper1To5Jobs, { urls: links });
-}
+ 
 
 };

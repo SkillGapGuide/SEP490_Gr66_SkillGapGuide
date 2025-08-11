@@ -1,31 +1,60 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-export const useCVWizardStore = create((set) => ({
-  // State lưu file CV
-  cvFile: null,
-  setCVFile: (cvFile) => set({ cvFile }),
+export const useCVWizardStore = create(
+  persist(
+    (set) => ({
+      // Những gì nên persist (không persist file object)
+      cvId: null, // Lưu cvId lấy được từ API sau khi upload
+      setCvId: (cvId) => set({ cvId }),
 
-  // State lưu kết quả upload CV (tùy ý)
-  uploadResult: null,
-  setUploadResult: (uploadResult) => set({ uploadResult }),
+      selectedOption: "", // "upload" | "link" | "auto"
+      setSelectedOption: (selectedOption) => set({ selectedOption }),
 
-  // State lưu danh sách link TOPCV
-  topcvLinks: [],
-  setTopcvLinks: (topcvLinks) => set({ topcvLinks }),
-
-  // Các state khác bạn muốn lưu giữa các bước:
-  jobFiles: [],
-  setJobFiles: (jobFiles) => set({ jobFiles }),
-  selectedOption: "", // NEW: lưu loại người dùng chọn ("upload", "link", "auto")
-  setSelectedOption: (selectedOption) => set({ selectedOption }),
-  // Nếu cần clear toàn bộ khi user hoàn thành/quay lại từ đầu:
-  resetWizard: () =>
-    set({
-      cvFile: null,
-      uploadResult: null,
       topcvLinks: [],
+      setTopcvLinks: (topcvLinks) => set({ topcvLinks }),
+
+      jobFilesMeta: [], // chỉ lưu metadata các file
+      setJobFilesMeta: (filesMeta) => set({ jobFilesMeta: filesMeta }),
+
+      // Chỉ để preview khi chưa reload (không persist)
+      cvFile: null,
+      setCVFile: (cvFile) => set({ cvFile }),
+
       jobFiles: [],
-       selectedOption: "", // reset luôn option khi quay lại đầu
-      // reset các state khác tuỳ bạn!
+      setJobFiles: (jobFiles) => set({ jobFiles }),
+
+      uploadResult: null,
+      setUploadResult: (uploadResult) => set({ uploadResult }),
+      
+      cvUploaded: false,
+setCvUploaded: (uploaded) => set({ cvUploaded: uploaded }),
+  analysisNeedRun: false,
+      setAnalysisNeedRun: (v) => set({ analysisNeedRun: v }),
+      clearAllCvAndFile: () =>
+        set({
+          cvId: null,
+          selectedOption: "",
+          topcvLinks: [],
+          jobFilesMeta: [],
+          cvUploaded: false,
+          cvFile: null,
+          jobFiles: [],
+          uploadResult: null,
+          analysisNeedRun: false,
+        }),
     }),
-}));
+    {
+      name: "cvwizard-persist",
+      // Chỉ persist các trường bên trên, không persist file object!
+      partialize: (state) => ({
+        cvId: state.cvId,
+         cvUploaded: state.cvUploaded,
+        selectedOption: state.selectedOption,
+        topcvLinks: state.topcvLinks,
+        jobFilesMeta: state.jobFilesMeta,
+        analysisNeedRun: state.analysisNeedRun,
+      }),
+    }
+  )
+);

@@ -100,11 +100,13 @@ async sendUserToBackend(session) {
 
    try {
   const response = await axios.post(`${API_URL}/api/auth/google`, userData);
-  if (response.data.token) {
-    localStorage.setItem('token', response.data.token);
+  console.log("🔐 Sending user to backend:", response);
+  
+  if (response.data.result.token) {
+    localStorage.setItem('token', response.data.result.token);
     window.dispatchEvent(authStateChange);
   }
-  return response.data;
+  // return response.data.result;
 } catch (error) {
   if (error.response?.status === 409) {
     alert("Email này đã đăng ký bằng tài khoản khác. Vui lòng đăng nhập bằng đúng phương thức hoặc liên hệ hỗ trợ.");

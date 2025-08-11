@@ -51,7 +51,7 @@ export const ENDPOINTS = {
   scraper: {
     scrapeJob: "/api/scrape/job",
     crawlTenJobs: "/api/scrape/crawl-10-jobs",
-    scraper1To5Jobs: "api/scrape/crawl-4-jobs-by-links",
+    scraper1To5Jobs: "/api/scrape/crawl-4-jobs-by-links",
   },
   feedback: {
     getAllFeedbacks: "/api/feedback/getAll",
@@ -121,6 +121,11 @@ export const ENDPOINTS = {
     uploadFileJob: "/api/job/upload-jd",
     getJobSkills : "/api/job/getJobSkill",
     getJobList:"/api/job/getJobList",
+    analyzeJob: "/api/job/analyzeJobDescription",
+    getJobMatchScore :"/api/job/match/getJobMatchScore",
+    addFavoriteJob:"/api/favorite-job/add/{jobId}",
+    removeFavoriteJob:"/api/favorite-job/add/{jobId}",
+    getFavoriteJobs: "/api/favorite-job/list",
   },
   payment :{
     vnpayReturn: "/api/payment/vnpay-return",
@@ -136,5 +141,12 @@ export const ENDPOINTS = {
   skillGap :{
     getSkillGap: "/api/gap/getSkillGap",
     getCommentSkill:"/api/gap/getCommentSkill",
+  },
+  subscription: {
+    createSubscription: "/api/subscription/create-subscription",
+    getSubscriptionById: "/api/subscription/get-subscription-by-id",
+    getAllSubscriptions: "/api/subscription/get-all-subscriptions",
+    updateSubscription: "/api/subscription/edit-subscription",
+    deleteSubscription: "/api/subscription/delete/{id}",
   }
 };

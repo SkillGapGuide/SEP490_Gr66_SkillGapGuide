@@ -458,7 +458,7 @@ public class CourseService {
     // Constants
     private static final String BASE_URL = "https://www.udemy.com";
     //    private static final String SEARCH_KEYWORD = "Java";
-    private static final String DEFAULT_CHROME_DRIVER_PATH = "sgg/drivers/chromedriver.exe";
+    private static final String DEFAULT_CHROME_DRIVER_PATH = "drivers/chromedriver.exe";
 //    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
 
     private static final int TIMEOUT_SECONDS = 4;

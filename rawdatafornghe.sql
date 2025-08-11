@@ -361,24 +361,51 @@ INSERT INTO specializations (name, occupation_id, status) VALUES ('Quản lý da
 INSERT INTO specializations (name, occupation_id, status) VALUES ('Giám đốc/Phó giám đốc đầu tư', 39, 'Enable');
 INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn đầu tư', 39, 'Enable');
 
--- Bảo hiểm (occupation_id = 40)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Bồi thường bảo hiểm', 40, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Định phí bảo hiểm', 40, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Thẩm định và phát hành hợp đồng bảo hiểm', 40, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Quản lý hợp đồng bảo hiểm', 40, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn bảo hiểm', 40, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Bancassurance', 40, 'Enable');
+-- User Pro
+INSERT INTO skill_gap_guide.user (user_id, email, password, full_name, role_id, subscription_id, phone, avatar, provider, status_id)
+VALUES (7, 'pro1@example.com', '$2a$10$aabbcc', 'Pro User One', 5, 1, '0999000011', null, 'LOCAL', 2);
 
--- Sales Tài chính/Ngân hàng/Bảo hiểm (occupation_id = 41)
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn bảo hiểm', 41, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Quan hệ khách hàng cá nhân/doanh nghiệp', 41, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn trả góp', 41, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn tín dụng', 41, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Bancassurance', 41, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn đầu tư', 41, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn chứng khoán', 41, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Kinh doanh ngoại hối, vàng, phái sinh', 41, 'Enable');
-INSERT INTO specializations (name, occupation_id, status) VALUES ('Tư vấn tài chính', 41, 'Enable');
+INSERT INTO skill_gap_guide.user (user_id, email, password, full_name, role_id, subscription_id, phone, avatar, provider, status_id)
+VALUES (8, 'pro2@example.com', '$2a$10$aabbcc', 'Pro User Two', 5, 1, '0999000022', null, 'LOCAL', 2);
+
+-- User Premium
+INSERT INTO skill_gap_guide.user (user_id, email, password, full_name, role_id, subscription_id, phone, avatar, provider, status_id)
+VALUES (9, 'premium1@example.com', '$2a$10$aabbcc', 'Premium User One', 6, 1, '0888000011', null, 'LOCAL', 2);
+
+INSERT INTO skill_gap_guide.user (user_id, email, password, full_name, role_id, subscription_id, phone, avatar, provider, status_id)
+VALUES (10, 'premium2@example.com', '$2a$10$aabbcc', 'Premium User Two', 6, 1, '0888000022', null, 'LOCAL', 2);
+INSERT INTO skill_gap_guide.payment (payment_id, user_id, amount, date, payment_method, transaction_code, qr_code_url, status) VALUES
+(3, 5, 99000, '2024-07-01 09:10:00', 'QR', 'TXN003', 'https://qr.example.com/3', 'SUCCESS'),
+(4, 5, 99000, '2024-07-15 12:15:00', 'BANK', 'TXN004', null, 'SUCCESS'),
+(5, 6, 150000, '2024-07-20 15:45:00', 'QR', 'TXN005', 'https://qr.example.com/5', 'SUCCESS'),
+(6, 7, 99000, '2024-06-22 10:11:00', 'VNPAY', 'TXN006', null, 'PENDING'),
+(7, 7, 99000, '2024-07-22 13:20:00', 'QR', 'TXN007', 'https://qr.example.com/7', 'SUCCESS'),
+(8, 8, 150000, '2024-06-10 09:00:00', 'BANK', 'TXN008', null, 'FAILED'),
+(9, 8, 99000, '2024-07-05 19:45:00', 'QR', 'TXN009', 'https://qr.example.com/9', 'SUCCESS'),
+(10, 9, 199000, '2024-06-13 08:30:00', 'VNPAY', 'TXN010', null, 'SUCCESS'),
+(11, 9, 249000, '2024-07-07 11:40:00', 'QR', 'TXN011', 'https://qr.example.com/11', 'SUCCESS'),
+(12, 9, 499000, '2024-07-25 20:25:00', 'QR', 'TXN012', 'https://qr.example.com/12', 'PENDING'),
+(13, 10, 249000, '2024-07-03 18:10:00', 'QR', 'TXN013', 'https://qr.example.com/13', 'SUCCESS'),
+(14, 10, 499000, '2024-07-13 14:00:00', 'BANK', 'TXN014', null, 'FAILED'),
+(15, 10, 149000, '2024-06-28 10:00:00', 'VNPAY', 'TXN015', null, 'SUCCESS'),
+(16, 1, 0, '2024-07-01 08:00:00', 'FREE', null, null, 'SUCCESS'),
+(17, 2, 0, '2024-07-02 08:05:00', 'FREE', null, null, 'SUCCESS'),
+(18, 3, 99000, '2024-07-02 11:11:00', 'BANK', 'TXN018', null, 'PENDING'),
+(19, 3, 99000, '2024-07-15 12:34:00', 'QR', 'TXN019', 'https://qr.example.com/19', 'FAILED'),
+(20, 4, 150000, '2024-06-30 14:55:00', 'QR', 'TXN020', 'https://qr.example.com/20', 'SUCCESS'),
+(21, 5, 99000, '2024-07-28 17:30:00', 'QR', 'TXN021', 'https://qr.example.com/21', 'SUCCESS'),
+(22, 6, 150000, '2024-07-25 08:45:00', 'BANK', 'TXN022', null, 'SUCCESS'),
+(23, 7, 99000, '2024-06-15 09:25:00', 'QR', 'TXN023', 'https://qr.example.com/23', 'FAILED'),
+(24, 8, 99000, '2024-07-17 13:45:00', 'QR', 'TXN024', 'https://qr.example.com/24', 'SUCCESS'),
+(25, 9, 249000, '2024-07-18 10:10:00', 'VNPAY', 'TXN025', null, 'SUCCESS'),
+(26, 10, 199000, '2024-07-19 16:40:00', 'QR', 'TXN026', 'https://qr.example.com/26', 'SUCCESS'),
+(27, 5, 99000, '2024-06-12 09:10:00', 'BANK', 'TXN027', null, 'FAILED'),
+(28, 6, 150000, '2024-06-18 11:15:00', 'QR', 'TXN028', 'https://qr.example.com/28', 'SUCCESS'),
+(29, 7, 99000, '2024-07-21 13:25:00', 'QR', 'TXN029', 'https://qr.example.com/29', 'SUCCESS'),
+(30, 8, 99000, '2024-07-23 18:10:00', 'QR', 'TXN030', 'https://qr.example.com/30', 'PENDING'),
+(31, 9, 199000, '2024-06-24 12:30:00', 'BANK', 'TXN031', null, 'SUCCESS'),
+(32, 10, 149000, '2024-06-25 14:00:00', 'VNPAY', 'TXN032', null, 'FAILED');
+
 
 
 

@@ -51,8 +51,10 @@ export const userService = {
 
   addFavoriteMissingSkill: async (userId, skillId) => {
     return await apiService.post(
-      ENDPOINTS.users.addFavoriteMissingSkill.replace("${userId}", userId).replace("${skillId}", skillId)
-    );
+  ENDPOINTS.users.addFavoriteMissingSkill
+    .replace("${userId}", userId)
+    .replace("${skillId}", skillId)
+)
   },
   getFileHistory: async () => {
     return await apiService.get(ENDPOINTS.users.fileHistory);

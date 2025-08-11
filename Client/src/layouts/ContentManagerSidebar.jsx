@@ -15,8 +15,9 @@ const menu = [
 
   { label: "Quản lý liên kết", to: "/content-manager/social-link", icon: <Link size={20} /> },
   { label: "Quản lý phản hồi", to: "/content-manager/feedback", icon: <MessageSquare size={20} /> },
-  { label: "Quản lý thẻ kỹ năng", to: "/content-manager/tag-skills", icon: <Tags size={20} /> },
   { label: "Quản lý nội dung tĩnh", to: "/content-manager/static-content", icon: <FileText size={20} /> },
+  {label : "Quản lý khoá hoc", to: "/content-manager/course-management", icon: <Users size={20} /> },
+  {label :"Quản lý danh mục nghề nghiệp", to: "/content-manager/job-management", icon: <Users size={20} /> },
 ];
 
 export default function ContentManagerSidebar() {
