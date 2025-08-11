@@ -8,9 +8,8 @@ import com.skillgapguide.sgg.Repository.JobMatchEmbeddingRepository;
 import com.skillgapguide.sgg.Repository.UserCvSkillsEmbeddingRepository;
 import com.skillgapguide.sgg.Repository.UserCvSkillsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -30,7 +29,9 @@ public class EmbedService {
     private JobDesSkillsEmbeddingRepository jobDesSkillsEmbeddingRepository;
     @Autowired
     private JobMatchEmbeddingRepository jobMatchEmbeddingRepository;
-    public static double[] fetchEmbeddingNomicv2(String text) throws JSONException, IOException, InterruptedException {
+    
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    public double[] fetchEmbeddingNomicv2(String text) throws IOException, InterruptedException {
         String prompt="search_query: " + text ;
         HttpClient client = HttpClient.newHttpClient();
         String requestBody = "{\"text\": \"" + prompt + "\"}";
@@ -40,35 +41,31 @@ public class EmbedService {
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        JSONObject embeddingObject = new JSONObject(response.body());
-        JSONArray embeddingArray = embeddingObject.getJSONArray("embedding");
-        double[] vector = new double[embeddingArray.length()];
-        for (int i = 0; i < embeddingArray.length(); i++) {
-            vector[i] = embeddingArray.getDouble(i);
+        JsonNode responseJson = objectMapper.readTree(response.body());
+        JsonNode embeddingArray = responseJson.get("embedding");
+        double[] vector = new double[embeddingArray.size()];
+        for (int i = 0; i < embeddingArray.size(); i++) {
+            vector[i] = embeddingArray.get(i).asDouble();
         }
         return vector;
     }
-    private void saveCvSkillEmbedding( String skill, double[] vector) throws JSONException {
+    private void saveCvSkillEmbedding( String skill, double[] vector) throws IOException {
         UserCvSkillsEmbedding te = new UserCvSkillsEmbedding();
         te.setSkill(skill);
-        te.setEmbeddingJson(new JSONArray(vector).toString());
+        te.setEmbeddingJson(objectMapper.writeValueAsString(vector));
         userCvSkillsEmbeddingRepository.save(te);
     }
-    private void saveJobSkillEmbedding(String skill, double[] vector) throws JSONException {
+    private void saveJobSkillEmbedding(String skill, double[] vector) throws IOException {
         JobDesSkillsEmbedding te = new JobDesSkillsEmbedding();
         te.setSkill(skill);
-        te.setEmbeddingJson(new JSONArray(vector).toString());
+        te.setEmbeddingJson(objectMapper.writeValueAsString(vector));
         jobDesSkillsEmbeddingRepository.save(te);
     }
     public double[] getCvSkillEmbedding(String skill) throws Exception {
         try{
             Optional<UserCvSkillsEmbedding> opt = userCvSkillsEmbeddingRepository.findBySkill(skill);
             if (opt.isPresent()) {
-                JSONArray arr = new JSONArray(opt.get().getEmbeddingJson());
-                double[] vector = new double[arr.length()];
-                for (int i = 0; i < arr.length(); i++) {
-                    vector[i] = arr.getDouble(i);
-                }
+                double[] vector = objectMapper.readValue(opt.get().getEmbeddingJson(), double[].class);
                 return vector;
             } else {
                 double[] vector = fetchEmbeddingNomicv15(skill.toLowerCase());
@@ -84,11 +81,7 @@ public class EmbedService {
         try{
             Optional<JobDesSkillsEmbedding> opt = jobDesSkillsEmbeddingRepository.findBySkill(skill);
             if (opt.isPresent()) {
-                JSONArray arr = new JSONArray(opt.get().getEmbeddingJson());
-                double[] vector = new double[arr.length()];
-                for (int i = 0; i < arr.length(); i++) {
-                    vector[i] = arr.getDouble(i);
-                }
+                double[] vector = objectMapper.readValue(opt.get().getEmbeddingJson(), double[].class);
                 return vector;
             } else {
                 double[] vector = fetchEmbeddingNomicv15(skill.toLowerCase());
@@ -100,30 +93,29 @@ public class EmbedService {
         }
 
     }
-    public static double[] fetchEmbeddingNomicv15(String text) throws JSONException, IOException, InterruptedException {
+    public double[] fetchEmbeddingNomicv15(String text) throws IOException, InterruptedException {
         String prompt = "search_query: " + text;
-        JSONObject json = new JSONObject();
-        json.put("text", prompt);
+        String requestBody = "{\"text\": \"" + prompt + "\"}";
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:8000/embed_nomicv1.5"))
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(json.toString(), StandardCharsets.UTF_8))
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        JSONObject embeddingObject = new JSONObject(response.body());
-        JSONArray embeddingArray = embeddingObject.getJSONArray("embedding");
-        double[] vector = new double[embeddingArray.length()];
-        for (int i = 0; i < embeddingArray.length(); i++) {
-            vector[i] = embeddingArray.getDouble(i);
+        JsonNode responseJson = objectMapper.readTree(response.body());
+        JsonNode embeddingArray = responseJson.get("embedding");
+        double[] vector = new double[embeddingArray.size()];
+        for (int i = 0; i < embeddingArray.size(); i++) {
+            vector[i] = embeddingArray.get(i).asDouble();
         }
         return vector;
     }
-    private void saveCvJobMatchEmbedding( String text, double[] vector) throws JSONException {
+    private void saveCvJobMatchEmbedding( String text, double[] vector) throws IOException {
         JobMatchEmbedding te = new JobMatchEmbedding();
         te.setText(text);
-        te.setEmbeddingJson(new JSONArray(vector).toString());
+        te.setEmbeddingJson(objectMapper.writeValueAsString(vector));
         jobMatchEmbeddingRepository.save(te);
     }
 }
