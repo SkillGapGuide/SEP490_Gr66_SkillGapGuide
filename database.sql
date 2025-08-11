@@ -110,7 +110,7 @@ CREATE TABLE User_Favorite_Job (
                                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                                    PRIMARY KEY (id),
                                    FOREIGN KEY (user_id) REFERENCES User(user_id),
-                                   FOREIGN KEY (job_id) REFERENCES Job(job_id)
+                                   FOREIGN KEY (job_id) REFERENCES Job(job_id)  on delete cascade
 );
 CREATE TABLE job_des_file (
                               id INT NOT NULL AUTO_INCREMENT,
