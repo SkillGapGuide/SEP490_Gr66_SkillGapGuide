@@ -801,10 +801,6 @@ SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-media-placement-specialist-cr
 WHERE id = 100;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-media-placement-specialist-cr92cb97cl132?type_keyword=0&sba=1&category_family=r92~b97l132'
-WHERE id = 100;
-
-UPDATE specializations
 SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-creative-planner-cr92cb97cl133?type_keyword=0&sba=1&category_family=r92~b97l133'
 WHERE id = 101;
 
