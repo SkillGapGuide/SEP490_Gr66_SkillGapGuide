@@ -18,7 +18,7 @@ export const ENDPOINTS = {
     changePassword: "/api/user/changePassword",
     viewProfile: `/api/profile/viewprofile`,
     updateProfile: `/api/profile/update`,
-    viewSubscription: `/api/profile/viewscription`,
+    viewSubscription: `/api/profile/subscription`,
     getFavoriteMissingSkills:
       "/api/user-favorite-missing-skills/get-favorite-missing-skills/{userId}",
     addFavoriteMissingSkill:
