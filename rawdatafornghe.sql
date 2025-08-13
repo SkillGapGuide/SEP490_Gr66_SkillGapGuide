@@ -801,6 +801,10 @@ SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-media-placement-specialist-cr
 WHERE id = 100;
 
 UPDATE specializations
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-media-placement-specialist-cr92cb97cl132?type_keyword=0&sba=1&category_family=r92~b97l132'
+WHERE id = 100;
+
+UPDATE specializations
 SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-creative-planner-cr92cb97cl133?type_keyword=0&sba=1&category_family=r92~b97l133'
 WHERE id = 101;
 
@@ -925,440 +929,424 @@ SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-data-analyst-cr92cb98cl145?ty
 WHERE id = 131;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-dich-vu-quang-cao-cr92cb11cl58?type_keyword=0&sba=1&category_family=r92~b11l58'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-software-engineer-cr257cb258cl271?type_keyword=0&sba=1&category_family=r257~b258l271'
 WHERE id = 132;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-trien-lam-cr92cb11cl59?type_keyword=0&sba=1&category_family=r92~b11l59'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-backend-developer-cr257cb258cl272?type_keyword=0&sba=1&category_family=r257~b258l272'
 WHERE id = 133;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-tiec-su-kien-hoi-nghi-cr92cb11cl60?type_keyword=0&sba=1&category_family=r92~b11l60'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-frontend-developer-cr257cb258cl273?type_keyword=0&sba=1&category_family=r257~b258l273'
 WHERE id = 134;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-mang-nha-tai-tro-cr92cb11cl61?type_keyword=0&sba=1&category_family=r92~b11l61'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-mobile-developer-cr257cb258cl274?type_keyword=0&sba=1&category_family=r257~b258l274'
 WHERE id = 135;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-software-engineer-cr257cb258cl271?type_keyword=0&sba=1&category_family=r257~b258l271'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-fullstack-developer-cr257cb258cl275?type_keyword=0&sba=1&category_family=r257~b258l275'
 WHERE id = 136;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-backend-developer-cr257cb258cl272?type_keyword=0&sba=1&category_family=r257~b258l272'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-blockchain-engineer-cr257cb258cl276?type_keyword=0&sba=1&category_family=r257~b258l276'
 WHERE id = 137;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-frontend-developer-cr257cb258cl273?type_keyword=0&sba=1&category_family=r257~b258l273'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-software-tester-automation-manual-cr257cb259cl277?type_keyword=0&sba=1&category_family=r257~b259l277'
 WHERE id = 138;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-mobile-developer-cr257cb258cl274?type_keyword=0&sba=1&category_family=r257~b258l274'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-automation-tester-cr257cb259cl278?type_keyword=0&sba=1&category_family=r257~b259l278'
 WHERE id = 139;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-fullstack-developer-cr257cb258cl275?type_keyword=0&sba=1&category_family=r257~b258l275'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-manual-tester-cr257cb259cl279?type_keyword=0&sba=1&category_family=r257~b259l279'
 WHERE id = 140;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-blockchain-engineer-cr257cb258cl276?type_keyword=0&sba=1&category_family=r257~b258l276'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-game-tester-cr257cb259cl280?type_keyword=0&sba=1&category_family=r257~b259l280'
 WHERE id = 141;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-software-tester-automation-manual-cr257cb259cl277?type_keyword=0&sba=1&category_family=r257~b259l277'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-qa-engineer-cr257cb259cl281?type_keyword=0&sba=1&category_family=r257~b259l281'
 WHERE id = 142;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-automation-tester-cr257cb259cl278?type_keyword=0&sba=1&category_family=r257~b259l278'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-process-quality-assurance-pqa-cr257cb259cl282?type_keyword=0&sba=1&category_family=r257~b259l282'
 WHERE id = 143;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-manual-tester-cr257cb259cl279?type_keyword=0&sba=1&category_family=r257~b259l279'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ai-engineer-cr257cb260cl283?type_keyword=0&sba=1&category_family=r257~b260l283'
 WHERE id = 144;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-game-tester-cr257cb259cl280?type_keyword=0&sba=1&category_family=r257~b259l280'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ai-researcher-cr257cb260cl284?type_keyword=0&sba=1&category_family=r257~b260l284'
 WHERE id = 145;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-qa-engineer-cr257cb259cl281?type_keyword=0&sba=1&category_family=r257~b259l281'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-data-labeling-gan-nhan-du-lieu-cr257cb260cl172?type_keyword=0&sba=1&category_family=r257~b260l172'
 WHERE id = 146;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-process-quality-assurance-pqa-cr257cb259cl282?type_keyword=0&sba=1&category_family=r257~b259l282'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-data-analyst-cr257cb261cl145?type_keyword=0&sba=1&category_family=r257~b261l145'
 WHERE id = 147;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ai-engineer-cr257cb260cl283?type_keyword=0&sba=1&category_family=r257~b260l283'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-data-engineer-cr257cb261cl285?type_keyword=0&sba=1&category_family=r257~b261l285'
 WHERE id = 148;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ai-researcher-cr257cb260cl284?type_keyword=0&sba=1&category_family=r257~b260l284'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-data-scientist-cr257cb261cl286?type_keyword=0&sba=1&category_family=r257~b261l286'
 WHERE id = 149;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-data-labeling-gan-nhan-du-lieu-cr257cb260cl172?type_keyword=0&sba=1&category_family=r257~b260l172'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-it-helpdesk-it-support-cr257cb262cl287?type_keyword=0&sba=1&category_family=r257~b262l287'
 WHERE id = 150;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-data-analyst-cr257cb261cl145?type_keyword=0&sba=1&category_family=r257~b261l145'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-devops-engineer-cr257cb262cl288?type_keyword=0&sba=1&category_family=r257~b262l288'
 WHERE id = 151;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-data-engineer-cr257cb261cl285?type_keyword=0&sba=1&category_family=r257~b261l285'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-network-engineer-cr257cb262cl289?type_keyword=0&sba=1&category_family=r257~b262l289'
 WHERE id = 152;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-data-scientist-cr257cb261cl286?type_keyword=0&sba=1&category_family=r257~b261l286'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-system-engineer-cr257cb262cl290?type_keyword=0&sba=1&category_family=r257~b262l290'
 WHERE id = 153;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-it-helpdesk-it-support-cr257cb262cl287?type_keyword=0&sba=1&category_family=r257~b262l287'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-system-administrator-cr257cb262cl291?type_keyword=0&sba=1&category_family=r257~b262l291'
 WHERE id = 154;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-devops-engineer-cr257cb262cl288?type_keyword=0&sba=1&category_family=r257~b262l288'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-database-administrator-dba-cr257cb262cl292?type_keyword=0&sba=1&category_family=r257~b262l292'
 WHERE id = 155;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-network-engineer-cr257cb262cl289?type_keyword=0&sba=1&category_family=r257~b262l289'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-cloud-engineer-cr257cb262cl293?type_keyword=0&sba=1&category_family=r257~b262l293'
 WHERE id = 156;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-system-engineer-cr257cb262cl290?type_keyword=0&sba=1&category_family=r257~b262l290'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-chuyen-vien-cyber-security-cr257cb263cl294?type_keyword=0&sba=1&category_family=r257~b263l294'
 WHERE id = 157;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-system-administrator-cr257cb262cl291?type_keyword=0&sba=1&category_family=r257~b262l291'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-chuyen-vien-it-security-cr257cb263cl295?type_keyword=0&sba=1&category_family=r257~b263l295'
 WHERE id = 158;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-database-administrator-dba-cr257cb262cl292?type_keyword=0&sba=1&category_family=r257~b262l292'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-chien-luoc-va-phan-tich-bao-mat-cr257cb263cl296?type_keyword=0&sba=1&category_family=r257~b263l296&u_sr_id=mYUeEVfEkDQbGaqdpjiWuVvrdi1lbJvvg30oRONq_1754996456&page=0'
 WHERE id = 159;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-cloud-engineer-cr257cb262cl293?type_keyword=0&sba=1&category_family=r257~b262l293'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-tri-va-van-hanh-bao-mat-cr257cb263cl297?type_keyword=0&sba=1&category_family=r257~b263l297'
 WHERE id = 160;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-chuyen-vien-cyber-security-cr257cb263cl294?type_keyword=0&sba=1&category_family=r257~b263l294'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tuan-thu-va-kiem-toan-bao-mat-cr257cb263cl298?type_keyword=0&sba=1&category_family=r257~b263l298'
 WHERE id = 161;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-chuyen-vien-it-security-cr257cb263cl295?type_keyword=0&sba=1&category_family=r257~b263l295'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-phong-chong-lua-dao-va-an-ninh-mang-cr257cb263cl299?type_keyword=0&sba=1&category_family=r257~b263l299'
 WHERE id = 162;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-chien-luoc-va-phan-tich-bao-mat-cr257cb263cl296?type_keyword=0&sba=1&category_family=r257~b263l296&u_sr_id=mYUeEVfEkDQbGaqdpjiWuVvrdi1lbJvvg30oRONq_1754996456&page=0'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-bao-mat-ung-dung-va-phat-trien-cr257cb263cl300?type_keyword=0&sba=1&category_family=r257~b263l300'
 WHERE id = 163;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-tri-va-van-hanh-bao-mat-cr257cb263cl297?type_keyword=0&sba=1&category_family=r257~b263l297'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ma-hoa-va-bao-mat-du-lieu-cr257cb263cl301?type_keyword=0&sba=1&category_family=r257~b263l301'
 WHERE id = 164;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tuan-thu-va-kiem-toan-bao-mat-cr257cb263cl298?type_keyword=0&sba=1&category_family=r257~b263l298'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kiem-thu-va-danh-gia-bao-mat-cr257cb263cl302?type_keyword=0&sba=1&category_family=r257~b263l302'
 WHERE id = 165;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-phong-chong-lua-dao-va-an-ninh-mang-cr257cb263cl299?type_keyword=0&sba=1&category_family=r257~b263l299'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ky-su-iot-iot-engineer-cr257cb264cl303?type_keyword=0&sba=1&category_family=r257~b264l303'
 WHERE id = 166;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-bao-mat-ung-dung-va-phat-trien-cr257cb263cl300?type_keyword=0&sba=1&category_family=r257~b263l300'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-embedded-engineer-lap-trinh-nhung-cr257cb264cl304?type_keyword=0&sba=1&category_family=r257~b264l304'
 WHERE id = 167;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ma-hoa-va-bao-mat-du-lieu-cr257cb263cl301?type_keyword=0&sba=1&category_family=r257~b263l301'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-it-project-manager-cr257cb265cl305?type_keyword=0&sba=1&category_family=r257~b265l305'
 WHERE id = 168;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kiem-thu-va-danh-gia-bao-mat-cr257cb263cl302?type_keyword=0&sba=1&category_family=r257~b263l302'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-scrum-master-cr257cb265cl306?type_keyword=0&sba=1&category_family=r257~b265l306'
 WHERE id = 169;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ky-su-iot-iot-engineer-cr257cb264cl303?type_keyword=0&sba=1&category_family=r257~b264l303'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ky-su-cau-noi-brse-cr257cb265cl307?type_keyword=0&sba=1&category_family=r257~b265l307'
 WHERE id = 170;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-embedded-engineer-lap-trinh-nhung-cr257cb264cl304?type_keyword=0&sba=1&category_family=r257~b264l304'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-it-comtor-cr257cb265cl1021?type_keyword=0&sba=1&category_family=r257~b265l1021'
 WHERE id = 171;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-it-project-manager-cr257cb265cl305?type_keyword=0&sba=1&category_family=r257~b265l305'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-software-architect-cr257cb266cl308?type_keyword=0&sba=1&category_family=r257~b266l308'
 WHERE id = 172;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-scrum-master-cr257cb265cl306?type_keyword=0&sba=1&category_family=r257~b265l306'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-system-architect-cr257cb266cl309?type_keyword=0&sba=1&category_family=r257~b266l309'
 WHERE id = 173;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ky-su-cau-noi-brse-cr257cb265cl307?type_keyword=0&sba=1&category_family=r257~b265l307'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-solution-architect-cr257cb266cl310?type_keyword=0&sba=1&category_family=r257~b266l310'
 WHERE id = 174;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-it-comtor-cr257cb265cl1021?type_keyword=0&sba=1&category_family=r257~b265l1021'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-technical-leader-cr257cb266cl311?type_keyword=0&sba=1&category_family=r257~b266l311'
 WHERE id = 175;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-software-architect-cr257cb266cl308?type_keyword=0&sba=1&category_family=r257~b266l308'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-technical-manager-cr257cb266cl312?type_keyword=0&sba=1&category_family=r257~b266l312'
 WHERE id = 176;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-system-architect-cr257cb266cl309?type_keyword=0&sba=1&category_family=r257~b266l309'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-head-of-engineering-cr257cb266cl313?type_keyword=0&sba=1&category_family=r257~b266l313'
 WHERE id = 177;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-solution-architect-cr257cb266cl310?type_keyword=0&sba=1&category_family=r257~b266l310'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-technical-director-cr257cb266cl314?type_keyword=0&sba=1&category_family=r257~b266l314'
 WHERE id = 178;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-technical-leader-cr257cb266cl311?type_keyword=0&sba=1&category_family=r257~b266l311'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-chief-technology-officer-cto-cr257cb266cl315?type_keyword=0&sba=1&category_family=r257~b266l315'
 WHERE id = 179;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-technical-manager-cr257cb266cl312?type_keyword=0&sba=1&category_family=r257~b266l312'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-chief-information-officer-cio-cr257cb266cl316?type_keyword=0&sba=1&category_family=r257~b266l316'
 WHERE id = 180;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-head-of-engineering-cr257cb266cl313?type_keyword=0&sba=1&category_family=r257~b266l313'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ui-ux-design-cr257cb267cl317?type_keyword=0&sba=1&category_family=r257~b267l317'
 WHERE id = 181;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-technical-director-cr257cb266cl314?type_keyword=0&sba=1&category_family=r257~b266l314'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-thiet-ke-do-hoa-graphic-design-cr257cb267cl835?type_keyword=0&sba=1&category_family=r257~b267l835'
 WHERE id = 182;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-chief-technology-officer-cto-cr257cb266cl315?type_keyword=0&sba=1&category_family=r257~b266l315'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-illustration-cr257cb267cl1016?type_keyword=0&sba=1&category_family=r257~b267l1016'
 WHERE id = 183;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-chief-information-officer-cio-cr257cb266cl316?type_keyword=0&sba=1&category_family=r257~b266l316'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-animation-design-cr257cb267cl637?type_keyword=0&sba=1&category_family=r257~b267l637'
 WHERE id = 184;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ui-ux-design-cr257cb267cl317?type_keyword=0&sba=1&category_family=r257~b267l317'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-interaction-designer-cr257cb267cl320?type_keyword=0&sba=1&category_family=r257~b267l320'
 WHERE id = 185;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-thiet-ke-do-hoa-graphic-design-cr257cb267cl835?type_keyword=0&sba=1&category_family=r257~b267l835'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-3d-modeler-cr257cb267cl1039?type_keyword=0&sba=1&category_family=r257~b267l1039'
 WHERE id = 186;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-illustration-cr257cb267cl1016?type_keyword=0&sba=1&category_family=r257~b267l1016'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-product-owner-product-manager-cr257cb268cl321?type_keyword=0&sba=1&category_family=r257~b268l321'
 WHERE id = 187;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-animation-design-cr257cb267cl637?type_keyword=0&sba=1&category_family=r257~b267l637'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-business-analyst-phan-tich-nghiep-vu-cr257cb268cl322?type_keyword=0&sba=1&category_family=r257~b268l322'
 WHERE id = 188;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-interaction-designer-cr257cb267cl320?type_keyword=0&sba=1&category_family=r257~b267l320'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-product-analyst-research-cr257cb268cl323?type_keyword=0&sba=1&category_family=r257~b268l323'
 WHERE id = 189;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-3d-modeler-cr257cb267cl1039?type_keyword=0&sba=1&category_family=r257~b267l1039'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-game-developer-cr257cb269cl324?type_keyword=0&sba=1&category_family=r257~b269l324'
 WHERE id = 190;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-product-owner-product-manager-cr257cb268cl321?type_keyword=0&sba=1&category_family=r257~b268l321'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-concept-artist-cr257cb269cl325?type_keyword=0&sba=1&category_family=r257~b269l325'
 WHERE id = 191;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-business-analyst-phan-tich-nghiep-vu-cr257cb268cl322?type_keyword=0&sba=1&category_family=r257~b268l322'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-game-design-cr257cb269cl326?type_keyword=0&sba=1&category_family=r257~b269l326'
 WHERE id = 192;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-product-analyst-research-cr257cb268cl323?type_keyword=0&sba=1&category_family=r257~b268l323'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ar-vr-developer-cr257cb269cl327?type_keyword=0&sba=1&category_family=r257~b269l327&u_sr_id=mYUeEVfEkDQbGaqdpjiWuVvrdi1lbJvvg30oRONq_1754998043&page=0'
 WHERE id = 193;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-game-developer-cr257cb269cl324?type_keyword=0&sba=1&category_family=r257~b269l324'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-chuyen-mon-tai-chinh-cr206cb207cl214?type_keyword=0&sba=1&category_family=r206~b207l214'
 WHERE id = 194;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-concept-artist-cr257cb269cl325?type_keyword=0&sba=1&category_family=r257~b269l325'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-hoach-dinh-tai-chinh-cr206cb207cl215?type_keyword=0&sba=1&category_family=r206~b207l215'
 WHERE id = 195;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-game-design-cr257cb269cl326?type_keyword=0&sba=1&category_family=r257~b269l326'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-dinh-che-tai-chinh-cr206cb207cl216?type_keyword=0&sba=1&category_family=r206~b207l216'
 WHERE id = 196;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-ar-vr-developer-cr257cb269cl327?type_keyword=0&sba=1&category_family=r257~b269l327&u_sr_id=mYUeEVfEkDQbGaqdpjiWuVvrdi1lbJvvg30oRONq_1754998043&page=0'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kiem-soat-va-bao-cao-tai-chinh-cr206cb207cl217?type_keyword=0&sba=1&category_family=r206~b207l217'
 WHERE id = 197;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-chuyen-mon-tai-chinh-cr206cb207cl214?type_keyword=0&sba=1&category_family=r206~b207l214'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tu-van-tai-chinh-cr206cb207cl757?type_keyword=0&sba=1&category_family=r206~b207l757'
 WHERE id = 198;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-hoach-dinh-tai-chinh-cr206cb207cl215?type_keyword=0&sba=1&category_family=r206~b207l215'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-tai-chinh-cr206cb207cl1029?type_keyword=0&sba=1&category_family=r206~b207l1029'
 WHERE id = 199;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-dinh-che-tai-chinh-cr206cb207cl216?type_keyword=0&sba=1&category_family=r206~b207l216'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-huy-dong-von-cr206cb207cl1033?type_keyword=0&sba=1&category_family=r206~b207l1033'
 WHERE id = 200;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kiem-soat-va-bao-cao-tai-chinh-cr206cb207cl217?type_keyword=0&sba=1&category_family=r206~b207l217'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giao-dich-vien-cr206cb208cl219?type_keyword=0&sba=1&category_family=r206~b208l219'
 WHERE id = 201;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tu-van-tai-chinh-cr206cb207cl757?type_keyword=0&sba=1&category_family=r206~b207l757'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-chuyen-vien-xu-ly-no-cr206cb208cl220?type_keyword=0&sba=1&category_family=r206~b208l220'
 WHERE id = 202;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-tai-chinh-cr206cb207cl1029?type_keyword=0&sba=1&category_family=r206~b207l1029'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-nguon-von-cr206cb208cl222?type_keyword=0&sba=1&category_family=r206~b208l222'
 WHERE id = 203;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-huy-dong-von-cr206cb207cl1033?type_keyword=0&sba=1&category_family=r206~b207l1033'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-ngoai-hoi-vang-phai-sinh-cr206cb208cl223?type_keyword=0&sba=1&category_family=r206~b208l223'
 WHERE id = 204;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giao-dich-vien-cr206cb208cl219?type_keyword=0&sba=1&category_family=r206~b208l219'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tai-tro-thuong-mai-cr206cb208cl224?type_keyword=0&sba=1&category_family=r206~b208l224'
 WHERE id = 205;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-chuyen-vien-xu-ly-no-cr206cb208cl220?type_keyword=0&sba=1&category_family=r206~b208l220'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-khoi-khach-hang-ca-nhan-cr206cb208cl226?type_keyword=0&sba=1&category_family=r206~b208l226'
 WHERE id = 206;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-nguon-von-cr206cb208cl222?type_keyword=0&sba=1&category_family=r206~b208l222'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-khoi-khach-hang-doanh-nghiep-cr206cb208cl227?type_keyword=0&sba=1&category_family=r206~b208l227'
 WHERE id = 207;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kinh-doanh-ngoai-hoi-vang-phai-sinh-cr206cb208cl223?type_keyword=0&sba=1&category_family=r206~b208l223'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-khoi-nguon-von-va-thi-truong-cr206cb208cl228?type_keyword=0&sba=1&category_family=r206~b208l228'
 WHERE id = 208;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tai-tro-thuong-mai-cr206cb208cl224?type_keyword=0&sba=1&category_family=r206~b208l224'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-kinh-doanh-bao-hiem-cr206cb208cl229?type_keyword=0&sba=1&category_family=r206~b208l229&u_sr_id=mYUeEVfEkDQbGaqdpjiWuVvrdi1lbJvvg30oRONq_1754998590&page=0'
 WHERE id = 209;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-khoi-khach-hang-ca-nhan-cr206cb208cl226?type_keyword=0&sba=1&category_family=r206~b208l226'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-ngan-hang-cr206cb208cl230?type_keyword=0&sba=1&category_family=r206~b208l230'
 WHERE id = 210;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-khoi-khach-hang-doanh-nghiep-cr206cb208cl227?type_keyword=0&sba=1&category_family=r206~b208l227'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-he-khach-hang-ca-nhan-doanh-nghiep-cr206cb208cl40?type_keyword=0&sba=1&category_family=r206~b208l40'
 WHERE id = 211;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-khoi-nguon-von-va-thi-truong-cr206cb208cl228?type_keyword=0&sba=1&category_family=r206~b208l228'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tu-van-tra-gop-cr206cb208cl41?type_keyword=0&sba=1&category_family=r206~b208l41'
 WHERE id = 212;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-kinh-doanh-bao-hiem-cr206cb208cl229?type_keyword=0&sba=1&category_family=r206~b208l229&u_sr_id=mYUeEVfEkDQbGaqdpjiWuVvrdi1lbJvvg30oRONq_1754998590&page=0'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tham-dinh-tin-dung-cr206cb208cl238?type_keyword=0&sba=1&category_family=r206~b208l238'
 WHERE id = 213;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-ngan-hang-cr206cb208cl230?type_keyword=0&sba=1&category_family=r206~b208l230'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tac-nghiep-tin-dung-cr206cb208cl1040?type_keyword=0&sba=1&category_family=r206~b208l1040'
 WHERE id = 214;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-he-khach-hang-ca-nhan-doanh-nghiep-cr206cb208cl40?type_keyword=0&sba=1&category_family=r206~b208l40'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kiem-soat-tuan-thu-cr206cb208cl235?type_keyword=0&sba=1&category_family=r206~b208l235'
 WHERE id = 215;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tu-van-tra-gop-cr206cb208cl41?type_keyword=0&sba=1&category_family=r206~b208l41'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-phan-tich-dau-tu-chung-khoan-cr206cb209cl231?type_keyword=0&sba=1&category_family=r206~b209l231'
 WHERE id = 216;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tham-dinh-tin-dung-cr206cb208cl238?type_keyword=0&sba=1&category_family=r206~b208l238'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-ly-danh-muc-dau-tu-cr206cb209cl233?type_keyword=0&sba=1&category_family=r206~b209l233'
 WHERE id = 217;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tac-nghiep-tin-dung-cr206cb208cl1040?type_keyword=0&sba=1&category_family=r206~b208l1040'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tu-van-chung-khoan-cr206cb209cl45?type_keyword=0&sba=1&category_family=r206~b209l45'
 WHERE id = 218;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kiem-soat-tuan-thu-cr206cb208cl235?type_keyword=0&sba=1&category_family=r206~b208l235'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-tri-rui-ro-cr206cb210cl234?type_keyword=0&sba=1&category_family=r206~b210l234'
 WHERE id = 219;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-phan-tich-dau-tu-chung-khoan-cr206cb209cl231?type_keyword=0&sba=1&category_family=r206~b209l231'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kiem-soat-tuan-thu-cr206cb210cl235?type_keyword=0&sba=1&category_family=r206~b210l235'
 WHERE id = 220;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-ly-danh-muc-dau-tu-cr206cb209cl233?type_keyword=0&sba=1&category_family=r206~b209l233'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-phong-chong-rua-tien-cr206cb210cl236?type_keyword=0&sba=1&category_family=r206~b210l236'
 WHERE id = 221;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tu-van-chung-khoan-cr206cb209cl45?type_keyword=0&sba=1&category_family=r206~b209l45'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-phap-che-cr206cb210cl237?type_keyword=0&sba=1&category_family=r206~b210l237'
 WHERE id = 222;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-tri-rui-ro-cr206cb210cl234?type_keyword=0&sba=1&category_family=r206~b210l234'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tham-dinh-tin-dung-cr206cb210cl238?type_keyword=0&sba=1&category_family=r206~b210l238'
 WHERE id = 223;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-kiem-soat-tuan-thu-cr206cb210cl235?type_keyword=0&sba=1&category_family=r206~b210l235'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-ly-thanh-khoan-cr206cb210cl239?type_keyword=0&sba=1&category_family=r206~b210l239'
 WHERE id = 224;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-phong-chong-rua-tien-cr206cb210cl236?type_keyword=0&sba=1&category_family=r206~b210l236'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-dinh-gia-tai-san-cr206cb210cl240?type_keyword=0&sba=1&category_family=r206~b210l240'
 WHERE id = 225;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-phap-che-cr206cb210cl237?type_keyword=0&sba=1&category_family=r206~b210l237'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-thu-hoi-no-cr206cb210cl241?type_keyword=0&sba=1&category_family=r206~b210l241'
 WHERE id = 226;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tham-dinh-tin-dung-cr206cb210cl238?type_keyword=0&sba=1&category_family=r206~b210l238'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-tuan-thu-va-phap-ly-cr206cb210cl242?type_keyword=0&sba=1&category_family=r206~b210l242'
 WHERE id = 227;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-ly-thanh-khoan-cr206cb210cl239?type_keyword=0&sba=1&category_family=r206~b210l239'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-quan-ly-rui-ro-cro-cr206cb210cl243?type_keyword=0&sba=1&category_family=r206~b210l243'
 WHERE id = 228;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-dinh-gia-tai-san-cr206cb210cl240?type_keyword=0&sba=1&category_family=r206~b210l240'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-phan-tich-dau-tu-cr206cb211cl244?type_keyword=0&sba=1&category_family=r206~b211l244'
 WHERE id = 229;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-thu-hoi-no-cr206cb210cl241?type_keyword=0&sba=1&category_family=r206~b210l241'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tai-tro-thuong-mai-cr206cb211cl224?type_keyword=0&sba=1&category_family=r206~b211l224'
 WHERE id = 230;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-tuan-thu-va-phap-ly-cr206cb210cl242?type_keyword=0&sba=1&category_family=r206~b210l242'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-mua-ban-va-sap-nhap-m-a-cr206cb211cl245?type_keyword=0&sba=1&category_family=r206~b211l245'
 WHERE id = 231;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-quan-ly-rui-ro-cro-cr206cb210cl243?type_keyword=0&sba=1&category_family=r206~b210l243'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-he-nha-dau-tu-cr206cb211cl246?type_keyword=0&sba=1&category_family=r206~b211l246'
 WHERE id = 232;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-phan-tich-dau-tu-cr206cb211cl244?type_keyword=0&sba=1&category_family=r206~b211l244'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-ly-tai-san-cr206cb211cl247?type_keyword=0&sba=1&category_family=r206~b211l247'
 WHERE id = 233;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tai-tro-thuong-mai-cr206cb211cl224?type_keyword=0&sba=1&category_family=r206~b211l224'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-ly-danh-muc-quy-cr206cb211cl248?type_keyword=0&sba=1&category_family=r206~b211l248&u_sr_id=mYUeEVfEkDQbGaqdpjiWuVvrdi1lbJvvg30oRONq_1754999461&page=0'
 WHERE id = 234;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-mua-ban-va-sap-nhap-m-a-cr206cb211cl245?type_keyword=0&sba=1&category_family=r206~b211l245'
+SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-pho-giam-doc-dau-tu-cr206cb211cl249?type_keyword=0&sba=1&category_family=r206~b211l249'
 WHERE id = 235;
 
 UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-he-nha-dau-tu-cr206cb211cl246?type_keyword=0&sba=1&category_family=r206~b211l246'
-WHERE id = 236;
-
-UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-ly-tai-san-cr206cb211cl247?type_keyword=0&sba=1&category_family=r206~b211l247'
-WHERE id = 237;
-
-UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-quan-ly-danh-muc-quy-cr206cb211cl248?type_keyword=0&sba=1&category_family=r206~b211l248&u_sr_id=mYUeEVfEkDQbGaqdpjiWuVvrdi1lbJvvg30oRONq_1754999461&page=0'
-WHERE id = 238;
-
-UPDATE specializations
-SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-giam-doc-pho-giam-doc-dau-tu-cr206cb211cl249?type_keyword=0&sba=1&category_family=r206~b211l249'
-WHERE id = 239;
-
-UPDATE specializations
 SET url_topcv = 'https://www.topcv.vn/tim-viec-lam-tu-van-dau-tu-cr206cb211cl44?type_keyword=0&sba=1&category_family=r206~b211l44'
-WHERE id = 240;
+WHERE id = 236;
 
 
 
