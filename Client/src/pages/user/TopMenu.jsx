@@ -13,8 +13,8 @@ const menuItems = [
   { label: "Phân tích kỹ năng", path: "/analyze/result" },
   { label: "Gợi ý khóa học", path: "/suggestedcourses" },
 
-  { label: "Đánh giá", path: "/servicerating" },
-  { label: "Đăng ký gói dịch vụ", path: "/servicepayment" },
+  // { label: "Đánh giá", path: "/servicerating" },
+  // { label: "Đăng ký gói dịch vụ", path: "/servicepayment" },
 ];
 
 const TopMenu = () => {
@@ -26,7 +26,7 @@ const TopMenu = () => {
   const cvUploaded = useCVWizardStore((s) => s.cvUploaded);
   const jobFilesMeta = useCVWizardStore((s) => s.jobFilesMeta);
   const topcvLinks = useCVWizardStore((s) => s.topcvLinks);
-
+const selectedOption = useCVWizardStore((s) => s.selectedOption);
   // Dữ liệu xuất báo cáo
   const { skills, jobList, jobDetails } = useAnalysisStore();
 
@@ -34,7 +34,8 @@ const TopMenu = () => {
   const enableAnalysis =
     cvUploaded &&
     ((jobFilesMeta && jobFilesMeta.length > 0) ||
-      (topcvLinks && topcvLinks.length > 0));
+      (topcvLinks && topcvLinks.length > 0)||
+    selectedOption === "auto" );
 
   // Logic xuất Excel
   const exportExcel = () => {
@@ -44,8 +45,8 @@ const TopMenu = () => {
     }
     // Sheet kỹ năng
     const skillSheetData = [
-      ["ID", "Tên kỹ năng", "CV ID"],
-      ...skills.map(s => [s.id, s.skill, s.cvId])
+      ["STT", "Tên kỹ năng"],
+      ...skills.map((s,index) => [index, s.skill])
     ];
 
     // Sheet công việc
@@ -55,25 +56,54 @@ const TopMenu = () => {
     ];
 
     // Sheet phân tích từng job (skillGap)
-    const allJobSkillGap = [];
-    jobList.forEach(job => {
-      const detail = jobDetails[job.jobId];
-      if (detail && detail.skillGap && detail.skillGap.length > 0) {
-        detail.skillGap.forEach(gap => {
-          allJobSkillGap.push({
-            "Job ID": job.jobId,
-            "Job Title": job.title,
-            "Job Skill": gap.jobSkill,
-            "CV Skill": gap.cvSkill,
-            "Score (%)": Math.round(gap.score * 100)
-          });
-        });
+const allJobSkillGap = [];
+
+jobList.forEach((job) => {
+  const detail = jobDetails[job.jobId];
+  if (detail && detail.skillGap && detail.skillGap.length > 0) {
+    detail.skillGap.forEach((gap) => {
+      const raw = Number(gap.score ?? 0);              // score gốc 0–1
+      const pct = Math.round(raw * 100);               // %
+      
+      let suitability = "Không phù hợp";
+      let cvSkillDisplay = gap.cvSkill;
+      let scoreDisplay = `${pct}`;                     // mặc định hiển thị số %
+
+      if (raw > 0.65) {
+        suitability = "Phù hợp";
+      } else if (raw > 0.5 && raw <= 0.65) {
+        suitability = "Phù hợp một phần";
+      } else {
+        // < 0.5: theo yêu cầu đổi hiển thị
+        cvSkillDisplay = "Không có";
+        scoreDisplay = "Không áp dụng";
       }
+
+      allJobSkillGap.push({
+        "Job ID": job.jobId,
+        "Job Title": job.title,
+        "Job Skill": gap.jobSkill,
+        "CV Skill": cvSkillDisplay,
+        "Score (%)": scoreDisplay,      // có thể là số hoặc chuỗi "Không áp dụng"
+        "Mức độ phù hợp": suitability,
+      });
     });
-    const skillGapSheetData = [
-      ["Job ID", "Job Title", "Job Skill", "CV Skill", "Score (%)"],
-      ...allJobSkillGap.map(row => [row["Job ID"], row["Job Title"], row["Job Skill"], row["CV Skill"], row["Score (%)"]])
-    ];
+  }
+});
+
+// Thêm header mới cho sheet
+const skillGapSheetData = [
+  ["Job ID", "Job Title", "Job Skill", "CV Skill", "Score (%)", "Mức độ phù hợp"],
+  ...allJobSkillGap.map((row) => [
+    row["Job ID"],
+    row["Job Title"],
+    row["Job Skill"],
+    row["CV Skill"],
+    row["Score (%)"],
+    row["Mức độ phù hợp"],
+  ]),
+];
+
 
     // Tạo workbook & các sheet
     const wb = XLSX.utils.book_new();

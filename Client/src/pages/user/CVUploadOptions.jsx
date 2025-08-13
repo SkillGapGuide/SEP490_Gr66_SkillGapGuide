@@ -1,8 +1,8 @@
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useCallback, useMemo, useEffect,useRef  } from "react";
 import { FiUpload, FiTrash } from "react-icons/fi";
 import { cvService } from "../../services/cvJobService";
 import { scrapeJobService } from "../../services/scrapService";
-import { showError, showSuccess, showInfo } from "../../utils/alert";
+import { showError, showSuccess, showInfo,showConfirm } from "../../utils/alert";
 import { careerService } from "../../services/career";
 import { useCVWizardStore } from "../../stores/cvWizardStore";
 
@@ -39,6 +39,9 @@ const CVUploadOptions = ({ onNext }) => {
   const [uploadingJobFiles, setUploadingJobFiles] = useState(false);
   const [scrapingLinks, setScrapingLinks] = useState(false);
 
+  const [autoSearching, setAutoSearching] = useState(false);
+const isConfirmingRef = useRef(false); // tránh mở nhiều confirm cùng lúc
+
   // Dropdown ngành nghề, chuyên môn...
   const [occupationGroups, setOccupationGroups] = useState([]);
   const [occupations, setOccupations] = useState([]);
@@ -56,10 +59,7 @@ const CVUploadOptions = ({ onNext }) => {
         careerService.viewOccupationsEnable(),
         careerService.viewSpecializationEnable(),
       ]);
-      console.log("Occupation Groups:", groups);
-      console.log("Occupations:", careers);
-      console.log("Specializations:", specs);
-      
+
       setOccupationGroups(groups || []);
       setOccupations(careers || []);
       setSpecializations(specs || []);
@@ -82,6 +82,26 @@ const CVUploadOptions = ({ onNext }) => {
       ),
     [specializations, selectedCareer]
   );
+   const runAutoSearch = useCallback(
+  async (specName) => {
+    if (!specName) return showError("Vui lòng chọn Chuyên môn.");
+
+    setAutoSearching(true);
+   
+    try {
+   
+      const response = await scrapeJobService.crawlTenJobs(specName);
+      console.log("Auto search response:", response);
+      showSuccess("Đã tìm thấy các công việc phù hợp!");
+      setShowCongrats(true); // nếu muốn hiện popup chúc mừng
+    } catch (err) {
+      showError("Tìm kiếm thất bại: " + (err?.message || ""));
+    } finally {
+      setAutoSearching(false);
+    }
+  },
+  []
+);
   const handleGroupChange = useCallback((e) => {
     setSelectedGroup(e.target.value);
     setSelectedCareer("");
@@ -91,109 +111,191 @@ const CVUploadOptions = ({ onNext }) => {
     setSelectedCareer(e.target.value);
     setSelectedSpecialization("");
   }, []);
-  const handleSpecializationChange = useCallback((e) => {
-    setSelectedSpecialization(e.target.value);
-  }, []);
+  const handleSpecializationChange = useCallback(
+  async (e) => {
+    const val = e.target.value; // đây chính là specialization name
+    setSelectedSpecialization(val);
+
+    // Nếu người dùng xoá lựa chọn thì thôi
+    if (!val) return;
+
+    // Chặn double click / change quá nhanh -> mở nhiều confirm
+    if (isConfirmingRef.current) return;
+    isConfirmingRef.current = true;
+
+    try {
+      const result = await showConfirm(`Bạn muốn tìm 10 tin tuyển dụng cho chuyên môn: "${val}"?`);
+
+if (!result.isConfirmed) return;
+  await runAutoSearch(val);
+    } finally {
+      isConfirmingRef.current = false;
+    }
+  },
+  [runAutoSearch]
+);
+
   const handleExperienceChange = useCallback(
     (e) => setSelectedExperience(e.target.value),
     []
   );
+  const ALLOWED_CV_MIME = new Set([
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ]);
+  const ALLOWED_CV_EXT = [".pdf", ".docx"];
 
+  const hasAllowedExt = (name) => {
+    const lower = name.toLowerCase();
+    return ALLOWED_CV_EXT.some((ext) => lower.endsWith(ext));
+  };
   // ====== Upload CV Handler ======
   const handleCVUpload = useCallback(
     async (e) => {
-      const file = e.target.files[0];
+      const file = e.target.files?.[0];
       if (!file) return showError("Vui lòng chọn file CV.");
-      if (file.type !== "application/pdf")
-        return showError("Chỉ nhận file PDF.");
-      if (file.size > MAX_CV_SIZE) return showError("File quá lớn.");
-      // Reset toàn bộ trước khi upload file mới!
+
+      const isAllowedType =
+        ALLOWED_CV_MIME.has(file.type) || hasAllowedExt(file.name);
+
+      if (!isAllowedType) {
+        return showError("Chúng tôi chỉ chấp nhận file PDF hoặc DOCX.");
+      }
+
+      if (file.size > MAX_CV_SIZE) return showError("File quá lớn (≤ 2MB).");
+
+      // Reset dữ liệu cũ rồi upload file mới
       clearAllCvAndFile();
-      setUploading(true); // BẮT ĐẦU loading
-      setCVFile(file); // LƯU file vào store NGAY để preview được luôn (nếu muốn)
+      setUploading(true);
+      setCVFile(file);
 
       try {
-        await cvService.uploadCV(file); // <-- dùng file vừa upload
+        await cvService.uploadCV(file);
         setCvUploaded(true);
-
-        setAnalysisNeedRun(true); // Lưu trạng thái đã upload
+        setAnalysisNeedRun(true);
         showSuccess("Tải lên CV thành công!");
       } catch (err) {
         showError("Tải lên CV thất bại: " + (err?.message || ""));
       } finally {
-        setUploading(false); // KẾT THÚC loading
+        setUploading(false);
       }
     },
     [setCVFile]
   );
+   // --- constants & helpers (đặt gần đầu file) ---
+const ALLOWED_JOB_MIME = new Set([
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
+const ALLOWED_JOB_EXT = [".pdf", ".docx"];
+
+
+
 
   // ====== Handler upload JD files (chỉ lưu vào store, chưa call API) ======
-  const handleJobFileUpload = useCallback(
-    (e) => {
-      const files = Array.from(e.target.files);
+const handleJobFileUpload = useCallback((e) => {
+  const input = e.target; // giữ tham chiếu để reset value
+  const picked = Array.from(input.files || []);
+  if (!picked.length) return;
 
-      const existFiles = jobFiles.map((f) => f.name + "|" + f.size);
+  // ĐÃ ĐỦ 5 FILE -> báo sớm
+  if (jobFiles.length >= 5) {
+    showError("Bạn đã đạt tối đa 5 file. Không thể thêm nữa.");
+    input.value = ""; // QUAN TRỌNG: reset để lần sau chọn lại cùng file vẫn chạy onChange
+    return;
+  }
 
-      // Kiểm tra file trùng và file quá dung lượng
-      let hasDuplicate = false;
-      let hasOversize = false;
+  const existingKeys = new Set(jobFiles.map(f => `${f.name}|${f.size}`));
+  const remainingSlots = Math.max(0, 5 - jobFiles.length);
 
-      // Lọc file hợp lệ
-      const validFiles = files.filter((f) => {
-        if (existFiles.includes(f.name + "|" + f.size)) {
-          hasDuplicate = true;
-          return false;
-        }
-        if (f.size > MAX_FILE_SIZE) {
-          hasOversize = true;
-          return false;
-        }
-        return true;
-      });
+  let hasDuplicate = false;
+  let hasOversize = false;
+  let hasBadType = false;
+  let truncated = false;
 
-      if (hasDuplicate) {
-        showError(
-          "Một hoặc nhiều file đã tồn tại trong danh sách. Vui lòng chọn file khác!"
-        );
-      }
-      if (hasOversize) {
-        showError(
-          "Một hoặc nhiều file vượt quá 2MB. Vui lòng chọn file nhỏ hơn 2MB!"
-        );
-      }
+  // Bắt trùng trong CHÍNH picked (người dùng chọn cùng file 2 lần trong một lần chọn)
+  const seenInPicked = new Set();
 
-      // Thêm file hợp lệ
-      if (validFiles.length) {
-        const newJobFiles = [...jobFiles, ...validFiles];
-        setJobFiles(newJobFiles);
-        setJobFilesMeta(
-          newJobFiles.map((f) => ({ name: f.name, size: f.size }))
-        );
-      }
-    },
-    [jobFiles, setJobFiles]
-  );
+  let filtered = picked.filter(f => {
+    const key = `${f.name}|${f.size}`;
+
+    // duplicate trong lần chọn mới
+    if (seenInPicked.has(key)) {
+      hasDuplicate = true;
+      return false;
+    }
+    seenInPicked.add(key);
+
+    // loại file
+    const isAllowedType = ALLOWED_JOB_MIME.has(f.type) || hasAllowedExt(f.name);
+    if (!isAllowedType) { hasBadType = true; return false; }
+
+    // dung lượng
+    if (f.size > MAX_FILE_SIZE) { hasOversize = true; return false; }
+
+    // duplicate so với danh sách đã có
+    if (existingKeys.has(key)) { hasDuplicate = true; return false; }
+
+    return true;
+  });
+
+  // giới hạn 5 file tổng
+  if (filtered.length > remainingSlots) {
+    filtered = filtered.slice(0, remainingSlots);
+    truncated = true;
+  }
+
+  if (hasBadType)  showError("Chỉ chấp nhận file PDF hoặc DOCX.");
+  if (hasOversize) showError("File vượt quá 2MB. Vui lòng chọn file nhỏ hơn 2MB!");
+  if (hasDuplicate) showError("File đã tồn tại. Vui lòng chọn file khác!");
+  if (truncated)  showError("Chỉ được tải tối đa 5 file. Một số file đã không được thêm.");
+
+  if (filtered.length) {
+    const newJobFiles = [...jobFiles, ...filtered];
+    setJobFiles(newJobFiles);
+    setJobFilesMeta(newJobFiles.map(f => ({ name: f.name, size: f.size })));
+  }
+
+  // QUAN TRỌNG: reset input để lần sau chọn lại cùng file vẫn fire onChange
+  input.value = "";
+}, [jobFiles, setJobFiles, setJobFilesMeta]);
+
 
   // Handler gửi JD files khi hoàn thành
-  const handleCompleteUploadJobs = useCallback(async () => {
-    if (!jobFiles.length)
-      return showError("Vui lòng upload ít nhất 1 file mô tả!");
-    setUploadingJobFiles(true);
-    try {
-      await cvService.uploadJobDescription(jobFiles);
-      // Sau khi upload thành công, lưu metadata
-      setJobFilesMeta(jobFiles.map((f) => ({ name: f.name, size: f.size })));
-      showSuccess("Tải lên file mô tả công việc thành công!");
-      setShowPopup("");
-      setShowCongrats(true);
-    } catch (err) {
-      showError(
-        "Tải lên file mô tả công việc thất bại: " + (err?.message || "")
-      );
-    } finally {
-      setUploadingJobFiles(false);
+const handleCompleteUploadJobs = useCallback(async () => {
+  // Số lượng 1..5
+  if (!jobFiles.length) {
+    return showError("Vui lòng upload ít nhất 1 file mô tả!");
+  }
+  if (jobFiles.length > 5) {
+    return showError("Chỉ được tải tối đa 5 file mô tả!");
+  }
+
+  // Định dạng + dung lượng
+  for (const f of jobFiles) {
+    const isAllowedType = ALLOWED_JOB_MIME.has(f.type) || hasAllowedExt(f.name);
+    if (!isAllowedType) {
+      return showError(`File "${f.name}" không đúng định dạng (chỉ PDF hoặc DOCX).`);
     }
-  }, [jobFiles, setJobFilesMeta]);
+    if (f.size > MAX_FILE_SIZE) {
+      return showError(`File "${f.name}" vượt quá dung lượng 2MB.`);
+    }
+  }
+
+  setUploadingJobFiles(true);
+  try {
+    await cvService.uploadJobDescription(jobFiles);
+    setJobFilesMeta(jobFiles.map((f) => ({ name: f.name, size: f.size })));
+    showSuccess("Tải lên file mô tả công việc thành công!");
+    setShowPopup("");
+    setShowCongrats(true);
+  } catch (err) {
+    showError("Tải lên file mô tả công việc thất bại: " + (err?.message || ""));
+  } finally {
+    setUploadingJobFiles(false);
+  }
+}, [jobFiles, setJobFilesMeta]);
+
 
   // ====== Handler: Chọn radio option ======
   const handleRadioChange = useCallback((value) => {
@@ -255,6 +357,8 @@ const CVUploadOptions = ({ onNext }) => {
     ],
     []
   );
+ 
+
 
   // ===== Input link TOPCV change =====
   const handleNewLinkChange = useCallback(
@@ -272,37 +376,46 @@ const CVUploadOptions = ({ onNext }) => {
             <label
               htmlFor="cv-upload"
               className="flex flex-col items-center justify-center w-56 h-48 border-2 border-dashed border-yellow-400 rounded-xl cursor-pointer hover:bg-yellow-50 transition mb-3"
-              title="Chỉ chấp nhận file PDF, dung lượng dưới 2MB"
+              title="Chấp nhận PDF hoặc DOCX, có dung lượng dưới 2MB"
             >
               <FiUpload className="text-yellow-500 text-4xl mb-2" />
               <p className="font-semibold text-blue-700 underline mb-2">
                 Tải lên CV của bạn (PDF)
               </p>
               <span className="text-xs text-gray-500 text-center">
-                Chỉ nhận file PDF, dung lượng dưới{" "}
-                <span className="font-bold">2MB</span>
+                Nhận file <span className="font-bold">PDF hoặc DOCX</span>, dưới
+                2MB
               </span>
             </label>
             <input
               id="cv-upload"
               type="file"
-              accept="application/pdf"
+              accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.docx"
               onChange={handleCVUpload}
               className="hidden"
             />
             {cvFile ? (
               <div className="mt-4 w-52 h-[300px] border rounded overflow-hidden shadow bg-gray-50">
-                <iframe
-                  title="CV"
-                  src={URL.createObjectURL(cvFile)}
-                  className="w-full h-full"
-                />
+                {cvFile.type === "application/pdf" ||
+                cvFile.name.toLowerCase().endsWith(".pdf") ? (
+                  <iframe
+                    title="CV"
+                    src={URL.createObjectURL(cvFile)}
+                    className="w-full h-full"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center p-3 text-center text-sm text-gray-600">
+                    Xem trước không hỗ trợ DOCX. File đã được chọn: <br />
+                    <span className="font-medium break-all">{cvFile.name}</span>
+                  </div>
+                )}
               </div>
             ) : (
               <p className="text-gray-500 italic mt-4">
                 Chưa có CV được tải lên
               </p>
             )}
+
             {uploading && (
               <p className="text-yellow-600 mt-2">Đang tải lên...</p>
             )}
@@ -355,7 +468,7 @@ const CVUploadOptions = ({ onNext }) => {
                     checked={selectedOption === "auto"}
                     onChange={() => handleRadioChange("auto")}
                   />
-                  Hãy để Skill Gap Guide giúp bạn!
+                  Hãy để Skill Gap Guide tìm kiếm yêu cầu tuyển dụng giúp bạn!
                 </label>
               </div>
             </div>
@@ -398,14 +511,18 @@ const CVUploadOptions = ({ onNext }) => {
                   disabled={!selectedCareer}
                 >
                   <option value="">Chuyên môn</option>
-                  {filteredSpecializations.map((spec) => (
-                    <option key={spec.id} value={spec.id}>
-                      {spec.name}
-                    </option>
-                  ))}
+                  {filteredSpecializations &&
+                    filteredSpecializations.length > 0 &&
+                    filteredSpecializations
+                      .filter((spec) => spec.url && spec.url.trim() !== "")
+                      .map((spec) => (
+                        <option key={spec.id} value={spec.name}>
+                          {spec.name}
+                        </option>
+                      ))}
                 </select>
                 {/* Kinh nghiệm */}
-                <select
+                {/* <select
                   className="border border-blue-400 bg-blue-100 text-blue-700 px-3 py-2 rounded focus:ring-2 focus:ring-blue-400 focus:border-blue-500 font-semibold"
                   value={selectedExperience}
                   onChange={handleExperienceChange}
@@ -415,7 +532,7 @@ const CVUploadOptions = ({ onNext }) => {
                       {opt.label}
                     </option>
                   ))}
-                </select>
+                </select> */}
               </div>
             )}
           </div>
@@ -423,93 +540,100 @@ const CVUploadOptions = ({ onNext }) => {
 
         {/* Popup: Upload Job Descriptions */}
         {showPopup === "upload" && (
-          <div className="transition-transform duration-300 fixed top-24 right-1/2 translate-x-1/2 bg-white shadow-lg border border-gray-200 p-6 rounded-lg w-96 z-50">
-            <button
-              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 hover:bg-red-200 text-gray-500 hover:text-red-600 text-2xl flex items-center justify-center transition"
-              aria-label="Đóng"
-              onClick={() => setShowPopup("")}
-              tabIndex={0}
-            >
-              ×
-            </button>
-            <h3 className="text-lg font-bold mb-4 text-center">
-              Tải lên yêu cầu tuyển dụng
-            </h3>
+  <div className="transition-transform duration-300 fixed top-24 right-1/2 translate-x-1/2 bg-white shadow-lg border border-gray-200 p-6 rounded-lg w-96 z-50">
+    <button
+      className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 hover:bg-red-200 text-gray-500 hover:text-red-600 text-2xl flex items-center justify-center transition"
+      aria-label="Đóng"
+      onClick={() => setShowPopup("")}
+      tabIndex={0}
+    >
+      ×
+    </button>
+    <h3 className="text-lg font-bold mb-2 text-center">
+      Tải lên yêu cầu tuyển dụng
+    </h3>
 
-            {/* ... */}
-            <ul className="mb-4">
-              {jobFiles.length === 0 ? (
-                <li className="text-gray-400 italic text-center py-4">
-                  Chưa có file nào được thêm
-                </li>
-              ) : (
-                jobFiles.map((file, index) => (
-                  <li
-                    key={index}
-                    className="flex items-center justify-between gap-2 bg-gray-50 border border-gray-200 rounded-xl mb-2 px-3 py-2 shadow-sm group transition"
-                  >
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <span className="text-blue-500">
-                        <svg
-                          width="18"
-                          height="18"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M8 2a2 2 0 00-2 2v1H6a2 2 0 00-2 2v9a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H8zm0 2h4v1H8V4zm-2 3h8v9a1 1 0 01-1 1H7a1 1 0 01-1-1V7z"></path>
-                        </svg>
-                      </span>
-                      <span className="truncate font-medium text-gray-700">
-                        {file.name}
-                      </span>
-                      <span className="text-xs text-gray-400 ml-2">
-                        {(file.size / 1024).toFixed(1)} KB
-                      </span>
-                    </div>
-                    <button
-                      className="p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-600 transition opacity-60 group-hover:opacity-100"
-                      title="Xoá file này"
-                      onClick={() => {
-                        const newFiles = jobFiles.filter((_, i) => i !== index);
-                        setJobFiles(newFiles);
-                        setJobFilesMeta(
-                          newFiles.map((f) => ({ name: f.name, size: f.size }))
-                        );
-                      }}
-                    >
-                      <FiTrash size={18} />
-                    </button>
-                  </li>
-                ))
-              )}
-            </ul>
+    {/* Thông báo hướng dẫn */}
+    <p className="text-sm text-gray-600 text-center mb-4">
+      Bạn có thể tải từ <span className="font-semibold text-blue-600">1</span> đến <span className="font-semibold text-blue-600">5</span> file.
+      <br />
+      Chấp nhận định dạng <span className="font-semibold">PDF</span> hoặc <span className="font-semibold">DOCX</span>, dung lượng tối đa 2MB mỗi file.
+    </p>
 
-            {jobFiles.length < 5 && (
-              <div className="text-center mb-4">
-                <label
-                  htmlFor="job-upload"
-                  className="text-red-600 font-semibold cursor-pointer underline"
+    <ul className="mb-4">
+      {jobFiles.length === 0 ? (
+        <li className="text-gray-400 italic text-center py-4">
+          Chưa có file nào được thêm
+        </li>
+      ) : (
+        jobFiles.map((file, index) => (
+          <li
+            key={index}
+            className="flex items-center justify-between gap-2 bg-gray-50 border border-gray-200 rounded-xl mb-2 px-3 py-2 shadow-sm group transition"
+          >
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <span className="text-blue-500">
+                <svg
+                  width="18"
+                  height="18"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
                 >
-                  + Thêm file mô tả
-                </label>
-                <input
-                  id="job-upload"
-                  type="file"
-                  accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                  onChange={handleJobFileUpload}
-                  className="hidden"
-                />
-              </div>
-            )}
+                  <path d="M8 2a2 2 0 00-2 2v1H6a2 2 0 00-2 2v9a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H8zm0 2h4v1H8V4zm-2 3h8v9a1 1 0 01-1 1H7a1 1 0 01-1-1V7z"></path>
+                </svg>
+              </span>
+              <span className="truncate font-medium text-gray-700">
+                {file.name}
+              </span>
+              <span className="text-xs text-gray-400 ml-2">
+                {(file.size / 1024).toFixed(1)} KB
+              </span>
+            </div>
             <button
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold w-full py-2 rounded disabled:opacity-60"
-              onClick={handleCompleteUploadJobs}
-              disabled={uploadingJobFiles || jobFiles.length === 0}
+              className="p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-600 transition opacity-60 group-hover:opacity-100"
+              title="Xoá file này"
+              onClick={() => {
+                const newFiles = jobFiles.filter((_, i) => i !== index);
+                setJobFiles(newFiles);
+                setJobFilesMeta(
+                  newFiles.map((f) => ({ name: f.name, size: f.size }))
+                );
+              }}
             >
-              {uploadingJobFiles ? "Đang tải lên..." : "Hoàn thành"}
+              <FiTrash size={18} />
             </button>
-          </div>
-        )}
+          </li>
+        ))
+      )}
+    </ul>
+
+    {jobFiles.length < 5 && (
+      <div className="text-center mb-4">
+        <label
+          htmlFor="job-upload"
+          className="text-red-600 font-semibold cursor-pointer underline"
+        >
+          + Thêm file mô tả
+        </label>
+        <input
+          id="job-upload"
+          type="file"
+          accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,.docx"
+          onChange={handleJobFileUpload}
+          className="hidden"
+        />
+      </div>
+    )}
+    <button
+      className="bg-green-600 hover:bg-green-700 text-white font-semibold w-full py-2 rounded disabled:opacity-60"
+      onClick={handleCompleteUploadJobs}
+      disabled={uploadingJobFiles || jobFiles.length === 0}
+    >
+      {uploadingJobFiles ? "Đang tải lên..." : "Hoàn thành"}
+    </button>
+  </div>
+)}
+
 
         {/* Popup: Input TOPCV link */}
         {showPopup === "link" && (
@@ -606,13 +730,13 @@ const CVUploadOptions = ({ onNext }) => {
                 🎉 Chúc mừng bạn!
               </h2>
               <p className="mb-6 text-gray-700">
-                Bạn đã tải lên CV và mô tả công việc thành công.
+                Bạn đã tải lên CV và hoàn thành mô tả công việc bạn mong muốn.
                 <br />
                 Bấm{" "}
                 <span className="font-semibold text-blue-600">
                   Phân tích kỹ năng
                 </span>{" "}
-                để hệ thống phân tích kỹ năng cho bạn nhé .
+                để nhận kết quả phân tích nhé .
               </p>
               <button
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-lg transition"
@@ -625,6 +749,36 @@ const CVUploadOptions = ({ onNext }) => {
             </div>
           </div>
         )}
+        {/* Blocking overlay when autoSearching */}
+{autoSearching && (
+  <div
+    className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-sm flex items-center justify-center"
+    aria-modal="true"
+    role="dialog"
+    aria-labelledby="crawlTitle"
+    aria-describedby="crawlDesc"
+  >
+    <div className="bg-white rounded-2xl shadow-xl p-6 w-[90%] max-w-sm text-center">
+      <div className="mx-auto mb-4 w-10 h-10 rounded-full border-4 border-gray-300 border-t-transparent animate-spin"></div>
+      <h3 id="crawlTitle" className="text-lg font-semibold">
+        Đang tìm 10 tin tuyển dụng...
+      </h3>
+      <p id="crawlDesc" className="text-sm text-gray-500 mt-1">
+        Vui lòng không đóng hoặc rời trang trong lúc xử lý.
+      </p>
+
+      {/* Nếu chưa có cơ chế hủy ở backend, ẩn nút hủy. 
+          Nếu có AbortController/cancel API, hiển thị nút và gọi handleAbort */}
+      {/* <button
+        className="mt-4 px-4 py-2 rounded-lg border text-sm"
+        onClick={handleAbort}
+      >
+        Hủy
+      </button> */}
+    </div>
+  </div>
+)}
+
       </div>
     </>
   );

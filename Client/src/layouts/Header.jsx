@@ -66,6 +66,7 @@ const Header = memo(function Header() {
   const menus = [
     { label: "Trang chủ", to: "/" },
     { label: "Phân tích", to: "/analyze/upload" },
+     { label: "Gói dịch vụ", to: "/servicepayment" },
     {
       label: "Về chúng tôi",
       submenu: [
@@ -73,7 +74,7 @@ const Header = memo(function Header() {
         { label: "Liên hệ", to: "/contact" },
       ],
     },
-    { label: "Gói dịch vụ", to: "/servicepayment" },
+   
   ];
 
   return (

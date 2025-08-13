@@ -29,8 +29,7 @@ export default memo(function LoginForm() {
 
         // First set in context
         setUser(userData);
-        console.log();
-        ("🔐 User context set:", userData);
+     
         // Then explicitly store in localStorage
   // Điều hướng theo role
       if (userData.role === "System Admin") {
@@ -42,10 +41,10 @@ export default memo(function LoginForm() {
       } else {
         navigate("/");
       }
-        console.log("🔐 User saved:", userData);
+       
        
       } catch (error) {
-        console.error("Login failed:", error);
+        
         setLoginError(error.message);
       }
     },
