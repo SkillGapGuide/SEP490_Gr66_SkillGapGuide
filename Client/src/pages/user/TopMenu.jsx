@@ -27,8 +27,12 @@ const TopMenu = () => {
   const jobFilesMeta = useCVWizardStore((s) => s.jobFilesMeta);
   const topcvLinks = useCVWizardStore((s) => s.topcvLinks);
 const selectedOption = useCVWizardStore((s) => s.selectedOption);
+const isAnalysisLoading = useAnalysisStore((s) => s.isAnalysisLoading);
+const skills = useAnalysisStore((s) => s.skills);
+const jobList = useAnalysisStore((s) => s.jobList);
+
   // Dữ liệu xuất báo cáo
-  const { skills, jobList, jobDetails } = useAnalysisStore();
+  const { jobDetails } = useAnalysisStore();
 
   // Điều kiện enable cho "Phân tích kỹ năng"
   const enableAnalysis =
@@ -36,6 +40,20 @@ const selectedOption = useCVWizardStore((s) => s.selectedOption);
     ((jobFilesMeta && jobFilesMeta.length > 0) ||
       (topcvLinks && topcvLinks.length > 0)||
     selectedOption === "auto" );
+    // ĐIỀU KIỆN CŨ: đủ điều kiện để BẮT ĐẦU chạy
+const canStartAnalysis =
+  cvUploaded &&
+  (
+    (jobFilesMeta?.length > 0) ||
+    (topcvLinks?.length > 0) ||
+    selectedOption === "auto"
+  );
+
+// ĐÃ CÓ KẾT QUẢ (để xem lại, kể cả khi input đã bị dọn)
+const hasAnalysisResult = (skills?.length > 0) || (jobList?.length > 0);
+
+// CHO PHÉP MỞ TRANG PHÂN TÍCH nếu: đang chạy, hoặc đã có kết quả, hoặc đủ điều kiện để bắt đầu
+const canOpenAnalysis = isAnalysisLoading || hasAnalysisResult || canStartAnalysis;
 
   // Logic xuất Excel
   const exportExcel = () => {
@@ -128,7 +146,7 @@ const skillGapSheetData = [
             // Xác định enable cho từng menu item
             let isEnabled = true;
             if (item.label === "Phân tích kỹ năng") {
-              isEnabled = enableAnalysis;
+              isEnabled = canOpenAnalysis;
             }
 
             return (
@@ -158,12 +176,12 @@ const skillGapSheetData = [
         <li>
   <button
     className={`bg-white-600 text-black px-3 py-1 rounded hover:bg-green-700 text-sm transition-all font-medium ${
-      !enableAnalysis ? "opacity-50 cursor-not-allowed" : ""
+      !hasAnalysisResult  ? "opacity-50 cursor-not-allowed" : ""
     }`}
     style={{ minWidth: 110 }}
-    aria-disabled={!enableAnalysis}            // chỉ để screen reader
+    aria-disabled={!hasAnalysisResult }            // chỉ để screen reader
     onClick={() => {
-      if (!enableAnalysis) {
+      if (!hasAnalysisResult ) {
         showInfo("Bạn cần tải lên CV và mô tả công việc trước!");
         return;
       }
