@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
     private final SubscriptionRepository subscriptionRepository;
     private final UserSubscriptionHistoryRepository userSubscriptionHistoryRepository;
     @Autowired
@@ -114,8 +115,8 @@ public class PaymentService {
         return qrUrl;
     }
     public void confirmPaymentCassio(String json) throws Exception {
-        String status;
         try {
+            String status = "SUCCESS";
             JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
             JsonArray jsonArray = (JsonArray) jsonObject.get("data");
             // loop array
@@ -201,24 +202,22 @@ public class PaymentService {
                 Payment payment = new Payment();
                 payment.setAmount(amount);
                 payment.setDate(new Date());
-                payment.setStatus("SUCCESS");
+                payment.setStatus(status);
                 payment.setPaymentMethod("QRCODE");
                 payment.setUserId(user.getUserId());
                 paymentRepo.save(payment);
 
             }
         } catch (Exception e){
-            status = "FAILED";
             throw new Exception("Xác nhận thanh toán thất bại: " + e.getMessage(), e);
         }
     }
-    public int checkPayment() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+    public boolean checkPayment() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName(); // lấy từ JWT
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        int subscriptionId = user.getSubscriptionId();
-        Subscription subscription = subscriptionRepository.findById(subscriptionId)
-                .orElseThrow(() -> new RuntimeException("Subscription not found with ID: " + subscriptionId));
-        return subscription.getType();
+//        Payment payment = paymentRepository.findPaymentByUserId(user.getUserId())
+//                .orElseThrow(() -> new RuntimeException("Payment not found with ID: "));
+        return true;
     }
 }
