@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -172,44 +173,16 @@ public class  UserService {
         userRepository.save(user);
     }
 
-    public UserSubscriptionDTO getUserSubscription(){
+    public UserSubscriptionDTO getUserSubscription() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Người dùng không tồn tại"));
+        List<UserSubscriptionDTO> results = userRepository.findUserSubscriptionByEmail(email);
 
-        UserSubscriptionDTO dto = new UserSubscriptionDTO();
-        dto.setFullName(user.getFullName());
-
-        switch (user.getRoleId()) {
-            case 4 -> {
-                dto.setRole("Free User");
-                dto.setPremium(false);
-            }
-            case 5 -> {
-                dto.setRole("Pro User");
-                dto.setPremium(true);
-
-                // Lấy thông tin đăng ký từ bảng lịch sử
-                userSubscriptionHistoryRepository.findTopByUser_UserIdAndStatusOrderByStartDateDesc(user.getUserId(), "ACTIVE")
-                        .ifPresent(history -> {
-                            dto.setSubscriptionStart(history.getStartDate());
-                            dto.setSubscriptionEnd(history.getEndDate());
-                        });
-            }
-            case 6 -> {
-                dto.setRole("Premium User");
-                dto.setPremium(true);
-
-                // Lấy thông tin đăng ký từ bảng lịch sử
-                userSubscriptionHistoryRepository.findTopByUser_UserIdAndStatusOrderByStartDateDesc(user.getUserId(), "ACTIVE")
-                        .ifPresent(history -> {
-                            dto.setSubscriptionStart(history.getStartDate());
-                            dto.setSubscriptionEnd(history.getEndDate());
-                        });
-            }
-            default -> dto.setRole("Khác");
+        if (results.isEmpty()) {
+            throw new RuntimeException("Người dùng không tồn tại");
         }
-        return dto;
+        return results.get(0);
     }
+
 
     public String updateUserRole(UserRoleUpdateRequest request) {
         User user = userRepository.findById(request.getUserId())
