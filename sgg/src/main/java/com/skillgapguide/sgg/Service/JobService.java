@@ -150,7 +150,7 @@ Hãy phân tích nội dung JD dưới đây và trích xuất các thông tin s
 JD:
 """ + text;
 
-                LMStudioService service = new LMStudioService(WebClient.builder());
+                OllamaService service = new OllamaService(WebClient.builder());
                 String content = service.callMistralApi(prompt).block();
                 try {
                     ObjectMapper mapper = new ObjectMapper();
@@ -233,7 +233,7 @@ Hãy phân tích nội dung JD dưới đây và trích xuất tất cả các k
 
 JD:
 """ + job.getDescription();
-                LMStudioService service = new LMStudioService(WebClient.builder());
+                OllamaService service = new OllamaService(WebClient.builder());
                 String content = service.callMistralApi(prompt).block();
                 try {
                     ObjectMapper mapper = new ObjectMapper();
