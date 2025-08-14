@@ -2,12 +2,15 @@ package com.skillgapguide.sgg.Service;
 
 import com.skillgapguide.sgg.Dto.UserFavoriteMissingSkillResponse;
 import com.skillgapguide.sgg.Entity.Cv;
+import com.skillgapguide.sgg.Entity.JobDesSkills;
 import com.skillgapguide.sgg.Entity.UserCvSkills;
 import com.skillgapguide.sgg.Entity.UserFavoriteMissingSkill;
 import com.skillgapguide.sgg.Repository.CVRepository;
 import com.skillgapguide.sgg.Repository.JobDesSkillsRepository;
 import com.skillgapguide.sgg.Repository.UserCvSkillsRepository;
 import com.skillgapguide.sgg.Repository.UserFavoriteMissingSkillRepository;
+import com.skillgapguide.sgg.Response.EHttpStatus;
+import com.skillgapguide.sgg.Response.Response;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,28 +31,32 @@ public class UserFavoriteMissingSkillService {
         return userFavoriteMissingSkillRepository.findUserFavoriteMissingSkillsByUserId(userId, pageable);
     }
 
-    public UserFavoriteMissingSkill addMissingSkillToFavorites(Integer userId, Integer skillId) {
-        skillRepository.findById(skillId)
-                .orElseThrow(() -> new IllegalArgumentException("Skill không tồn tại"));
-
-        Optional<UserFavoriteMissingSkill> existingFavorite =
-                userFavoriteMissingSkillRepository.findByUserIdAndSkillId(userId, skillId);
-        if (existingFavorite.isPresent()) {
-            throw new IllegalStateException("Skill đã có trong danh sách yêu thích");
+    public String addMissingSkillToFavorites(Integer userId, Integer skillId) {
+        try {
+            JobDesSkills jobDesSkills = skillRepository.findById(skillId)
+                    .orElseThrow(() -> new IllegalArgumentException("Skill không tồn tại"));
+            Optional<UserFavoriteMissingSkill> existingFavorite =
+                    userFavoriteMissingSkillRepository.findByUserIdAndSkillId(userId, jobDesSkills.getSkill());
+            if (existingFavorite.isPresent()) {
+                throw new IllegalStateException("Skill đã có trong danh sách yêu thích");
+            }
+            UserFavoriteMissingSkill favorite = new UserFavoriteMissingSkill();
+            favorite.setUserId(userId);
+            favorite.setSkillId(jobDesSkills.getSkill());
+            favorite.setStatus("ACTIVE");
+            favorite.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+            userFavoriteMissingSkillRepository.save(favorite);
+            return  "Thêm kỹ năng thành công";
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return e.getMessage();
+        } catch (Exception e) {
+            return "Lỗi hệ thống";
         }
-
-        UserFavoriteMissingSkill favorite = new UserFavoriteMissingSkill();
-        favorite.setUserId(userId);
-        favorite.setSkillId(skillId);
-        favorite.setStatus("ACTIVE");
-        favorite.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-
-        return userFavoriteMissingSkillRepository.save(favorite);
     }
 
     public void removeFavoriteMissingSkill(Integer userId, Integer skillId) {
         Optional<UserFavoriteMissingSkill> existingFavorite =
-                userFavoriteMissingSkillRepository.findByUserIdAndSkillId(userId, skillId);
+                userFavoriteMissingSkillRepository.findByUserIdAndId(userId, skillId);
         if (existingFavorite.isEmpty()) {
             throw new IllegalStateException("Skill yêu thích không tồn tại");
         }

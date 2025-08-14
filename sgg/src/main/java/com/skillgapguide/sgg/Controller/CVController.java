@@ -32,7 +32,7 @@ public class CVController {
         return new Response<>(EHttpStatus.OK, cvService.uploadCv(fileName,fileExtension,file));
     }
     @GetMapping("/getCvSkill")
-    public Response<?> getCvSkill() throws IOException {
+    public Response<?> getCvSkill() throws Exception {
         cvService.extractSkill();
         return new Response<>(EHttpStatus.OK, cvService.getCvSkill());
     }

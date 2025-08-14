@@ -14,7 +14,7 @@ public class UserFavoriteMissingSkill {
     @Column(name = "user_id")
     private Integer userId;
     @Column(name = "skill_id")
-    private Integer skillId;
+    private String skillId;
     @Basic
     @Column(name = "status")
     private String status;

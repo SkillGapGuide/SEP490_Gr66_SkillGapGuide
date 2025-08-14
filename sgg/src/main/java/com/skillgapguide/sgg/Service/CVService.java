@@ -14,6 +14,8 @@ import com.skillgapguide.sgg.Repository.UserRepository;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,7 +27,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class CVService {
@@ -51,7 +56,6 @@ public class CVService {
             Files.createDirectories(Paths.get(UPLOAD_DIR));
             Path path = Paths.get(UPLOAD_DIR + uniqueFileName);
             Files.write(path, file.getBytes());
-            System.out.println("file type: " + fileExtension);
             try{
                 extractTextFromFile(path.toAbsolutePath().toString(),fileExtension);
             } catch (IOException e) {
@@ -88,41 +92,101 @@ public class CVService {
         }
     }
 
-    public void extractSkill() throws IOException {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName(); // lấy từ JWT
+    public void extractSkill() throws Exception {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Integer userId = userRepository.findByEmail(email)
                 .map(User::getUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Cv cv = cvRepository.findByUserId(userId);
-        String text = extractTextFromFile(cv.getFilePath(),cv.getFileType());
-        String prompt = """
+
+        String text = cleanCvText(extractTextFromFile(cv.getFilePath(), cv.getFileType()));
+        List<String> chunks = splitByWords(text, 1000);
+
+        LMStudioService service = new LMStudioService(WebClient.builder());
+        Set<String> allSkills = new HashSet<>();
+
+        for (String chunk : chunks) {
+            String prompt = """
 Bạn là một chuyên gia phân tích nhân sự. Hãy phân tích CV dưới đây và trích xuất tất cả các kỹ năng chính của ứng viên.
-
-⚠️ Yêu cầu:
-- Chỉ sử dụng tiếng Việt.
-- Các kỹ năng phải giữ nguyên ngôn ngữ gốc nếu đã có trong CV.
-- Trả lời duy nhất bằng JSON như sau (không thêm lời giải thích):
-
+YÊU CẦU BẮT BUỘC:
+Không được tạo thêm các trường khác ngoài "skills".
+Không nhóm kỹ năng vào các mảng con.
+Chỉ liệt kê kỹ năng trong mảng "skills".
+Nếu không tìm thấy kỹ năng, trả về {"skills": []}.
+Không giải thích, không mô tả ngoài JSON.
+Json:
 {
   "skills": [
     "kỹ năng 1",
     "kỹ năng 2"
   ]
 }
-
 CV:
-""" + text;
-
-        LMStudioService service = new LMStudioService(WebClient.builder());
-        String content = service.callMistralApi(prompt).block(); // <- CHỜ kết quả trả về
-
-        try {
-            cvSkillService.saveCvSkillsToDb(content, cv.getId());
-        } catch (Exception e) {
-            System.err.println("Lỗi khi lưu kỹ năng vào DB: " + e.getMessage());
-            e.printStackTrace();
+""" + chunk;
+            String content = service.callMistralApi(prompt).block();
+            try {
+                JSONObject json = new JSONObject(content);
+                JSONArray skills = json.getJSONArray("skills");
+                for (int i = 0; i < skills.length(); i++) {
+                    allSkills.add(skills.getString(i).trim());
+                }
+            } catch (Exception e) {
+                System.err.println("Lỗi parse JSON từ model: " + e.getMessage());
+            }
         }
+
+        // Lưu kết quả hợp nhất
+        JSONObject finalJson = new JSONObject();
+        finalJson.put("skills", new JSONArray(allSkills));
+        cvSkillService.saveCvSkillsToDb(finalJson.toString(), cv.getId());
     }
+
+    private String cleanCvText(String rawText) {
+        if (rawText == null) return "";
+
+        // 1. Chuẩn hóa xuống dòng thành \n
+        String text = rawText.replaceAll("\r\n", "\n").replaceAll("\r", "\n");
+
+        // 2. Xóa ký tự bullet, gạch đầu dòng, ký tự trang trí
+        text = text.replaceAll("(?m)^[\\s\\u2022\\u2023\\u25E6\\u2043\\u2219\\u25AA\\u25CF\\u25CB\\u25A0\\u25A1\\u25B6\\u25C6\\u25C7\\u25BA\\u25BB\\u25FE\\u25FD\\uF0B7\\u2024\\u2027\\u2219\\u25D8\\u2219\\u25C9\\u25C8\\u2219\\u25CE\\u25CD\\u25D0\\u2219\\u2219\\u25CF\\u25E6\\u2022\\u2219\\u2219\\-*]+", "");        text = text.replaceAll("^[\\s\\-\\*]+", ""); // gạch đầu dòng "-" hoặc "*"
+
+        // 4. Xóa dòng trống hoặc dòng quá ngắn (header/footer, số trang)
+        StringBuilder sb = new StringBuilder();
+        for (String line : text.split("\n")) {
+            line = line.trim();
+            if (line.isEmpty()) continue;
+            if (line.matches("^\\d+$")) continue; // chỉ là số trang
+            if (line.length() < 2) continue; // dòng quá ngắn
+            sb.append(line).append("\n");
+        }
+
+        // 5. Gộp các khoảng trắng thừa
+        text = sb.toString().replaceAll("\\s{2,}", " ").trim();
+
+        return text;
+    }
+    public List<String> splitByWords(String text, int maxTokens) {
+        // Ước lượng: 1 token ~ 0.75 từ
+        int maxWords = (int) (maxTokens / 0.75);
+        String[] words = text.split("\\s+");
+        List<String> chunks = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+
+        for (String word : words) {
+            if (current.length() > 0) current.append(" ");
+            current.append(word);
+
+            if (current.toString().split("\\s+").length >= maxWords) {
+                chunks.add(current.toString().trim());
+                current.setLength(0);
+            }
+        }
+        if (current.length() > 0) {
+            chunks.add(current.toString().trim());
+        }
+        return chunks;
+    }
+
     public static String extractTextFromFile(String filePath, String fileType) throws IOException {
         try {
             if (fileType.equals("pdf")) {
