@@ -113,7 +113,7 @@ Bạn là một chuyên gia phân tích nhân sự. Hãy phân tích CV dưới 
 CV:
 """ + text;
 
-        LMStudioService service = new LMStudioService(WebClient.builder());
+        OllamaService service = new OllamaService(WebClient.builder());
         String content = service.callMistralApi(prompt).block(); // <- CHỜ kết quả trả về
 
         try {

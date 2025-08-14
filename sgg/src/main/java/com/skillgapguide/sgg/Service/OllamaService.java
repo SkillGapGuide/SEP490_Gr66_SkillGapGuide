@@ -10,11 +10,11 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
-public class LMStudioService {
+public class OllamaService {
     private final WebClient webClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public LMStudioService(WebClient.Builder webClientBuilder) {
+    public OllamaService(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder
                 .baseUrl("http://localhost:1234")
                 .build();
@@ -22,34 +22,36 @@ public class LMStudioService {
 
     public Mono<String> callMistralApi(String prompt) {
         Map<String, Object> requestBody = Map.of(
-                "model", "mistralai/mistral-7b-instruct-v0.3",
+                "model", "mistral:7b-instruct-v0.3-q4_0",
                 "messages", List.of(
                         Map.of("role", "user", "content", prompt)
                 ),
-                "temperature", 0.2,
-                "max_tokens", 8192,
+                "options", Map.of(
+                        "temperature", 0.2,
+                        "num_predict", 8192
+                ),
                 "stream", false
         );
         return webClient.post()
-                .uri("/v1/chat/completions")
-                .header("Authorization", "Bearer lm-studio")
+                .uri("/api/chat")
                 .header("Accept", MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .retrieve()
                 .bodyToMono(String.class)
-                .flatMap(this::parseAiResponse)
+                .flatMap(this::parseOllamaResponse)
                 .timeout(Duration.ofMinutes(4))
                 .onErrorResume(e -> Mono.just("Lỗi: " + e.getMessage()));
     }
     public Mono<String> callNomicApi(String prompt) {
+        // Note: Ollama doesn't have embedding endpoint, this might need separate service
+        // For now, keeping similar structure but may need external embedding service
         Map<String, Object> requestBody = Map.of(
-                "model", "text-embedding-nomic-embed-text-v1.5",
-                "input", prompt
+                "model", "nomic-embed-text",
+                "prompt", prompt
         );
         return webClient.post()
-                .uri("/v1/embeddings")
-                .header("Authorization", "Bearer lm-studio")
+                .uri("/api/embeddings")
                 .header("Accept", MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
@@ -59,11 +61,26 @@ public class LMStudioService {
                 .onErrorResume(e -> Mono.just("Lỗi: " + e.getMessage()));
     }
 
-    private Mono<String> parseAiResponse(String json) {
+    private Mono<String> parseOllamaResponse(String json) {
         return Mono.fromCallable(() -> {
-            AIResponse response = objectMapper.readValue(json, AIResponse.class);
-            if (response.getChoices() != null && !response.getChoices().isEmpty()) {
-                return response.getChoices().get(0).getMessage().getContent();
+            // Ollama response format might be different, try both formats
+            try {
+                AIResponse response = objectMapper.readValue(json, AIResponse.class);
+                if (response.getChoices() != null && !response.getChoices().isEmpty()) {
+                    return response.getChoices().get(0).getMessage().getContent();
+                }
+            } catch (Exception e) {
+                // Try Ollama format: {"message":{"content":"response"}}
+                @SuppressWarnings("unchecked")
+                Map<String, Object> ollamaResponse = objectMapper.readValue(json, Map.class);
+                Object messageObj = ollamaResponse.get("message");
+                if (messageObj instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> message = (Map<String, Object>) messageObj;
+                    if (message.containsKey("content")) {
+                        return (String) message.get("content");
+                    }
+                }
             }
             return "Không có phản hồi từ AI";
         }).onErrorResume(e -> Mono.just("Lỗi parse JSON: " + e.getMessage()));
