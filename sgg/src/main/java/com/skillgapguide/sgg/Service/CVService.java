@@ -102,53 +102,33 @@ public class CVService {
         String text = cleanCvText(extractTextFromFile(cv.getFilePath(), cv.getFileType()));
         List<String> chunks = splitByWords(text, 1000);
 
-        LMStudioService service = new LMStudioService(WebClient.builder());
-        Set<String> allSkills = new HashSet<>();
-
         for (String chunk : chunks) {
             String prompt = """
-Bạn là một chuyên gia phân tích nhân sự. Hãy phân tích CV dưới đây và trích xuất tất cả các kỹ năng chính của ứng viên.
-YÊU CẦU BẮT BUỘC:
-Không được tạo thêm các trường khác ngoài "skills".
-Không nhóm kỹ năng vào các mảng con.
-Chỉ liệt kê kỹ năng trong mảng "skills".
-Nếu không tìm thấy kỹ năng, trả về {"skills": []}.
-Không giải thích, không mô tả ngoài JSON.
-Json:
-{
-  "skills": [
-    "kỹ năng 1",
-    "kỹ năng 2"
-  ]
-}
-CV:
-""" + text;
-
-        OllamaService service = new OllamaService(WebClient.builder());
-        String content = service.callMistralApi(prompt).block(); // <- CHỜ kết quả trả về
-
-        try {
-            cvSkillService.saveCvSkillsToDb(content, cv.getId());
-        } catch (Exception e) {
-            System.err.println("Lỗi khi lưu kỹ năng vào DB: " + e.getMessage());
-            e.printStackTrace();
-""" + chunk;
-            String content = service.callMistralApi(prompt).block();
+                    Bạn là một chuyên gia phân tích nhân sự. Hãy phân tích CV dưới đây và trích xuất tất cả các kỹ năng chính của ứng viên.
+                    YÊU CẦU BẮT BUỘC:
+                    Không được tạo thêm các trường khác ngoài "skills".
+                    Không nhóm kỹ năng vào các mảng con.
+                    Chỉ liệt kê kỹ năng trong mảng "skills".
+                    Nếu không tìm thấy kỹ năng, trả về {"skills": []}.
+                    Không giải thích, không mô tả ngoài JSON.
+                    Json:
+                    {
+                      "skills": [
+                        "kỹ năng 1",
+                        "kỹ năng 2"
+                      ]
+                    }
+                    CV:
+                    """ + chunk;
+            OllamaService service = new OllamaService(WebClient.builder());
+            String content = service.callMistralApi(prompt).block(); // <- CHỜ kết quả trả về
             try {
-                JSONObject json = new JSONObject(content);
-                JSONArray skills = json.getJSONArray("skills");
-                for (int i = 0; i < skills.length(); i++) {
-                    allSkills.add(skills.getString(i).trim());
-                }
+                cvSkillService.saveCvSkillsToDb(content, cv.getId());
             } catch (Exception e) {
-                System.err.println("Lỗi parse JSON từ model: " + e.getMessage());
+                System.err.println("Lỗi khi lưu kỹ năng vào DB: " + e.getMessage());
+                e.printStackTrace();
             }
         }
-
-        // Lưu kết quả hợp nhất
-        JSONObject finalJson = new JSONObject();
-        finalJson.put("skills", new JSONArray(allSkills));
-        cvSkillService.saveCvSkillsToDb(finalJson.toString(), cv.getId());
     }
 
     private String cleanCvText(String rawText) {
