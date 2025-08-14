@@ -165,7 +165,7 @@ const navigate = useNavigate();
             },
             {
               icon: "https://cdn-icons-png.flaticon.com/512/929/929564.png",
-              label: "Nhận kết quả kỹ năng thiếu & gợi ý khóa học, nghề nghiệp phù hợp"
+              label: "Nhận kết quả kỹ năng thiếu & gợi ý khóa học, công việc phù hợp"
             }
           ].map((step, idx) => (
             <motion.div
@@ -239,21 +239,7 @@ const navigate = useNavigate();
               Đưa ra chi tiết kỹ năng cần bổ sung để hoàn thiện.
             </p>
           </motion.div>
-          {/* Course Suggestion */}
-          <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.94 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="p-7 border rounded-2xl max-w-sm shadow-xl bg-white/80 backdrop-blur flex flex-col items-center"
-          >
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/2936/2936885.png"
-              alt="Khoá học"
-              className="mx-auto mb-4 h-16"
-            />
-            <p className="font-semibold text-lg text-indigo-900">Đề xuất khóa học bổ sung phù hợp</p>
-          </motion.div>
+         
           {/* Job Suggestion */}
           <motion.div
             initial={{ opacity: 0, y: 30, scale: 0.94 }}
@@ -268,6 +254,21 @@ const navigate = useNavigate();
               className="mx-auto mb-4 h-16"
             />
             <p className="font-semibold text-lg text-indigo-900">Đề xuất công việc phù hợp</p>
+          </motion.div>
+           {/* Course Suggestion */}
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.94 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="p-7 border rounded-2xl max-w-sm shadow-xl bg-white/80 backdrop-blur flex flex-col items-center"
+          >
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/2936/2936885.png"
+              alt="Khoá học"
+              className="mx-auto mb-4 h-16"
+            />
+            <p className="font-semibold text-lg text-indigo-900">Đề xuất khóa học bổ sung phù hợp</p>
           </motion.div>
         </div>
       </section>

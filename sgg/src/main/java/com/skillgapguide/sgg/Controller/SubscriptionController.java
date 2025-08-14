@@ -13,7 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -58,4 +60,66 @@ public class SubscriptionController {
             return new Response<>(EHttpStatus.BAD_REQUEST, e.getMessage(), null);
         }
     }
+    @GetMapping("/count-total-user-subscription-history")
+    public Response<Integer> countTotalUserSubscriptionHistory() {
+        Integer totalCount = subscriptionService.countTotalUserSubscriptionHistory();
+        return new Response<>(EHttpStatus.OK, "Tổng số lịch sử đăng ký người dùng", totalCount);
+    }
+    @GetMapping("/count-total-user-subscription-history-price")
+    public Response<BigInteger> countTotalUserSubscriptionHistoryPrice() {
+        BigInteger totalPrice = subscriptionService.countTotalUserSubscriptionHistoryPrice();
+        return new Response<>(EHttpStatus.OK, "Tổng giá trị lịch sử đăng ký người dùng", totalPrice);
+    }
+    @GetMapping("/count-free-user-subscription-history")
+    public Response<Integer> countFreeUserSubscriptionHistory() {
+        Integer freeUserCount = subscriptionService.countFreeUserSubscriptionHistory();
+        return new Response<>(EHttpStatus.OK, "Tổng số người dùng sử dụng gói miễn phí", freeUserCount);
+    }
+    @GetMapping("/count-pro-user-subscription-history")
+    public Response<Integer> countProUserSubscriptionHistory() {
+        Integer proUserCount = subscriptionService.countProUserSubscriptionHistory();
+        return new Response<>(EHttpStatus.OK, "Tổng số người dùng sử dụng gói Pro", proUserCount);
+    }
+    @GetMapping("/count-premium-user-subscription-history")
+    public Response<Integer> countPremiumUserSubscriptionHistory() {
+        Integer premiumUserCount = subscriptionService.countPremiumUserSubscriptionHistory();
+        return new Response<>(EHttpStatus.OK, "Tổng số người dùng sử dụng gói Premium", premiumUserCount);
+    }
+    @GetMapping("/count-user-subscription-history")
+    public Response<Map<String, Integer>> countAllUserSubscriptionHistory() {
+        Map<String, Integer> result = subscriptionService.countAllUserSubscriptionHistory();
+        return new Response<>(
+                EHttpStatus.OK,
+                "Tổng số người dùng sử dụng gói Free, Pro, Premium",
+                result
+        );
+    }
+    @GetMapping("/stats-user-subscription-last7days")
+    public Response<Map<String, Object>> getStatsUserSubscriptionLast7Days() {
+        Map<String, Object> result = subscriptionService.countTotalUsersAndAmountLast7Days();
+        return new Response<>(
+                EHttpStatus.OK,
+                "Tổng số người mua và tổng số tiền trong 7 ngày gần nhất",
+                result
+        );
+    }
+    @GetMapping("/stats-user-subscription-daily-last7days")
+    public Response<List<Map<String, Object>>> getDailyStatsUserSubscriptionLast7Days() {
+        List<Map<String, Object>> result = subscriptionService.countDailyUsersAndAmountLast7DaysWithZero();
+        return new Response<>(
+                EHttpStatus.OK,
+                "Số người mua và tổng tiền theo từng ngày trong 7 ngày gần nhất",
+                result
+        );
+    }
+    @GetMapping("/stats-user-subscription-daily-last30days")
+    public Response<List<Map<String, Object>>> getDailyStatsUserSubscriptionLast30Days() {
+        List<Map<String, Object>> result = subscriptionService.countDailyUsersAndAmountLast30DaysWithZero();
+        return new Response<>(
+                EHttpStatus.OK,
+                "Số người mua và tổng tiền theo từng ngày trong 30 ngày gần nhất",
+                result
+        );
+    }
+
 }

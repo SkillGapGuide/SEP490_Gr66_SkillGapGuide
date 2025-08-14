@@ -42,7 +42,7 @@ public class SkillGapSevice {
                 "]\n" +
                 "}\n" +
                 "Dữ liệu để nhận xét :\n" + data.toString() ;
-        LMStudioService service = new LMStudioService(WebClient.builder());
+        OllamaService service = new OllamaService(WebClient.builder());
         String resultAI = service.callMistralApi(prompt).block();
         ObjectMapper mapper = new ObjectMapper();
         CommentResponse result = mapper.readValue(resultAI, CommentResponse.class);

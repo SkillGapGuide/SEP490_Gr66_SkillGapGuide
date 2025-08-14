@@ -57,7 +57,7 @@ const AuthCallback = lazy(() => import("../components/AuthCallback"));
 const PricingTable = lazy(()=>import("../pages/admin/PricingTable"))
 const PaymentManagement = lazy(()=>import("../pages/admin/PaymentManagement"))
 
-
+const PaymentResult = lazy(() => import("../pages/user/PaymentResult"));
 
 // Admin
 const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
@@ -116,6 +116,7 @@ const router = createBrowserRouter([
       { path: "coursetracking", element: <CourseTracking /> },
       {path:"action-history", element: <FileUploadHistory />},
       { path: "terms-of-service", element: <TermsEndUserPage /> },
+      {path: "payment-result", element: <PaymentResult />},
 
       // ----- Nested route phân tích -----
       {

@@ -146,7 +146,7 @@ Yêu cầu:
 JD:
 """ + text;
 
-                LMStudioService service = new LMStudioService(WebClient.builder());
+                OllamaService service = new OllamaService(WebClient.builder());
                 String content = service.callMistralApi(prompt).block();
                 try {
                     ObjectMapper mapper = new ObjectMapper();
@@ -226,7 +226,7 @@ Yêu cầu:
 }
 JD:
 """ + job.getDescription();
-                LMStudioService service = new LMStudioService(WebClient.builder());
+                OllamaService service = new OllamaService(WebClient.builder());
                 String content = service.callMistralApi(prompt).block();
                 try {
                     ObjectMapper mapper = new ObjectMapper();

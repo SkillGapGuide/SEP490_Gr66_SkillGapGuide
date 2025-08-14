@@ -122,6 +122,16 @@ Json:
   ]
 }
 CV:
+""" + text;
+
+        OllamaService service = new OllamaService(WebClient.builder());
+        String content = service.callMistralApi(prompt).block(); // <- CHỜ kết quả trả về
+
+        try {
+            cvSkillService.saveCvSkillsToDb(content, cv.getId());
+        } catch (Exception e) {
+            System.err.println("Lỗi khi lưu kỹ năng vào DB: " + e.getMessage());
+            e.printStackTrace();
 """ + chunk;
             String content = service.callMistralApi(prompt).block();
             try {

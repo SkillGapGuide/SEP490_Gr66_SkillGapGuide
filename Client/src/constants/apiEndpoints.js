@@ -22,7 +22,8 @@ export const ENDPOINTS = {
     getFavoriteMissingSkills:
       "/api/user-favorite-missing-skills/get-favorite-missing-skills/{userId}",
     addFavoriteMissingSkill:
-      "/api/user-favorite-missing-skill/add-favorite-missing-skill/{userId}/{skillId}",
+      "/api/user-favorite-missing-skills/add-favorite-missing-skill/{userId}/{skillId}",
+      deleteFavoriteSkill:"/api/user-favorite-missing-skills/remove-favorite-missing-skill/{userId}/{skillId}",
       fileHistory: "/api/file/history",
   },
   admin: {
@@ -50,7 +51,7 @@ export const ENDPOINTS = {
 
   scraper: {
     scrapeJob: "/api/scrape/job",
-    crawlTenJobs: "/api/scrape/crawl-10-jobs",
+    crawlTenJobs: "/api/scrape/crawl-10-jobs-by-specialization",
     scraper1To5Jobs: "/api/scrape/crawl-4-jobs-by-links",
   },
   feedback: {

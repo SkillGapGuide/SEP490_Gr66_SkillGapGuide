@@ -13,8 +13,8 @@ const menuItems = [
   { label: "Phân tích kỹ năng", path: "/analyze/result" },
   { label: "Gợi ý khóa học", path: "/suggestedcourses" },
 
-  { label: "Đánh giá", path: "/servicerating" },
-  { label: "Đăng ký gói dịch vụ", path: "/servicepayment" },
+  // { label: "Đánh giá", path: "/servicerating" },
+  // { label: "Đăng ký gói dịch vụ", path: "/servicepayment" },
 ];
 
 const TopMenu = () => {
@@ -26,15 +26,34 @@ const TopMenu = () => {
   const cvUploaded = useCVWizardStore((s) => s.cvUploaded);
   const jobFilesMeta = useCVWizardStore((s) => s.jobFilesMeta);
   const topcvLinks = useCVWizardStore((s) => s.topcvLinks);
+const selectedOption = useCVWizardStore((s) => s.selectedOption);
+const isAnalysisLoading = useAnalysisStore((s) => s.isAnalysisLoading);
+const skills = useAnalysisStore((s) => s.skills);
+const jobList = useAnalysisStore((s) => s.jobList);
 
   // Dữ liệu xuất báo cáo
-  const { skills, jobList, jobDetails } = useAnalysisStore();
+  const { jobDetails } = useAnalysisStore();
 
   // Điều kiện enable cho "Phân tích kỹ năng"
   const enableAnalysis =
     cvUploaded &&
     ((jobFilesMeta && jobFilesMeta.length > 0) ||
-      (topcvLinks && topcvLinks.length > 0));
+      (topcvLinks && topcvLinks.length > 0)||
+    selectedOption === "auto" );
+    // ĐIỀU KIỆN CŨ: đủ điều kiện để BẮT ĐẦU chạy
+const canStartAnalysis =
+  cvUploaded &&
+  (
+    (jobFilesMeta?.length > 0) ||
+    (topcvLinks?.length > 0) ||
+    selectedOption === "auto"
+  );
+
+// ĐÃ CÓ KẾT QUẢ (để xem lại, kể cả khi input đã bị dọn)
+const hasAnalysisResult = (skills?.length > 0) || (jobList?.length > 0);
+
+// CHO PHÉP MỞ TRANG PHÂN TÍCH nếu: đang chạy, hoặc đã có kết quả, hoặc đủ điều kiện để bắt đầu
+const canOpenAnalysis = isAnalysisLoading || hasAnalysisResult || canStartAnalysis;
 
   // Logic xuất Excel
   const exportExcel = () => {
@@ -44,8 +63,8 @@ const TopMenu = () => {
     }
     // Sheet kỹ năng
     const skillSheetData = [
-      ["ID", "Tên kỹ năng", "CV ID"],
-      ...skills.map(s => [s.id, s.skill, s.cvId])
+      ["STT", "Tên kỹ năng"],
+      ...skills.map((s,index) => [index, s.skill])
     ];
 
     // Sheet công việc
@@ -55,25 +74,54 @@ const TopMenu = () => {
     ];
 
     // Sheet phân tích từng job (skillGap)
-    const allJobSkillGap = [];
-    jobList.forEach(job => {
-      const detail = jobDetails[job.jobId];
-      if (detail && detail.skillGap && detail.skillGap.length > 0) {
-        detail.skillGap.forEach(gap => {
-          allJobSkillGap.push({
-            "Job ID": job.jobId,
-            "Job Title": job.title,
-            "Job Skill": gap.jobSkill,
-            "CV Skill": gap.cvSkill,
-            "Score (%)": Math.round(gap.score * 100)
-          });
-        });
+const allJobSkillGap = [];
+
+jobList.forEach((job) => {
+  const detail = jobDetails[job.jobId];
+  if (detail && detail.skillGap && detail.skillGap.length > 0) {
+    detail.skillGap.forEach((gap) => {
+      const raw = Number(gap.score ?? 0);              // score gốc 0–1
+      const pct = Math.round(raw * 100);               // %
+      
+      let suitability = "Không phù hợp";
+      let cvSkillDisplay = gap.cvSkill;
+      let scoreDisplay = `${pct}`;                     // mặc định hiển thị số %
+
+      if (raw > 0.65) {
+        suitability = "Phù hợp";
+      } else if (raw > 0.5 && raw <= 0.65) {
+        suitability = "Phù hợp một phần";
+      } else {
+        // < 0.5: theo yêu cầu đổi hiển thị
+        cvSkillDisplay = "Không có";
+        scoreDisplay = "Không áp dụng";
       }
+
+      allJobSkillGap.push({
+        "Job ID": job.jobId,
+        "Job Title": job.title,
+        "Job Skill": gap.jobSkill,
+        "CV Skill": cvSkillDisplay,
+        "Score (%)": scoreDisplay,      // có thể là số hoặc chuỗi "Không áp dụng"
+        "Mức độ phù hợp": suitability,
+      });
     });
-    const skillGapSheetData = [
-      ["Job ID", "Job Title", "Job Skill", "CV Skill", "Score (%)"],
-      ...allJobSkillGap.map(row => [row["Job ID"], row["Job Title"], row["Job Skill"], row["CV Skill"], row["Score (%)"]])
-    ];
+  }
+});
+
+// Thêm header mới cho sheet
+const skillGapSheetData = [
+  ["Job ID", "Job Title", "Job Skill", "CV Skill", "Score (%)", "Mức độ phù hợp"],
+  ...allJobSkillGap.map((row) => [
+    row["Job ID"],
+    row["Job Title"],
+    row["Job Skill"],
+    row["CV Skill"],
+    row["Score (%)"],
+    row["Mức độ phù hợp"],
+  ]),
+];
+
 
     // Tạo workbook & các sheet
     const wb = XLSX.utils.book_new();
@@ -98,7 +146,7 @@ const TopMenu = () => {
             // Xác định enable cho từng menu item
             let isEnabled = true;
             if (item.label === "Phân tích kỹ năng") {
-              isEnabled = enableAnalysis;
+              isEnabled = canOpenAnalysis;
             }
 
             return (
@@ -128,12 +176,12 @@ const TopMenu = () => {
         <li>
   <button
     className={`bg-white-600 text-black px-3 py-1 rounded hover:bg-green-700 text-sm transition-all font-medium ${
-      !enableAnalysis ? "opacity-50 cursor-not-allowed" : ""
+      !hasAnalysisResult  ? "opacity-50 cursor-not-allowed" : ""
     }`}
     style={{ minWidth: 110 }}
-    aria-disabled={!enableAnalysis}            // chỉ để screen reader
+    aria-disabled={!hasAnalysisResult }            // chỉ để screen reader
     onClick={() => {
-      if (!enableAnalysis) {
+      if (!hasAnalysisResult ) {
         showInfo("Bạn cần tải lên CV và mô tả công việc trước!");
         return;
       }

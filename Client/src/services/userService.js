@@ -48,12 +48,19 @@ export const userService = {
     `${ENDPOINTS.users.getFavoriteMissingSkills.replace("{userId}", userId)}?pageNo=${pageNo}&pageSize=${pageSize}`
   );
 },
+deleteFavoriteSkill: async (userId, skillId) => { 
+  return await apiService.delete(
+    ENDPOINTS.users.deleteFavoriteSkill
+      .replace("{userId}", userId)
+      .replace("{skillId}", skillId)
+  );
+},
 
   addFavoriteMissingSkill: async (userId, skillId) => {
     return await apiService.post(
   ENDPOINTS.users.addFavoriteMissingSkill
-    .replace("${userId}", userId)
-    .replace("${skillId}", skillId)
+    .replace("{userId}", userId)
+    .replace("{skillId}", skillId)
 )
   },
   getFileHistory: async () => {
