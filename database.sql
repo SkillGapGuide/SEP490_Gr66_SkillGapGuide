@@ -1,8 +1,8 @@
 -- drop database skill_gap_guide
-Create database skill_gap_guide;
+-- Create database skill_gap_guide;
 use skill_gap_guide;
 -- Bảng lưu các vai trò (ví dụ: admin, user)
-CREATE TABLE Role (
+CREATE TABLE role (
                       role_id INT NOT NULL AUTO_INCREMENT,
                       name NVARCHAR(255) NOT NULL,
                       PRIMARY KEY (role_id)
@@ -16,7 +16,7 @@ INSERT INTO user_status (name) VALUES
                                    ('VERIFIED'),
                                    ('BANNED');
 -- Bảng lưu các gói đăng ký
-CREATE TABLE Subscription (
+CREATE TABLE subscription (
                               subscription_id INT NOT NULL AUTO_INCREMENT,
                               type int NOT NULL,
                               status NVARCHAR(255) NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE Subscription (
                               PRIMARY KEY (subscription_id)
 );
 -- Bảng lưu các khóa học
-CREATE TABLE Course (
+CREATE TABLE course (
                         course_id INT NOT NULL AUTO_INCREMENT,
                         title NVARCHAR(255) NOT NULL,
                         rating NVARCHAR(255),
@@ -39,7 +39,7 @@ CREATE TABLE Course (
 );
 
 -- Bảng Người dùng (User), liên kết đến Role và Subscription
-CREATE TABLE User (
+CREATE TABLE user (
                       user_id INT NOT NULL AUTO_INCREMENT,
                       email NVARCHAR(255) NOT NULL UNIQUE,
                       password NVARCHAR(255) NOT NULL,
@@ -54,12 +54,12 @@ CREATE TABLE User (
                       status_id INT NOT NULL,
                       PRIMARY KEY (user_id),
                       FOREIGN KEY (status_id) REFERENCES user_status(status_id),
-                      FOREIGN KEY (role_id) REFERENCES Role(role_id),
-                      FOREIGN KEY (subscription_id) REFERENCES Subscription(subscription_id)
+                      FOREIGN KEY (role_id) REFERENCES role(role_id),
+                      FOREIGN KEY (subscription_id) REFERENCES subscription(subscription_id)
 );
 
 -- Bảng Thanh toán (Payment), liên kết đến User
-CREATE TABLE Payment (
+CREATE TABLE payment (
                          payment_id INT NOT NULL AUTO_INCREMENT,
                          user_id INT NOT NULL,
                          amount DOUBLE NOT NULL,
@@ -69,20 +69,20 @@ CREATE TABLE Payment (
                          qr_code_url VARCHAR(255),
                          status NVARCHAR(255) NOT NULL,
                          PRIMARY KEY (payment_id),
-                         FOREIGN KEY (user_id) REFERENCES User(user_id)
+                         FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
 -- Bảng Phản hồi (Feedback), liên kết đến User
-CREATE TABLE FeedBack (
+CREATE TABLE feedback (
                           feedback_id INT NOT NULL AUTO_INCREMENT,
                           user_id INT NOT NULL,
                           content NVARCHAR(255) NOT NULL,
                           star INT NOT NULL,
                           create_at DateTime,
                           PRIMARY KEY (feedback_id),
-                          FOREIGN KEY (user_id) REFERENCES User(user_id)
+                          FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
 -- Bảng CV, liên kết đến User
-CREATE TABLE CV (
+CREATE TABLE cv (
                     id INT NOT NULL AUTO_INCREMENT,
                     user_id int,
                     file_name varchar(255) NOT NULL,
@@ -90,9 +90,9 @@ CREATE TABLE CV (
                     file_type varchar(255) NOT NULL,
                     upload_date datetime NOT NULL,
                     PRIMARY KEY (id),
-                    FOREIGN KEY (user_id) REFERENCES User(user_id)
+                    FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
-CREATE TABLE Job (
+CREATE TABLE job (
                      job_id INT NOT NULL AUTO_INCREMENT,
                      cv_id int,
                      title NVARCHAR(255) NOT NULL,
@@ -101,16 +101,16 @@ CREATE TABLE Job (
                      status NVARCHAR(255) NOT NULL,
                      source_url nvarchar(512) NULL,
                      PRIMARY KEY (job_id),
-                     FOREIGN KEY (cv_id) REFERENCES CV(id)
+                     FOREIGN KEY (cv_id) REFERENCES cv(id)
 );
-CREATE TABLE User_Favorite_Job (
+CREATE TABLE user_favorite_job (
                                    id INT NOT NULL auto_increment,
                                    user_id INT NOT NULL,
                                    job_id INT NOT NULL,
                                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                                    PRIMARY KEY (id),
-                                   FOREIGN KEY (user_id) REFERENCES User(user_id),
-                                   FOREIGN KEY (job_id) REFERENCES Job(job_id)
+                                   FOREIGN KEY (user_id) REFERENCES user(user_id),
+                                   FOREIGN KEY (job_id) REFERENCES job(job_id)
 );
 CREATE TABLE job_des_file (
                               id INT NOT NULL AUTO_INCREMENT,
@@ -121,30 +121,30 @@ CREATE TABLE job_des_file (
                               file_type varchar(255) NOT NULL,
                               upload_date datetime NOT NULL,
                               PRIMARY KEY (id),
-                              FOREIGN KEY (user_id) REFERENCES User(user_id)
+                              FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
 -- Bảng User_Course (bảng nối), liên kết User và Course
-CREATE TABLE User_Course (
+CREATE TABLE user_course (
                              id INT NOT NULL auto_increment,
                              user_id INT NOT NULL,
                              course_id INT NOT NULL,
                              status NVARCHAR(50) ,
                              PRIMARY KEY (id),
-                             FOREIGN KEY (user_id) REFERENCES User(user_id),
-                             FOREIGN KEY (course_id) REFERENCES Course(course_id)
+                             FOREIGN KEY (user_id) REFERENCES user(user_id),
+                             FOREIGN KEY (course_id) REFERENCES course(course_id)
 );
-CREATE TABLE User_Favorite_Course (
+CREATE TABLE user_favorite_course (
                                       id INT NOT NULL auto_increment,
                                       user_id INT NOT NULL,
                                       course_id INT NOT NULL,
                                       status NVARCHAR(50) ,
                                       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                                       PRIMARY KEY (id),
-                                      FOREIGN KEY (user_id) REFERENCES User(user_id),
-                                      FOREIGN KEY (course_id) REFERENCES Course(course_id)
+                                      FOREIGN KEY (user_id) REFERENCES user(user_id),
+                                      FOREIGN KEY (course_id) REFERENCES course(course_id)
 );
 -- Bảng Nội dung (Content)
-CREATE TABLE StaticPage (
+CREATE TABLE staticpage (
                             id INT NOT NULL AUTO_INCREMENT,
                             `name` NVARCHAR(255),
                             `title` NVARCHAR(255),
@@ -154,7 +154,7 @@ CREATE TABLE StaticPage (
                             PRIMARY KEY (id)
 );
 -- Bảng Cài đặt (Setting)
-CREATE TABLE Setting (
+CREATE TABLE setting (
                          setting_id INT NOT NULL AUTO_INCREMENT,
                          name NVARCHAR(255) NOT NULL UNIQUE,
                          value NVARCHAR(255),
@@ -171,7 +171,7 @@ CREATE TABLE verification_token (
                                             REFERENCES user(user_id)
                                             ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-CREATE TABLE Audit_Log (
+CREATE TABLE audit_log (
                            log_id INT NOT NULL AUTO_INCREMENT,
                            user_id INT,
                            action NVARCHAR(255) NOT NULL,
@@ -180,7 +180,7 @@ CREATE TABLE Audit_Log (
                            description TEXT,
                            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                            PRIMARY KEY (log_id),
-                           FOREIGN KEY (user_id) REFERENCES User(user_id)
+                           FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
 CREATE TABLE user_subscription_history (
                                            id INT NOT NULL AUTO_INCREMENT,
@@ -192,8 +192,8 @@ CREATE TABLE user_subscription_history (
                                            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                                            updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
                                            PRIMARY KEY (id),
-                                           FOREIGN KEY (user_id) REFERENCES User(user_id),
-                                           FOREIGN KEY (subscription_id) REFERENCES Subscription(subscription_id)
+                                           FOREIGN KEY (user_id) REFERENCES user(user_id),
+                                           FOREIGN KEY (subscription_id) REFERENCES subscription(subscription_id)
 );
 -- job category
 CREATE TABLE occupation_groups(  -- domain or aria
@@ -227,7 +227,7 @@ create table user_cv_skills(
                                id INT AUTO_INCREMENT PRIMARY KEY,
                                skill nvarchar(255),
                                cv_id int ,
-                               FOREIGN KEY (cv_id) REFERENCES CV(id) on delete cascade
+                               FOREIGN KEY (cv_id) REFERENCES cv(id) on delete cascade
 );
 create table user_cv_skills_embedding(
                                          id INT AUTO_INCREMENT PRIMARY KEY,
@@ -246,7 +246,7 @@ CREATE TABLE user_favorite_missing_skill (
     skill_id INT NOT NULL,
     status nvarchar(100),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (user_id) REFERENCES user(user_id),
     FOREIGN KEY (skill_id) REFERENCES job_des_skills(id)
 );
 create table job_des_skills_embedding(
@@ -281,11 +281,11 @@ CREATE TABLE job_cv_score (
         REFERENCES job (job_id)
         ON DELETE CASCADE,
     FOREIGN KEY (cv_id)
-        REFERENCES CV (id)
+        REFERENCES cv (id)
         ON DELETE CASCADE
 );
 
-INSERT INTO Subscription (type, status, subscription_name, price) VALUES
+INSERT INTO subscription (type, status, subscription_name, price) VALUES
                                                                       (1, 'active', 'Trial', 0),
                                                                       (2, 'active', 'Basic Monthly', 100000),
                                                                       (3, 'active', 'Premium Monthly', 200000);
@@ -295,7 +295,7 @@ INSERT INTO `skill_gap_guide`.`role`(`name`)VALUES    ('Finance Admin');
 INSERT INTO `skill_gap_guide`.`role`(`name`)VALUES	('Free User');
 INSERT INTO `skill_gap_guide`.`role`(`name`)VALUES	('Pro User');
 INSERT INTO `skill_gap_guide`.`role`(`name`)VALUES	('Premium User');
-INSERT INTO Course (title, rating, difficulty, description, provider, url, status, create_at)
+INSERT INTO course (title, rating, difficulty, description, provider, url, status, create_at)
 VALUES
     ('Introduction to Python', 4.5, 'Beginner', 'Learn the basics of Python programming.', 'Coursera', 'https://www.coursera.org/python', 'Active', '2025-06-25 10:00:00'),
     ('Data Structures and Algorithms', 4.8, 'Intermediate', 'Deep dive into data structures and algorithms.', 'Udemy', 'https://www.udemy.com/dsa', 'Active', '2025-06-20 15:30:00'),
@@ -307,42 +307,42 @@ VALUES
     ('Digital Marketing 101', 4.2, 'Beginner', 'Basics of digital marketing strategies.', 'LinkedIn Learning', 'https://www.linkedin.com/digitalmarketing', 'Active', '2025-05-25 13:30:00'),
     ('Artificial Intelligence Overview', 4.6, 'Intermediate', 'Overview of artificial intelligence concepts.', 'Google', 'https://ai.google/ai-overview', 'Active', '2025-05-20 16:40:00'),
     ('Blockchain for Developers', 4.5, 'Advanced', 'Comprehensive guide to blockchain development.', 'IBM', 'https://developer.ibm.com/blockchain', 'Active', '2025-05-15 18:10:00');
-INSERT INTO User (email, password, full_name, role_id, subscription_id, phone, avatar, provider, status_id)
+INSERT INTO user (email, password, full_name, role_id, subscription_id, phone, avatar, provider, status_id)
 VALUES
     ('admin@example.com', '$2a$10$ZgjCwtbfKU8YWtJeVjcc8.VVCQIe8XAnCbulK3Su41AFATlQn.cE6', 'Admin User', 1, 2, '0123456789', NULL, 'LOCAL', 2),
     ('user1@example.com', '$2a$10$ZgjCwtbfKU8YWtJeVjcc8.VVCQIe8XAnCbulK3Su41AFATlQn.cE6', 'Nguyen Van A', 4, 1, '0987654321', NULL, 'LOCAL', 2),
     ('user2@example.com', '$2a$10$ZgjCwtbfKU8YWtJeVjcc8.VVCQIe8XAnCbulK3Su41AFATlQn.cE6', 'Tran Thi B', 3, 1, '0911222333', NULL, 'LOCAL', 1);
-INSERT INTO Payment (user_id, amount, date, payment_method, transaction_code, qr_code_url, status)
+INSERT INTO payment (user_id, amount, date, payment_method, transaction_code, qr_code_url, status)
 VALUES
     (1, 499000, '2024-06-01 10:00:00', 'QR', 'TXN001', 'https://qr.example.com/1', 'SUCCESS'),
     (2, 0, '2024-06-10 15:30:00', 'FREE', NULL, NULL, 'SUCCESS');
-INSERT INTO FeedBack (user_id, content, star, create_at)
+INSERT INTO feedback (user_id, content, star, create_at)
 VALUES
     (2, 'Hệ thống rất hữu ích!', 5, '2024-06-11 12:00:00'),
     (3, 'Cần cải thiện giao diện.', 3, '2024-06-12 09:15:00');
 
-INSERT INTO Job (title, description, company, status, source_url)
+INSERT INTO job (title, description, company, status, source_url)
 VALUES
     ('Data Analyst', 'Phân tích dữ liệu cho công ty A', 'Company A',  'OPEN', 'https://jobs.com/a'),
     ('Marketing Specialist', 'Chuyên viên marketing cho công ty B', 'Company B', 'OPEN', 'https://jobs.com/b');
-INSERT INTO User_Favorite_Job (user_id, job_id, created_at)
+INSERT INTO user_favorite_job (user_id, job_id, created_at)
 VALUES
     (2, 1, NOW()),
     (3, 2, NOW());
 
-INSERT INTO User_Course (user_id, course_id)
+INSERT INTO user_course (user_id, course_id)
 VALUES
     (2, 1),
     (3, 2);
-INSERT INTO User_Favorite_Course (user_id, course_id, status, created_at)
+INSERT INTO user_favorite_course (user_id, course_id, status, created_at)
 VALUES
     (2, 1, 'WANT_TO_LEARN', NOW()),
     (3, 2, 'COMPLETED', NOW());
-INSERT INTO StaticPage (name, title, content, update_at, update_by)
+INSERT INTO staticpage (name, title, content, update_at, update_by)
 VALUES
     ('homepage', 'Trang chủ', 'Nội dung trang chủ...', NOW(), 1),
     ('about-us', 'Về chúng tôi', 'Nội dung về chúng tôi...', NOW(), 1);
-INSERT INTO Setting (name, value)
+INSERT INTO setting (name, value)
 VALUES
     ('site_name', 'Skill Gap Guide'),
     ('support_email', 'support@skillgap.com');
