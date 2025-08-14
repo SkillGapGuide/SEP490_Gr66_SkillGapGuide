@@ -139,7 +139,7 @@ public class AuthService {
             }
             // 4. Bắt lỗi nếu xác thực thất bại
             logger.error("Xác thực thất bại cho email {}: {}", request.email(), ex.getMessage());
-            throw new IllegalStateException("Xác thực thất bại cho email " + request.email()+ ex.getMessage());
+            throw new IllegalStateException("Xác thực thất bại cho email " + request.email() );
         }
     }
     public AuthResponse processGoogleLogin(GoogleLoginRequest request) {
