@@ -45,7 +45,7 @@ public class JobService {
     private JobRepository jobRepository;
     @Autowired
     private AuditLogRepository auditLogRepository;
-    private final String UPLOAD_DIR = "C:/JdData/";
+    private final String UPLOAD_DIR = "JdData/";
     public List<String> loadMultiFile(MultipartFile[] files){
         jobDeleteService.deleteJob(); // delete job
         jobDeleteService.deleteFileJobDes(); // delete file job description
