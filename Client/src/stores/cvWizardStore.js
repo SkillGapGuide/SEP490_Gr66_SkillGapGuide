@@ -26,11 +26,12 @@ export const useCVWizardStore = create(
 
       uploadResult: null,
       setUploadResult: (uploadResult) => set({ uploadResult }),
-      
+
       cvUploaded: false,
-setCvUploaded: (uploaded) => set({ cvUploaded: uploaded }),
-  analysisNeedRun: false,
+      setCvUploaded: (uploaded) => set({ cvUploaded: uploaded }),
+      analysisNeedRun: false,
       setAnalysisNeedRun: (v) => set({ analysisNeedRun: v }),
+      
       clearAllCvAndFile: () =>
         set({
           cvId: null,
@@ -43,13 +44,26 @@ setCvUploaded: (uploaded) => set({ cvUploaded: uploaded }),
           uploadResult: null,
           analysisNeedRun: false,
         }),
+         clearJobInputsOnly: () => set({
+       
+        topcvLinks: [],
+        jobFilesMeta: [],
+        jobFiles: [],
+        uploadResult: null,
+        analysisNeedRun: false,
+        // KHÔNG đụng tới cvId, cvUploaded, cvFile
+      }),
     }),
+    
+     // 👇 Thêm action mới: chỉ xóa INPUT job, giữ lại CV
+     
+
     {
       name: "cvwizard-persist",
       // Chỉ persist các trường bên trên, không persist file object!
       partialize: (state) => ({
         cvId: state.cvId,
-         cvUploaded: state.cvUploaded,
+        cvUploaded: state.cvUploaded,
         selectedOption: state.selectedOption,
         topcvLinks: state.topcvLinks,
         jobFilesMeta: state.jobFilesMeta,

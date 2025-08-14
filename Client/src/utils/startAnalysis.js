@@ -6,6 +6,7 @@ import { useAnalysisStore } from "../stores/useAnalysisStore";
 import { showError } from "../utils/alert";
 import { useCourseStore } from "../stores/courseStore";
 import { courService } from "../services/courService"; // Đường dẫn tuỳ bạn
+import { resetStoresForNewRun } from "./resetStores";
 export async function runAnalysisFlowOnce({
   userRole = "Free User",
   onSkillStart,
@@ -31,7 +32,8 @@ export async function runAnalysisFlowOnce({
   } = useAnalysisStore.getState();
 
   try {
-    clearAll();
+    // ✅ Soft reset: không đụng tới cvUploaded
+    resetStoresForNewRun({ mode: "soft", clearPersist: false });
 
     // Step 1: Lấy kỹ năng
     onSkillStart?.();
