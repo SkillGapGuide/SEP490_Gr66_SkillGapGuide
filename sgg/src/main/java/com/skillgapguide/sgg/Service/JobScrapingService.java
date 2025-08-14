@@ -43,12 +43,8 @@ public class JobScrapingService {
     private final SpecializationRepository specializationRepository;
     private final JobCategoryRepository jobCategoryRepository;
 
-    private static final String CHROME_DRIVER_PATH = "sgg/drivers/chromedriver.exe";
-    private static final String[] USER_AGENT = {
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
-    };
+    private static final String CHROME_DRIVER_PATH = "drivers/chromedriver";
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
     private static final int TIMEOUT_SECONDS = 4;
     private static String getRandomUserAgent() {
         return USER_AGENT[ThreadLocalRandom.current().nextInt(USER_AGENT.length)];

@@ -44,7 +44,7 @@ public class CVService {
     private AuditLogRepository auditLogRepository;
     @Autowired
     private CvSkillService cvSkillService;
-    private final String UPLOAD_DIR = "C:/CvData/";
+    private final String UPLOAD_DIR = "CvData/";
 
     public String uploadCv(String fileName,String fileExtension, MultipartFile file){
         try {

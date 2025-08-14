@@ -33,3 +33,5 @@ build/
 .vscode/
 
 sgg/src/main/resources/application-dev.properties
+sgg/CvData/
+sgg/JdData/
