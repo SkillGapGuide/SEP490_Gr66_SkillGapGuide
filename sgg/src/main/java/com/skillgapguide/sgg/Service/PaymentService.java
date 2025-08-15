@@ -95,20 +95,20 @@ public class PaymentService {
     }
     public PaymentQrDTO getPaymentQr(Integer type) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Subscription subscription = subscriptionRepository.findByType(type)
+                .orElseThrow(() -> new RuntimeException("Subscription not found"));
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        double totalPrice;
         String description;
         if(type == 1){
-            totalPrice = 100000;
             description = user.getFullName() + " goi co ban "+user.getUserId();
         } else if (type == 2) {
-            totalPrice = 200000;
             description = user.getFullName() + " goi toan dien "+user.getUserId();
         } else {
             throw new IllegalStateException("Invalid payment type");
         }
+        double totalPrice = Double.parseDouble(subscription.getPrice().toString());
         Payment payment = new Payment();
         payment.setAmount(totalPrice);
         payment.setDate(new Date());
