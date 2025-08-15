@@ -247,7 +247,7 @@ CREATE TABLE user_favorite_missing_skill (
     status nvarchar(100),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(user_id),
-    FOREIGN KEY (skill_id) REFERENCES job_des_skills(id)
+    -- FOREIGN KEY (skill_id) REFERENCES job_des_skills(id)
 );
 create table job_des_skills_embedding(
                                          id INT AUTO_INCREMENT PRIMARY KEY,
