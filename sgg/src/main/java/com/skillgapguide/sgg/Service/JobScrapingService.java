@@ -46,9 +46,9 @@ public class JobScrapingService {
     private static final String CHROME_DRIVER_PATH = "drivers/chromedriver";
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
     private static final int TIMEOUT_SECONDS = 4;
-    private static String getRandomUserAgent() {
-        return USER_AGENT[ThreadLocalRandom.current().nextInt(USER_AGENT.length)];
-    }
+//    private static String getRandomUserAgent() {
+//        return USER_AGENT[ThreadLocalRandom.current().nextInt(USER_AGENT.length)];
+//    }
     private WebDriver createChromeDriver() {
         System.setProperty("webdriver.chrome.driver", CHROME_DRIVER_PATH);
         ChromeOptions options = new ChromeOptions();
@@ -61,7 +61,7 @@ public class JobScrapingService {
                 "--disable-dev-shm-usage",
                 "--disable-extensions",
                 "--disable-notifications",
-                "--user-agent=" + getRandomUserAgent()
+                "--user-agent=" + USER_AGENT
         );
         return new ChromeDriverBuilder().build(options, CHROME_DRIVER_PATH);
     }
