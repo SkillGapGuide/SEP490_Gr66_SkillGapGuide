@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Lock, Check, X } from 'lucide-react';
-import { alert } from '../utils/alert';
+import { alert, showError, showSuccess } from '../utils/alert';
 import image from "../assets/changepass.png";
 import { userService } from "../services/userService";
 const ChangePassword = () => {
@@ -32,11 +32,11 @@ const ChangePassword = () => {
     e.preventDefault();
     
     if (!isPasswordValid) {
-      alert.error('Mật khẩu không đáp ứng các yêu cầu!');
+      showError('Mật khẩu không đáp ứng các yêu cầu!');
       return;
     }
     if (!doPasswordsMatch) {
-      alert.error('Mật khẩu xác nhận không khớp!');
+      showError('Mật khẩu xác nhận không khớp!');
       return;
     }
 
@@ -46,9 +46,9 @@ const ChangePassword = () => {
       await userService.changePassword(formData.currentPassword
 , formData.newPassword
       );
-      alert.success('Thay đổi mật khẩu thành công!');
+      showSuccess('Thay đổi mật khẩu thành công!');
     } catch (error) {
-      alert.error(error.message || 'Có lỗi xảy ra khi thay đổi mật khẩu!');
+      showError(error.message || 'Có lỗi xảy ra khi thay đổi mật khẩu!');
     } finally {
       setLoading(false);
     }

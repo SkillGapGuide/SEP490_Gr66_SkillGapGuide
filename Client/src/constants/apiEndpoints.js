@@ -149,5 +149,15 @@ export const ENDPOINTS = {
     getAllSubscriptions: "/api/subscription/get-all-subscriptions",
     updateSubscription: "/api/subscription/edit-subscription",
     deleteSubscription: "/api/subscription/delete/{id}",
-  }
+  }, dashboard: {
+    getTotalMoneyAndUserForLast7Days: "/api/subscription/stats-user-subscription-last7days",
+    getChartForLastWeek: "/api/subscription/stats-user-subscription-daily-last7days",
+    getChartForLastMonth: "/api/subscription/stats-user-subscription-daily-last30days",
+    getNumberUserSubscription: "/api/subscription/count-user-subscription-history",
+    getTotalMoney: "/api/subscription/count-total-user-subscription-history-price",
+   
+
+    
+    
+  },
 };

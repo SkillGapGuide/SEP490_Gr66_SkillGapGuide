@@ -2,44 +2,58 @@ import { Link, useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
 import { useState, useEffect, memo, useRef, useContext } from "react";
 import { UserContext } from "../context/UserContext";
+import { showInfo } from "../utils/alert";
 import defaultAvatar from "../assets/default_avatar.png";
+
+const ANALYZE_PATH = "/analyze"; // đường dẫn sau khi pass check
 
 const Header = memo(function Header() {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [userAvatar, setUserAvatar] = useState(defaultAvatar);
+  const [uploading, setUploading] = useState(false);
+
   const profileMenuRef = useRef(null);
   const { user } = useContext(UserContext);
+
+  // --- one-time hint for "Phân tích"
+  const [showAnalyzeHint, setShowAnalyzeHint] = useState(() => {
+    return !localStorage.getItem("hideAnalyzeHint");
+  });
+  useEffect(() => {
+    if (!showAnalyzeHint) return;
+    const t = setTimeout(() => {
+      setShowAnalyzeHint(false);
+      localStorage.setItem("hideAnalyzeHint", "1");
+    }, 8000);
+    return () => clearTimeout(t);
+  }, [showAnalyzeHint]);
+  const dismissAnalyzeHint = () => {
+    setShowAnalyzeHint(false);
+    localStorage.setItem("hideAnalyzeHint", "1");
+  };
 
   // --- helper: chuẩn hoá avatar URL ---
   const normalizeAvatar = (raw) => {
     if (!raw) return null;
     const url = String(raw).trim();
-
-    // data/blob url dùng luôn
     if (url.startsWith("data:") || url.startsWith("blob:")) return url;
-
-    // http(s) đầy đủ (vd: lh3.googleusercontent.com)
     if (url.startsWith("http://") || url.startsWith("https://")) return url;
-
-    // còn lại coi như path tương đối từ BE -> ghép base
     const base = import.meta.env.VITE_API_URL || "";
     return `${base}/${url.replace(/^\/+/, "")}`;
   };
 
   useEffect(() => {
-    const checkLoginStatus = () => {
-      setIsLoggedIn(!!localStorage.getItem("token"));
-    };
+    const checkLoginStatus = () => setIsLoggedIn(!!localStorage.getItem("token"));
     checkLoginStatus();
     window.addEventListener("authStateChanged", checkLoginStatus);
     return () => window.removeEventListener("authStateChanged", checkLoginStatus);
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+    const handleClickOutside = (e) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
         setShowProfileMenu(false);
       }
     };
@@ -47,7 +61,6 @@ const Header = memo(function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // set avatar từ context (có normalize + fallback default)
   useEffect(() => {
     const src = normalizeAvatar(user?.avatar) || defaultAvatar;
     setUserAvatar(src);
@@ -63,10 +76,30 @@ const Header = memo(function Header() {
     }
   };
 
+  // ---- click "Phân tích" (bắt đăng nhập, rồi điều hướng) ----
+  const handleAnalyzeClick = (e) => {
+    e.preventDefault();
+    dismissAnalyzeHint();
+
+    if (!localStorage.getItem("token")) {
+      showInfo("Vui lòng đăng nhập để sử dụng tính năng nhé !");
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+      return;
+    }
+
+    setUploading(true);
+    setTimeout(() => {
+      setUploading(false);
+      navigate(ANALYZE_PATH);
+    }, 1600);
+  };
+
   const menus = [
     { label: "Trang chủ", to: "/" },
-    { label: "Phân tích", to: "/analyze/upload" },
-     { label: "Gói dịch vụ", to: "/servicepayment" },
+    { label: "Phân tích", to: ANALYZE_PATH, highlight: true },
+    { label: "Gói dịch vụ", to: "/servicepayment" },
     {
       label: "Về chúng tôi",
       submenu: [
@@ -74,7 +107,7 @@ const Header = memo(function Header() {
         { label: "Liên hệ", to: "/contact" },
       ],
     },
-   
+    { label: "Đánh giá", to: "/servicerating" },
   ];
 
   return (
@@ -110,6 +143,57 @@ const Header = memo(function Header() {
                     ))}
                   </ul>
                 </div>
+              </li>
+            ) : menu.highlight ? (
+              // ---- Mục "Phân tích" nổi bật + logic check đăng nhập ----
+              <li key={menu.label} className="relative">
+                <Link
+                  to={menu.to}
+                  onClick={handleAnalyzeClick}
+                  className={`relative inline-flex items-center gap-2 px-4 py-1.5 rounded-full font-semibold shadow-md border border-white/20 transition
+                    ${uploading ? "bg-white/70 text-blue-400 cursor-wait" : "bg-white text-blue-700 hover:shadow-lg hover:-translate-y-0.5"}
+                  `}
+                  aria-label="Phân tích - tải CV/JD để xem khoảng cách kỹ năng"
+                  aria-busy={uploading}
+                >
+                  <span className="relative">
+                    {uploading ? (
+                      <span className="inline-flex items-center gap-2">
+                        <span className="inline-block h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        Đang mở…
+                      </span>
+                    ) : (
+                      "Phân tích"
+                    )}
+                    {/* Ping chấm vàng */}
+                    {!uploading && (
+                      <span className="absolute -top-2 -right-3 h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                      </span>
+                    )}
+                  </span>
+                  {/* Badge hướng dẫn */}
+                  {!uploading && (
+                    <span className="hidden md:inline text-[10px] uppercase tracking-wide bg-amber-500 text-white px-2 py-0.5 rounded">
+                      Bắt đầu tại đây
+                    </span>
+                  )}
+                </Link>
+
+                {/* Tooltip gợi ý (hiện 1 lần) */}
+                {showAnalyzeHint && !uploading && (
+                  <div className="absolute left-1/2 -translate-x-1/2 mt-2 bg-white text-gray-700 text-xs shadow-xl rounded-lg px-3 py-2 z-50 border border-gray-100">
+                    Nhấn <b>Phân tích</b> để tải CV/JD và xem Gap kỹ năng!
+                    <button
+                      onClick={dismissAnalyzeHint}
+                      className="ml-2 underline text-blue-600 hover:text-blue-700"
+                    >
+                      Đã hiểu
+                    </button>
+                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-white drop-shadow" />
+                  </div>
+                )}
               </li>
             ) : (
               <li key={menu.label}>
@@ -168,12 +252,7 @@ const Header = memo(function Header() {
                       >
                         Thông tin cá nhân
                       </Link>
-                      <Link
-                        to="/settings"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"
-                      >
-                        Cài đặt
-                      </Link>
+                      
                       <hr className="my-1" />
                       <button
                         onClick={handleLogout}

@@ -184,7 +184,7 @@ const router = createBrowserRouter([
           { path: "about-us", element: <AboutUsManager /> },
           { path: "feedback", element: <AdminFeedbackManager /> },
           { path: "social-link", element: <SocialLinksManager /> },
-          { path: "tag-skills", element: <TagSkillManager /> },
+          
           { path: "homepage-manage", element: <HomePageManager /> },
           { path: "course-management", element: <CourseTable /> },
           { path: "job-management", element: <JobTablePage /> },
