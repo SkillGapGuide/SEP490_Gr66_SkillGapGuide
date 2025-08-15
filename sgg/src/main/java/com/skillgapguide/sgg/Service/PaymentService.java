@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.skillgapguide.sgg.Dto.PaymentDTO;
+import com.skillgapguide.sgg.Dto.PaymentQrDTO;
 import com.skillgapguide.sgg.Entity.Payment;
 import com.skillgapguide.sgg.Entity.Subscription;
 import com.skillgapguide.sgg.Entity.User;
@@ -92,7 +93,7 @@ public class PaymentService {
         Payment payment = paymentRepository.findPaymentByPaymentId(paymentId);
         return payment != null ? toPaymentDTO(payment) : null;
     }
-    public String getPaymentQr(Integer type) {
+    public PaymentQrDTO getPaymentQr(Integer type) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -101,18 +102,28 @@ public class PaymentService {
         String description;
         if(type == 1){
             totalPrice = 100000;
-            description = user.getFullName() + " dang ky goi co ban "+user.getUserId();
+            description = user.getFullName() + " goi co ban "+user.getUserId();
         } else if (type == 2) {
             totalPrice = 200000;
-            description = user.getFullName() + " dang ky goi toan dien"+user.getUserId();
+            description = user.getFullName() + " goi toan dien "+user.getUserId();
         } else {
             throw new IllegalStateException("Invalid payment type");
         }
+        Payment payment = new Payment();
+        payment.setAmount(totalPrice);
+        payment.setDate(new Date());
+        payment.setStatus("UNPAID");
+        payment.setPaymentMethod("QRCODE");
+        payment.setUserId(user.getUserId());
+        paymentRepo.save(payment);
         String accountName = "Tran Tuan Minh";
-        String bankId = "MB";
-        String accountNo = "1020052412003";
-        String qrUrl = "https://img.vietqr.io/image/" + bankId + "-" + accountNo + "-print.png?amount=" + totalPrice + "&addInfo=" + description + "&accountName=" + accountName;
-        return qrUrl;
+        String bankId = "BIDV";
+        String accountNo = "V3CASS9999";
+        String qrUrl = "https://img.vietqr.io/image/" + bankId + "-" + accountNo + "-print.png?amount=" + totalPrice + "&addInfo=" + description+" "+payment.getPaymentId() + "&accountName=" + accountName;
+        payment.setQrCodeUrl(qrUrl);
+        paymentRepo.save(payment);
+        PaymentQrDTO paymentQrDTO = new PaymentQrDTO(qrUrl, payment.getPaymentId());
+        return paymentQrDTO;
     }
     public void confirmPaymentCassio(String json) throws Exception {
         try {
@@ -126,20 +137,24 @@ public class PaymentService {
                 String amountStr = transaction.get("amount").getAsString();
                 Double amount = Double.parseDouble(amountStr);
                 Integer userId;
-                Pattern pattern = Pattern.compile("(\\d+)$");
+                Integer paymentId;
+
+                Pattern pattern = Pattern.compile("(\\d+)\\s+(\\d+)$");
                 Matcher matcher = pattern.matcher(description);
+
                 if (matcher.find()) {
-                    String userIdStr = matcher.group(1);
-                    userId = Integer.parseInt(userIdStr);
+                    userId = Integer.parseInt(matcher.group(1));
+                    paymentId = Integer.parseInt(matcher.group(2));
                 }
+
                 else {
                     status = "FAILED";
                     throw new RuntimeException("Không tìm thấy userId trong mô tả giao dịch");
                 }
                 int subscriptionId;
-                if (description.contains("dang ky goi co ban")) {
+                if (description.contains("goi co ban")) {
                     subscriptionId = 2;
-                } else if (description.contains("dang ky goi toan dien")) {
+                } else if (description.contains("goi toan dien")) {
                     subscriptionId = 3;
                 } else {
                     status = "FAILED";
@@ -155,7 +170,24 @@ public class PaymentService {
 
                 User user = userRepository.findById(userId)
                         .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-
+                Payment payment = paymentRepository.findById(paymentId)
+                        .orElseThrow(() -> new RuntimeException("Payment not found with ID: " + paymentId));
+                if(payment.getAmount() != amount) {
+                    status = "Số tiền thanh toán không khớp";
+                    // Ghi vào bảng Payment
+                    payment.setAmount(amount);
+                    payment.setDate(new Date());
+                    payment.setStatus(status);
+                    payment.setPaymentMethod("QRCODE");
+                    paymentRepo.save(payment);
+                    throw new RuntimeException("Số tiền thanh toán không khớp");
+                }
+                // Ghi vào bảng Payment
+                payment.setAmount(amount);
+                payment.setDate(new Date());
+                payment.setStatus(status);
+                payment.setPaymentMethod("QRCODE");
+                paymentRepo.save(payment);
                 Subscription newSubscription = subscriptionRepository.findById(subscriptionId)
                         .orElseThrow(() -> new RuntimeException("Subscription not found"));
                 Subscription currentSubscription = subscriptionRepository.findById(user.getSubscriptionId()).orElse(null);
@@ -197,27 +229,14 @@ public class PaymentService {
                 history.setCreatedAt(now);
                 history.setUpdatedAt(now);
                 userSubscriptionHistoryRepository.save(history);
-
-                // Ghi vào bảng Payment
-                Payment payment = new Payment();
-                payment.setAmount(amount);
-                payment.setDate(new Date());
-                payment.setStatus(status);
-                payment.setPaymentMethod("QRCODE");
-                payment.setUserId(user.getUserId());
-                paymentRepo.save(payment);
-
             }
         } catch (Exception e){
             throw new Exception("Xác nhận thanh toán thất bại: " + e.getMessage(), e);
         }
     }
-    public boolean checkPayment() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName(); // lấy từ JWT
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-//        Payment payment = paymentRepository.findPaymentByUserId(user.getUserId())
-//                .orElseThrow(() -> new RuntimeException("Payment not found with ID: "));
-        return true;
+
+    public String checkPayment(int paymentId) {
+        Payment payment = paymentRepository.findPaymentByPaymentId(paymentId);
+        return payment.getStatus();
     }
 }
