@@ -134,6 +134,9 @@ public class PaymentService {
             for (JsonElement element : jsonArray) {
                 JsonObject transaction = element.getAsJsonObject();
                 String description = transaction.get("description").getAsString();
+                if (description.equals("giao dich thu nghiem")) {
+                    return;
+                }
                 String amountStr = transaction.get("amount").getAsString();
                 Double amount = Double.parseDouble(amountStr);
                 Integer userId;
@@ -172,7 +175,7 @@ public class PaymentService {
                         .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
                 Payment payment = paymentRepository.findById(paymentId)
                         .orElseThrow(() -> new RuntimeException("Payment not found with ID: " + paymentId));
-                if(payment.getAmount() != amount) {
+                if(payment.getAmount().compareTo(amount) != 0) {
                     status = "Số tiền thanh toán không khớp";
                     // Ghi vào bảng Payment
                     payment.setAmount(amount);
