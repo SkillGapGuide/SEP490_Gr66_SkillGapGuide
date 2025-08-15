@@ -138,6 +138,7 @@ export const ENDPOINTS = {
     exportPdf: "/api/payment/export/pdf",
     exportExcel: "/api/payment/export/excel",
     create: "/api/payment/create",
+    getPaymentQrCode: "/api/payment/getPaymentQr/{typeRegister}",
   },
   skillGap :{
     getSkillGap: "/api/gap/getSkillGap",

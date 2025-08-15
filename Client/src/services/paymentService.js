@@ -1,6 +1,7 @@
 import { apiService } from './api';
 import { ENDPOINTS } from '../constants/apiEndpoints';
 import axios from "axios";
+import { get } from 'react-hook-form';
 const BASE_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:8080';
 export const paymentService = {
   // /api/payment/vnpay-return?param1=xxx&param2=yyy ...
@@ -34,6 +35,11 @@ export const paymentService = {
      { startDate, endDate, pageNo, pageSize }
     );
   },
+
+  //typeRegister: 1 or 2 .1 for 
+  getPaymentQrCode: async (typeRegister) => {
+    return await apiService.get(ENDPOINTS.payment.getPaymentQrCode, { typeRegister });
+  } ,
 
  
 
