@@ -108,12 +108,13 @@ async sendUserToBackend(session) {
   }
   // return response.data.result;
 } catch (error) {
-  if (error.response?.status === 409) {
-    alert("Email này đã đăng ký bằng tài khoản khác. Vui lòng đăng nhập bằng đúng phương thức hoặc liên hệ hỗ trợ.");
-  } else {
-    alert("Có lỗi xảy ra khi xác thực Google. Vui lòng thử lại hoặc liên hệ hỗ trợ.");
-  }
+  // if (error.response?.status === 409) {
+  //   alert("Email này đã đăng ký bằng tài khoản khác. Vui lòng đăng nhập bằng đúng phương thức hoặc liên hệ hỗ trợ.");
+  // } else {
+     alert("Email này đã đăng ký bằng tài khoản và mật khẩu. Vui lòng đăng nhập bằng đúng phương thức hoặc liên hệ hỗ trợ.");
+  // }
   throw error;
+  // throw new Error(error.response?.data?.message || 'Lỗi xác thực Google');
 }
 
 },
