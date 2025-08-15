@@ -101,14 +101,14 @@ public class PaymentService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         String description;
-        if(type == 1){
+        if(type == 2){
             description = user.getFullName() + " goi co ban "+user.getUserId();
-        } else if (type == 2) {
+        } else if (type == 3) {
             description = user.getFullName() + " goi toan dien "+user.getUserId();
         } else {
             throw new IllegalStateException("Invalid payment type");
         }
-        double totalPrice = Double.parseDouble(subscription.getPrice().toString());
+        double totalPrice = subscription.getPrice().doubleValue();
         Payment payment = new Payment();
         payment.setAmount(totalPrice);
         payment.setDate(new Date());
