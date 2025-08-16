@@ -37,9 +37,16 @@ export const paymentService = {
   },
 
   //typeRegister: 1 or 2 .1 for 
-  getPaymentQrCode: async (typeRegister) => {
-    return await apiService.get(ENDPOINTS.payment.getPaymentQrCode, { typeRegister });
+  getPaymentQr: async (typeRegister) => {
+    return await apiService.get(ENDPOINTS.payment.getPaymentQrCode.replace("{typeRegister}"), { typeRegister });
   } ,
+  checkPaymentStatus: async (paymentId) => {
+      // data: { status:200, message:'Thành công', result:'UNPAID'|'SUCCESS'|'Số tiền thanh toán không khớp' }
+    
+    const url = `${ENDPOINTS.payment.checkPaymentStatus}?paymentId=${paymentId}`;
+    const  data  = await apiService.post(url);
+    return data;
+  },
 
  
 
