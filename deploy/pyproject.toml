@@ -1,0 +1,13 @@
+[project]
+name = "github-webhook-deployer"
+version = "0.1.0"
+description = "GitHub webhook listener to auto-deploy branch dev"
+authors = [
+  { name = "Dora King", email = "minhha10c8@gmail.com" }
+]
+requires-python = ">=3.10"
+
+dependencies = [
+  "fastapi==0.115.2",
+  "uvicorn[standard]==0.34.0"
+]
