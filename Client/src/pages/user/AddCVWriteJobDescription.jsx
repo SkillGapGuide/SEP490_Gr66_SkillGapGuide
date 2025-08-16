@@ -35,9 +35,11 @@ const AnalyzeResult = () => {
   const navigate = useNavigate();
 
   // Role từ zustand (được UserContext đẩy vào sau khi bạn setUser sau thanh toán)
-  const role = useAuthStore((s) => s.role) || FREE_USER_ROLE;
-  const isUpgraded = /pro|premium/i.test(role);
+  
+ 
   const { user } = useContext(UserContext);
+  const role =user.role || FREE_USER_ROLE;
+   const isUpgraded = /pro|premium/i.test(role);
   const {
     skills,
     isSkillsLoading,
