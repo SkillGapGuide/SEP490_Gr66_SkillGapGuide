@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useCallback } from "react";
 import { userService } from "../services/userService";
+import { useAuthStore } from "../stores/authStore";
 
 export const UserContext = createContext();
 
@@ -18,6 +19,17 @@ async function retry(fn, maxTries = 5, delayMs = 700) {
   }
   throw lastErr;
 }
+function resolveRole(u) {
+  if (!u) return null;
+  // tuỳ backend của bạn: role, roleName, hoặc roleId -> map
+  if (u.role) return u.role;
+  if (u.roleName) return u.roleName;
+  if (u.roleId) {
+    const map = { 4: "Free User", 5: "Pro User", 6: "Premium User" };
+    return map[u.roleId] || null;
+  }
+  return null;
+}
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -28,9 +40,13 @@ export const UserProvider = ({ children }) => {
       try {
         const profile = await retry(() => userService.viewProfile(), 5, 700);
         setUser(profile);
+        const r = resolveRole(profile);
+       useAuthStore.getState().setRole(r);
       } catch (error) {
         console.error("Không lấy được thông tin user:", error);
         setUser(null);
+        useAuthStore.getState().setRole(null);
+
       } finally {
         setLoading(false);
       }
@@ -38,6 +54,10 @@ export const UserProvider = ({ children }) => {
 
     fetchProfile();
   }, []);
+   useEffect(() => {
+   const r = resolveRole(user);
+   useAuthStore.getState().setRole(r);
+ }, [user]);
 
   const clearUser = useCallback(() => {
     setUser(null);

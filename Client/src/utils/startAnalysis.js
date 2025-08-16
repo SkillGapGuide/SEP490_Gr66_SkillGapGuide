@@ -6,6 +6,7 @@ import { useAnalysisStore } from "../stores/useAnalysisStore";
 import { showError } from "../utils/alert";
 import { useCourseStore } from "../stores/courseStore";
 import { courService } from "../services/courService"; // Đường dẫn tuỳ bạn
+import { resetStoresForNewRun } from "./resetStores";
 export async function runAnalysisFlowOnce({
   userRole = "Free User",
   onSkillStart,
@@ -16,6 +17,13 @@ export async function runAnalysisFlowOnce({
   onJobDetailDone,
   onFinish
 }) {
+   // ---- chuẩn hoá role → tier
+  const tier = (() => {
+    const r = (userRole || "").toLowerCase();
+    if (r.includes("premium")) return "premium";
+    if (r.includes("pro")) return "pro";
+    return "free";
+  })();
   const {
     selectedOption,
     setCvId
@@ -31,7 +39,8 @@ export async function runAnalysisFlowOnce({
   } = useAnalysisStore.getState();
 
   try {
-    clearAll();
+    // ✅ Soft reset: không đụng tới cvUploaded
+    resetStoresForNewRun({ mode: "soft", clearPersist: false });
 
     // Step 1: Lấy kỹ năng
     onSkillStart?.();
@@ -43,6 +52,11 @@ export async function runAnalysisFlowOnce({
     onSkillDone?.();
     const cvId = skills.length > 0 ? skills[0].cvId : null;
     if (cvId) setCvId(cvId);
+     // Free User: dừng sau Step 1
+    if (tier === "free") {
+      onFinish?.();
+      return;
+    }
 
     // Step 2: Phân tích job (backend chuẩn bị dữ liệu)
     onJobListStart?.();
@@ -112,6 +126,11 @@ export async function runAnalysisFlowOnce({
         onJobDetailDone?.(job.jobId);
       })
     );
+    // Pro User: dừng tại Step 4
+    if (tier === "pro") {
+      onFinish?.();
+      return;
+    }
      // chạy ngầm /api/job/match/getJobMatchScore 
        
     // Kết thúc

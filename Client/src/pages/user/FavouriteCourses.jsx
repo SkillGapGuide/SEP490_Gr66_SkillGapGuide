@@ -83,6 +83,8 @@ const FavoriteCourses = () => {
 
   const fetchCourses = async () => {
     try {
+    
+      
       const res = await courService.findAllFavoriteCourses(userId, page, PAGE_SIZE);
       const rawCourses = res.result?.content || [];
       const formatted = rawCourses.map((item) => ({

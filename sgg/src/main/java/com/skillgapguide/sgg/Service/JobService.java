@@ -45,7 +45,7 @@ public class JobService {
     private JobRepository jobRepository;
     @Autowired
     private AuditLogRepository auditLogRepository;
-    private final String UPLOAD_DIR = "C:/JdData/";
+    private final String UPLOAD_DIR = "JdData/";
     public List<String> loadMultiFile(MultipartFile[] files){
         jobDeleteService.deleteJob(); // delete job
         jobDeleteService.deleteFileJobDes(); // delete file job description
@@ -130,27 +130,23 @@ public class JobService {
             try {
                 String prompt = """
 Hãy phân tích nội dung JD dưới đây và trích xuất các thông tin sau:
-
 - Tên vị trí (title)
 - Mô tả công việc (description)
 - Tên công ty (company)
 - Danh sách tất cả các kỹ năng yêu cầu (skills)
-
-⚠️ Yêu cầu:
+Yêu cầu:
 - Nếu JD bằng tiếng Việt, kết quả phải giữ nguyên bằng tiếng Việt (không dịch sang tiếng Anh).
 - Trả về đúng định dạng JSON như sau, không thêm bất kỳ nội dung nào khác ngoài JSON:
-
 {
   "title": "",
   "description": "",
   "company": "",
   "skills": []
 }
-
 JD:
 """ + text;
 
-                LMStudioService service = new LMStudioService(WebClient.builder());
+                OllamaService service = new OllamaService(WebClient.builder());
                 String content = service.callMistralApi(prompt).block();
                 try {
                     ObjectMapper mapper = new ObjectMapper();
@@ -221,19 +217,16 @@ JD:
             for( Job job : jobList) {
                 String prompt = """
 Hãy phân tích nội dung JD dưới đây và trích xuất tất cả các kỹ năng yêu cầu của ứng viên.
-
-⚠️ Yêu cầu:
+Yêu cầu:
 - Giữ nguyên kỹ năng theo ngôn ngữ gốc của JD (nếu JD là tiếng Việt thì không được dịch sang tiếng Anh).
 - Chỉ trả về duy nhất định dạng JSON như sau, không thêm bất kỳ nội dung nào khác:
-
 {
   "skills": [
   ]
 }
-
 JD:
 """ + job.getDescription();
-                LMStudioService service = new LMStudioService(WebClient.builder());
+                OllamaService service = new OllamaService(WebClient.builder());
                 String content = service.callMistralApi(prompt).block();
                 try {
                     ObjectMapper mapper = new ObjectMapper();

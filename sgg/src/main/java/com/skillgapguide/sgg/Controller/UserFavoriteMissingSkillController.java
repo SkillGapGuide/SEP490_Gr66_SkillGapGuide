@@ -22,8 +22,7 @@ public class UserFavoriteMissingSkillController {
     }
     @PostMapping("/add-favorite-missing-skill/{userId}/{skillId}")
     public Response<?> addMissingSkillToFavorites(@PathVariable Integer userId, @PathVariable Integer skillId) {
-        return new Response<>(EHttpStatus.OK, "Thêm kỹ năng thiếu vào danh sách yêu thích thành công",
-                userFavoriteMissingSkillService.addMissingSkillToFavorites(userId, skillId));
+        return new Response<>(EHttpStatus.OK, userFavoriteMissingSkillService.addMissingSkillToFavorites(userId, skillId));
     }
     @DeleteMapping("/remove-favorite-missing-skill/{userId}/{skillId}")
     public Response<?> removeFavoriteMissingSkill(@PathVariable Integer userId, @PathVariable Integer skillId) {

@@ -170,16 +170,6 @@ java -jar target/sgg-0.0.1-SNAPSHOT.jar
 - **Swagger UI**: `http://localhost:8080/swagger-ui/index.html`
 - **Actuator Health**: `http://localhost:8080/actuator/health`
 
-### 7. Key Backend Technologies
-- **Framework**: Spring Boot 3.2.5
-- **Java Version**: 21
-- **Database**: MySQL with JPA/Hibernate
-- **Security**: Spring Security + JWT
-- **Documentation**: Swagger/OpenAPI 3
-- **Web Scraping**: Selenium WebDriver
-- **Email**: Spring Mail
-- **File Processing**: iText PDF, Tika
-- **Build Tool**: Maven
 
 ## Development Workflow
 
@@ -196,38 +186,8 @@ java -jar target/sgg-0.0.1-SNAPSHOT.jar
    npm run dev
    ```
 
-### 2. Production Build
-1. Build frontend for production:
-   ```bash
-   cd Client/
-   npm run build
-   ```
 
-2. Build backend JAR:
-   ```bash
-   cd sgg/
-   ./mvnw clean package
-   ```
-
-
-## Testing
-
-### Frontend Testing
-```bash
-cd Client/
-npm run lint
-```
-
-### Backend Testing
-```bash
-cd sgg/
-./mvnw test
-```
-
-## Additional Notes
-
-- The application uses **Spring profiles**. Default is `dev` profile as specified in `application.properties`
-- **File uploads** are configured with size limits via `spring.servlet.multipart` properties
-- The backend includes **web scraping capabilities** using Selenium WebDriver
-- **Email functionality** is configured for user notifications and authentication
-- **OAuth2 integration** with Coursera for external authentication
+apt install unzip
+cd /opt/SEP490_Gr66_SkillGapGuide/sgg && wget -O chromedriver-linux64.zip "https://storage.googleapis.com/chrome-for-testing-public/139.0.7258.66/linux64/chromedriver-linux64.zip" && unzip -o chromedriver-linux64.zip && mv chromedriver-linux64/chromedriver drivers/ && chmod +x drivers/chromedriver
+ls -la drivers
+rm drivers/chromedriver.exe

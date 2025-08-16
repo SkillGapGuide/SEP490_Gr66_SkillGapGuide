@@ -43,7 +43,7 @@ public class JobController {
 
     }
     @GetMapping("/getJobSkill")
-    public Response<?> getCvSkill(@RequestParam int jobId){
+    public Response<?> getJobSkill(@RequestParam int jobId){
         return new Response<>(EHttpStatus.OK, jobService.getJobSkill(jobId));
     }
     @GetMapping("/getJobList")

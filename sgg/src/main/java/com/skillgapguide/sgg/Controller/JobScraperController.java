@@ -29,7 +29,7 @@ public class JobScraperController {
         }
     }
 
-    @PostMapping("/crawl-10-jobs")
+    @PostMapping("/crawl-5-jobs")
     public ResponseEntity<String> scrapeTop10JobsByCategory(@RequestBody ScrapeRequest request) {
         if (request.getUrl() == null || request.getUrl().isEmpty()) {
             return ResponseEntity.badRequest().body("URL không được để trống.");
@@ -42,18 +42,19 @@ public class JobScraperController {
         }
     }
 
-    @PostMapping("/crawl-10-jobs-by-specialization")
+    @PostMapping("/crawl-5-jobs-by-specialization")
     public ResponseEntity<String> scrapeTop10JobsBySpecialization(@RequestBody ScrapeRequest request) {
         if (request.getUrl() == null || request.getUrl().isEmpty()) {
-            return ResponseEntity.badRequest().body("Vị trí chuyên môn không được để trống.");
+            return ResponseEntity.badRequest().body("Tên vị trí chuyên môn không được để trống.");
         }
         try {
             jobScrapingService.scrapeJobsWithCvCleanup("specialization", request.getUrl());
-            return ResponseEntity.ok("Đã cào và lưu 10 công việc đầu tiên từ URL: : " + request.getUrl());
+            return ResponseEntity.ok("Đã cào và lưu 5 công việc đầu tiên cho chuyên môn: " + request.getUrl());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+            return ResponseEntity.internalServerError().body("❌ Lỗi khi cào jobs: " + e.getMessage());
         }
     }
+
 
     @PostMapping("/crawl-4-jobs-by-links")
     public ResponseEntity<String> scrapeMultipleJobs(@RequestBody ScrapeMultipleRequest request) {

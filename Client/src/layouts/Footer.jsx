@@ -10,32 +10,32 @@ const Footer = memo(function Footer() {
           <div>
             <h3 className="text-xl font-bold mb-4">SkillGapGuide</h3>
             <p className="text-gray-300">
-              Bridging the gap between education and employment.
+            Thu hẹp khoảng cách giữa giáo dục và việc làm.
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
+            <h4 className="text-lg font-semibold mb-4">Liên kết nhanh </h4>
             <ul className="space-y-2">
-              <li><a href="/about-us" className="text-gray-300 hover:text-white">About Us</a></li>
+              <li><a href="/about-us" className="text-gray-300 hover:text-white">Về chúng tôi</a></li>
             
-              <li><a href="/contact" className="text-gray-300 hover:text-white">Contact</a></li>
+              <li><a href="/contact" className="text-gray-300 hover:text-white">Liên hệ </a></li>
             </ul>
           </div>
 
           {/* Legal */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">Legal</h4>
+            <h4 className="text-lg font-semibold mb-4">Pháp lý</h4>
             <ul className="space-y-2">
-              <li><a href="/terms-of-service" className="text-gray-300 hover:text-white">Privacy Policy</a></li>
-              <li><a href="/terms-of-service" className="text-gray-300 hover:text-white">Terms of Service</a></li>
+              <li><a href="/terms-of-service" className="text-gray-300 hover:text-white">Chính sách bảo mật</a></li>
+              <li><a href="/terms-of-service" className="text-gray-300 hover:text-white">Điều khoản dịch vụ</a></li>
             </ul>
           </div>
 
           {/* Social Links */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">Follow Us</h4>
+            <h4 className="text-lg font-semibold mb-4">Theo dõi chúng tôi</h4>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-300 hover:text-white">
                 <span className="sr-only">Facebook</span>
@@ -55,7 +55,7 @@ const Footer = memo(function Footer() {
 
         {/* Copyright */}
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-          <p>&copy; {new Date().getFullYear()} SkillGapGuide. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Bản quyền thuộc về SkillGapGuide. </p>
         </div>
       </div>
     </footer>

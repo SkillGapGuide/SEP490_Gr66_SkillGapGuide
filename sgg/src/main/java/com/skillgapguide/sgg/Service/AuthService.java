@@ -39,6 +39,8 @@ public class AuthService {
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
     @Value("${application.base-url}")
     private String baseUrl;
+    @Value(("${application.web-url}"))
+    private String webUrl;
 
     @Transactional
     public String register(RegisterRequest request) {
@@ -75,7 +77,7 @@ public class AuthService {
         tokenRepository.save(verificationToken);
 
         // Tạo link xác thực
-        String verificationLink = baseUrl + "/api/auth/verify?token=" + token;
+        String verificationLink = webUrl + "/api/auth/verify?token=" + token;
 
         // Gửi email (Bạn cần tự implement EmailService)
         emailService.sendMail(
@@ -139,7 +141,7 @@ public class AuthService {
             }
             // 4. Bắt lỗi nếu xác thực thất bại
             logger.error("Xác thực thất bại cho email {}: {}", request.email(), ex.getMessage());
-            throw new IllegalStateException("Xác thực thất bại cho email " + request.email()+ ex.getMessage());
+            throw new IllegalStateException("Xác thực thất bại cho email " + request.email() );
         }
     }
     public AuthResponse processGoogleLogin(GoogleLoginRequest request) {

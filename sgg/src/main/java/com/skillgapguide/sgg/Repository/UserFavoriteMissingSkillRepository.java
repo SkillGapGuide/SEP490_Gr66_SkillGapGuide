@@ -12,8 +12,10 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface UserFavoriteMissingSkillRepository extends JpaRepository<UserFavoriteMissingSkill, Integer> {
-    @Query("SELECT ufc FROM UserFavoriteMissingSkill ufc join JobDesSkills jds on ufc.skillId = jds.id WHERE ufc.userId = :userId AND jds.id = :skillId")
-    Optional<UserFavoriteMissingSkill> findByUserIdAndSkillId(@Param("userId") Integer userId, @Param("skillId") Integer skillId);
-    @Query("select jds.id as skillId, jds.skill as skillName ,ufc.status as status, ufc.createdAt as createdAt from UserFavoriteMissingSkill ufc join JobDesSkills jds on ufc.skillId = jds.id where ufc.userId = :userId")
+    @Query("SELECT ufc FROM UserFavoriteMissingSkill ufc WHERE ufc.userId = :userId AND ufc.skillId = :skillId")
+    Optional<UserFavoriteMissingSkill> findByUserIdAndSkillId(@Param("userId") Integer userId, @Param("skillId") String skillId);
+    @Query("select ufc.id as skillId, ufc.skillId as skillName ,ufc.status as status, ufc.createdAt as createdAt from UserFavoriteMissingSkill ufc where ufc.userId = :userId")
     Page<UserFavoriteMissingSkillResponse> findUserFavoriteMissingSkillsByUserId(Integer userId, Pageable pageable);
+    @Query("SELECT ufc FROM UserFavoriteMissingSkill ufc WHERE ufc.userId = :userId AND ufc.id = :id")
+    Optional<UserFavoriteMissingSkill> findByUserIdAndId(@Param("userId") Integer userId, @Param("id") Integer id);
 }

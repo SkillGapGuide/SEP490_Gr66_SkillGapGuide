@@ -1,4 +1,4 @@
-import React, { useState,useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext,useRef } from "react";
 import { useAnalysisStore } from "../../stores/useAnalysisStore";
 import { runAnalysisFlowOnce } from "../../utils/startAnalysis";
 import { UserContext } from "../../context/UserContext";
@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import { userService } from "../../services/userService";
 import { showSuccess, showError } from "../../utils/alert";
+import { useAuthStore } from "../../stores/authStore"; // <-- đọc role từ zustand
 const FREE_USER_ROLE = "Free User";
 
 const SkillSkeleton = () => (
@@ -31,10 +32,12 @@ const JobSkeleton = () => (
 );
 
 const AnalyzeResult = () => {
-  const { user } = useContext(UserContext);
-  const userRole = user?.role || FREE_USER_ROLE;
   const navigate = useNavigate();
 
+  // Role từ zustand (được UserContext đẩy vào sau khi bạn setUser sau thanh toán)
+  const role = useAuthStore((s) => s.role) || FREE_USER_ROLE;
+  const isUpgraded = /pro|premium/i.test(role);
+  const { user } = useContext(UserContext);
   const {
     skills,
     isSkillsLoading,
@@ -62,21 +65,22 @@ const AnalyzeResult = () => {
   const NA_LABEL = "Không áp dụng "; // Nếu bạn thích có thể dịch thành "Không áp dụng"
   const [favoriteSkillIds, setFavoriteSkillIds] = useState([]);
 
-  // Quản lý loading độc lập từng phần
+
+  // Chạy flow khi flag analysisNeedRun = true
   useEffect(() => {
-    if (analysisNeedRun) {
-      setAnalysisNeedRun(false);
-      runAnalysisFlowOnce({
-        userRole,
-        onSkillStart: () => setIsSkillsLoading(true),
-        onSkillDone: () => setIsSkillsLoading(false),
-        onJobListStart: () => setIsJobListLoading(true),
-        onJobListDone: () => setIsJobListLoading(false),
-        onJobDetailDone: () => {}, // Nếu muốn set loading riêng từng job
-        onFinish: () => {},
-      });
-    }
-    // eslint-disable-next-line
+    if (!analysisNeedRun) return;
+    setAnalysisNeedRun(false);
+    runAnalysisFlowOnce({
+        userRole: user?.role || "Free User",
+      onSkillStart: () => setIsSkillsLoading(true),
+      onSkillDone: () => setIsSkillsLoading(false),
+      onJobListStart: () => setIsJobListLoading(true),
+      onJobListDone: () => setIsJobListLoading(false),
+      onJobDetailStart: () => {},
+      onJobDetailDone: () => {},
+      onFinish: () => {},
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [analysisNeedRun]);
 
   useEffect(() => {
@@ -89,12 +93,15 @@ const AnalyzeResult = () => {
     if (!user?.id) return;
     try {
       console.log("Adding favorite skill:", skillId);
-      
+
       await userService.addFavoriteMissingSkill(user.id, skillId);
       setFavoriteSkillIds((prev) => [...prev, skillId]);
-       showSuccess("Đã thêm vào kỹ năng yêu thích!");
+      showSuccess("Đã thêm vào kỹ năng yêu thích!");
     } catch (e) {
-       showError("Không thể thêm kỹ năng!");
+      showError(
+        e?.response?.data?.message ||
+          "Có lỗi xảy ra khi thêm kỹ năng yêu thích."
+      );
     }
   };
 
@@ -136,7 +143,6 @@ const AnalyzeResult = () => {
       </div>
     );
   };
-  
 
   // Render phần job list (show từng job skeleton/loading/real data)
   const renderJobsSection = () => {
@@ -147,7 +153,7 @@ const AnalyzeResult = () => {
         </div>
       ));
     }
-    if (userRole !== FREE_USER_ROLE) {
+    if (role === FREE_USER_ROLE) {
       return (
         <div className="border rounded-xl bg-yellow-50 p-7 text-center my-6 shadow">
           <h2 className="text-xl font-bold text-yellow-700 mb-2">
@@ -359,13 +365,12 @@ const AnalyzeResult = () => {
   };
 
   return (
-  <div className="bg-white min-h-screen py-6 px-4 max-w-6xl mx-auto">
-    <h1 className="text-3xl font-extrabold text-blue-700 mb-1 flex items-center gap-3">
-      <span>Kết quả phân tích </span>
-    </h1>
-    <div className="h-1 w-14 bg-blue-200 rounded-full mb-6" />
+    <div className="bg-white min-h-screen py-6 px-4 max-w-6xl mx-auto">
+      <h1 className="text-3xl font-extrabold text-blue-700 mb-1 flex items-center gap-3">
+        <span>Kết quả phân tích </span>
+      </h1>
+      <div className="h-1 w-14 bg-blue-200 rounded-full mb-6" />
 
-  
       {/* Kỹ năng từ CV */}
       <h2 className="text-xl font-semibold text-blue-600 mb-4 flex items-center gap-2 tracking-wide">
         <svg width="26" height="26" viewBox="0 0 20 20" fill="none">
@@ -381,22 +386,19 @@ const AnalyzeResult = () => {
       </div>
       {/* --- TIÊU ĐỀ PHÂN TÍCH CÔNG VIỆC --- */}
       <h2 className="text-xl font-semibold text-blue-600 mb-4 mt-10 flex items-center gap-2 tracking-wide">
-        <svg width="26" height="26" fill="none" viewBox="0 0 24 24">
+        <svg width="26" height="26" viewBox="0 0 20 20" fill="none">
           <path
-            d="M12 5v14m7-7H5"
-            stroke="#2563eb"
-            strokeWidth="2"
-            strokeLinecap="round"
+            d="M7 10a3 3 0 1 1 6 0 3 3 0 0 1-6 0ZM3 16.5a7 7 0 1 1 14 0v.25a1.25 1.25 0 0 1-1.25 1.25H4.25A1.25 1.25 0 0 1 3 16.75V16.5Z"
+            fill="#2563eb"
           />
         </svg>
-        Kết quả phân tích công việc
+        Phân tích công việc
       </h2>
       <div className="mt-10">{renderJobsSection()}</div>
 
-    {/* --- HẾT BỌC --- */}
-  </div>
-);
-
+      {/* --- HẾT BỌC --- */}
+    </div>
+  );
 };
 
 export default AnalyzeResult;

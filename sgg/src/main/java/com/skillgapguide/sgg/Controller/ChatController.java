@@ -28,23 +28,24 @@ public class ChatController {
     public Mono<String> chat(@RequestBody Map<String, String> payload) {
         String userInput = payload.get("input");
         Map<String, Object> requestBody = Map.of(
-                "model", "mistralai/mistral-7b-instruct-v0.3",
+                "model", "mistral:7b-instruct-v0.3-q4_0",
                 "messages", List.of(Map.of("role", "user", "content", userInput)),
-                "temperature", 0.7,
-                "max_tokens", 2048,  // Thêm giới hạn token
+                "options", Map.of(
+                        "temperature", 0.7,
+                        "num_predict", 2048
+                ),
                 "stream", false
         );
 
         return webClient.post()
-                .uri("http://localhost:1234/v1/chat/completions")
-                .header("Authorization", "Bearer lm-studio")
-                .header("Accept", "application/json")  // Thêm header Accept
+                .uri("http://localhost:1234/api/chat")
+                .header("Accept", "application/json")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(requestBody)
                 .retrieve()
                 .bodyToMono(String.class)
                 .timeout(Duration.ofSeconds(120))
-                .onErrorResume(e -> Mono.just("Lỗi: " + e.getMessage()));  // Xử lý lỗi
+                .onErrorResume(e -> Mono.just("Lỗi: " + e.getMessage()));
     }
 //    @PostMapping("getSkill")
 //    public Mono<Response<String>> getSkill(@RequestParam String filePath) throws IOException {

@@ -1,10 +1,7 @@
 package com.skillgapguide.sgg.Repository;
 
 
-import com.skillgapguide.sgg.Dto.SubscriptionDTO;
-import com.skillgapguide.sgg.Dto.UserDetailDTO;
-import com.skillgapguide.sgg.Dto.UserListRequest;
-import com.skillgapguide.sgg.Dto.UserListResponse;
+import com.skillgapguide.sgg.Dto.*;
 import com.skillgapguide.sgg.Entity.User;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
@@ -39,6 +36,24 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "from User u join Subscription s on u.subscriptionId = s.subscriptionId " +
             "where u.userId = :userid")
     Optional<SubscriptionDTO> findByUserid(@Param("userid") Integer userid);
+
+    @Query("""
+    SELECT new com.skillgapguide.sgg.Dto.UserSubscriptionDTO(
+        u.fullName,
+        r.name,
+        s.subscriptionName,
+        h.startDate,
+        h.endDate
+    )
+    FROM User u
+    JOIN Role r ON u.roleId = r.roleId
+    JOIN Subscription s ON u.subscriptionId = s.subscriptionId
+    LEFT JOIN UserSubscriptionHistory h
+        ON u.userId = h.user.userId AND h.status = 'ACTIVE'
+    WHERE u.email = :email
+    ORDER BY h.startDate DESC
+""")
+    List<UserSubscriptionDTO> findUserSubscriptionByEmail(@Param("email") String email);
 
 
 
