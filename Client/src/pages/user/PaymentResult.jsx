@@ -277,7 +277,7 @@ export default function PaymentResult() {
                 </button>
 
                 <button
-                  onClick={() => navigate("/service-payment")}
+                  onClick={() => navigate("/servicepayment")}
                   className="inline-flex h-12 items-center justify-center rounded-xl border px-5 font-semibold text-slate-700 hover:bg-slate-50 transition shadow-sm"
                 >
                   Quản lý gói dịch vụ

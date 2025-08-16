@@ -172,7 +172,7 @@ public class PaymentService {
                         .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
                 Payment payment = paymentRepository.findById(paymentId)
                         .orElseThrow(() -> new RuntimeException("Payment not found with ID: " + paymentId));
-                if(payment.getAmount() != amount) {
+                if(payment.getAmount().compareTo(amount) != 0) {
                     status = "Số tiền thanh toán không khớp";
                     // Ghi vào bảng Payment
                     payment.setAmount(amount);
