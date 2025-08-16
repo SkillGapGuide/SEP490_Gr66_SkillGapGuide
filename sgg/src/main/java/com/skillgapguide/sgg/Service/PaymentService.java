@@ -134,6 +134,9 @@ public class PaymentService {
             for (JsonElement element : jsonArray) {
                 JsonObject transaction = element.getAsJsonObject();
                 String description = transaction.get("description").getAsString();
+                if (description.equals("giao dich thu nghiem")) {
+                    return;
+                }
                 String amountStr = transaction.get("amount").getAsString();
                 Double amount = Double.parseDouble(amountStr);
                 Integer userId;
