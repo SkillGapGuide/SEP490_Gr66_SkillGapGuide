@@ -20,6 +20,30 @@ export function showError(msg, title = "Lỗi") {
     confirmButtonText: "OK",
   });
 }
+export function showMessage(title, html,timer) {
+  let timerInterval;
+Swal.fire({
+  title,
+  html,
+  timer: 2000,
+  timerProgressBar: true,
+  didOpen: () => {
+    Swal.showLoading();
+    const timer = Swal.getPopup().querySelector("b");
+    timerInterval = setInterval(() => {
+      timer.textContent = `${Swal.getTimerLeft()}`;
+    }, 100);
+  },
+  willClose: () => {
+    clearInterval(timerInterval);
+  }
+}).then((result) => {
+  /* Read more about handling dismissals below */
+  if (result.dismiss === Swal.DismissReason.timer) {
+    console.log("I was closed by the timer");
+  }
+});
+}
 
 export function showConfirm(msg, title = "Xác nhận") {
   return MySwal.fire({

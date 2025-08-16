@@ -18,7 +18,7 @@ export const ENDPOINTS = {
     changePassword: "/api/user/changePassword",
     viewProfile: `/api/profile/viewprofile`,
     updateProfile: `/api/profile/update`,
-    viewSubscription: `/api/profile/viewscription`,
+    viewSubscription: `/api/profile/subscription`,
     getFavoriteMissingSkills:
       "/api/user-favorite-missing-skills/get-favorite-missing-skills/{userId}",
     addFavoriteMissingSkill:
@@ -138,6 +138,8 @@ export const ENDPOINTS = {
     exportPdf: "/api/payment/export/pdf",
     exportExcel: "/api/payment/export/excel",
     create: "/api/payment/create",
+    getPaymentQrCode: "/api/payment/getPaymentQr/{typeRegister}",
+    checkPaymentStatus: "/api/payment/checkPayment",
   },
   skillGap :{
     getSkillGap: "/api/gap/getSkillGap",
@@ -149,5 +151,15 @@ export const ENDPOINTS = {
     getAllSubscriptions: "/api/subscription/get-all-subscriptions",
     updateSubscription: "/api/subscription/edit-subscription",
     deleteSubscription: "/api/subscription/delete/{id}",
-  }
+  }, dashboard: {
+    getTotalMoneyAndUserForLast7Days: "/api/subscription/stats-user-subscription-last7days",
+    getChartForLastWeek: "/api/subscription/stats-user-subscription-daily-last7days",
+    getChartForLastMonth: "/api/subscription/stats-user-subscription-daily-last30days",
+    getNumberUserSubscription: "/api/subscription/count-user-subscription-history",
+    getTotalMoney: "/api/subscription/count-total-user-subscription-history-price",
+   
+
+    
+    
+  },
 };

@@ -71,6 +71,7 @@ const AnalyzeResult = () => {
     if (!analysisNeedRun) return;
     setAnalysisNeedRun(false);
     runAnalysisFlowOnce({
+        userRole: user?.role || "Free User",
       onSkillStart: () => setIsSkillsLoading(true),
       onSkillDone: () => setIsSkillsLoading(false),
       onJobListStart: () => setIsJobListLoading(true),

@@ -1,23 +1,21 @@
+// src/pages/Home.jsx
 import { PieChart, Pie, Cell } from "recharts";
 import { motion } from "framer-motion";
 import Slider from "react-slick";
 import { FiUploadCloud } from "react-icons/fi";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { Link } from "react-router-dom";
-import innovation from "../assets/innovation.png";
 import React from "react";
-import { showInfo } from "../utils/alert";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import innovation from "../assets/innovation.png";
+import { showInfo, showError } from "../utils/alert";
+import { staticPageService } from "../services/staticPageService"; // <-- dùng service này
 
-// Carousel images (có thể thay bằng ảnh thực tế)
-const images = [
-  "/images/slide1.png",
-  "/images/slide2.png",
-  "/images/slide3.png",
-];
+// Carousel images
+const images = ["/images/slide1.png", "/images/slide2.png", "/images/slide3.png"];
 
+// Testimonials demo
 const testimonials = [
   {
     img: "https://cdn-icons-png.flaticon.com/512/4140/4140048.png",
@@ -52,13 +50,67 @@ const settings = {
   arrows: false,
   autoplay: true,
   centerMode: true,
-  centerPadding: "0px", // căn giữa, không thừa khoảng trắng
+  centerPadding: "0px",
   adaptiveHeight: true,
 };
 
+// Map list [{title,content}] -> { slogan, siteName, phone }
+function mapHomeListToFields(list) {
+  const dict = (list || []).reduce((acc, it) => {
+    const t = it?.title;
+    if (t != null) acc[String(t)] = String(it?.content ?? "");
+    return acc;
+  }, {});
+  return {
+    slogan: dict["Khẩu hiệu"] ?? "",
+    siteName: dict["Tên trang"] ?? "",
+    phone: dict["Số điện thoại liên hệ"] ?? "",
+  };
+}
+
 export default function Home() {
   const [uploading, setUploading] = useState(false);
-const navigate = useNavigate();
+  const navigate = useNavigate();
+
+  // --- Home dynamic content from API ---
+  const [homeData, setHomeData] = useState({ slogan: "", siteName: "", phone: "" });
+  const [loadingHome, setLoadingHome] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      setLoadingHome(true);
+      try {
+        // Hỗ trợ cả getHome() lẫn getHomePage() (phòng bạn đặt tên khác)
+        const list = staticPageService.getHome
+          ? await staticPageService.getHome()
+          : staticPageService.getHomePage
+          ? await staticPageService.getHomePage()
+          : [];
+
+        const mapped = mapHomeListToFields(list);
+        if (mounted) setHomeData(mapped);
+      } catch (e) {
+        showError(e?.response?.data?.message || e?.message || "Không tải được nội dung trang chủ.");
+      } finally {
+        if (mounted) setLoadingHome(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Fallback hiển thị khi đang tải / thiếu dữ liệu
+  const siteName = useMemo(() => homeData.siteName || "SkillGapGuide", [homeData.siteName]);
+  const slogan = useMemo(
+    () =>
+      homeData.slogan ||
+      "Khám phá, phân tích và phát triển kỹ năng đúng hướng",
+    [homeData.slogan]
+  );
+  const phone = useMemo(() => homeData.phone || "559282 - 978", [homeData.phone]);
+
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-50 via-white to-indigo-50">
       {/* HERO SECTION */}
@@ -76,38 +128,67 @@ const navigate = useNavigate();
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
+            {/* Brand pill */}
+            <div className="inline-flex items-center gap-2 bg-white/70 px-3 py-1.5 rounded-full border shadow-sm mb-3">
+              <span className="w-2 h-2 rounded-full bg-indigo-500" />
+              <span className="text-sm font-semibold text-indigo-900">
+                {loadingHome ? "Đang tải…" : siteName}
+              </span>
+            </div>
+
+            {/* Slogan / heading */}
             <h2 className="text-3xl md:text-4xl font-extrabold leading-snug text-indigo-900 drop-shadow-sm">
-              Khám phá năng lực nghề nghiệp từ <span className="text-indigo-600">CV</span> của bạn
+              {loadingHome ? (
+                <span className="inline-block h-7 w-72 bg-indigo-100/70 rounded animate-pulse" />
+              ) : (
+                slogan
+              )}
             </h2>
+
             <p className="mt-4 text-gray-700 text-lg font-light">
               Tải lên CV – nhận ngay bản đồ kỹ năng cần thiết, đề xuất định hướng, khóa học phù hợp.
             </p>
-           <motion.button
-  whileHover={{ scale: 1.04, backgroundColor: "#4338CA" }}
-  whileTap={{ scale: 0.97 }}
-  className={`mt-8 inline-flex items-center gap-3 bg-indigo-700 text-white px-7 py-3 rounded-full shadow-lg text-lg font-bold hover:bg-indigo-800 transition-all ${uploading ? "opacity-70 cursor-not-allowed" : ""}`}
-  disabled={uploading}
- onClick={(e) => {
-  e.preventDefault();
-  if (!localStorage.getItem("token")) {
-    showInfo("Bạn cần đăng nhập để tải lên CV!");
-    setTimeout(() => {
-      navigate("/login");
-    }, 2000);
-    return;
-  }
-  setUploading(true);
-  setTimeout(() => {
-    setUploading(false);
-    navigate("/analyze");
-  }, 1600);
-}}
->
-  <FiUploadCloud className="w-6 h-6" />
-  Tải lên CV & nhận phân tích
-</motion.button>
 
+            {/* CTA */}
+            <motion.button
+              whileHover={{ scale: 1.04, backgroundColor: "#4338CA" }}
+              whileTap={{ scale: 0.97 }}
+              className={`mt-8 inline-flex items-center gap-3 bg-indigo-700 text-white px-7 py-3 rounded-full shadow-lg text-lg font-bold hover:bg-indigo-800 transition-all ${
+                uploading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
+              disabled={uploading}
+              onClick={(e) => {
+                e.preventDefault();
+                if (!localStorage.getItem("token")) {
+                  showInfo("Bạn cần đăng nhập để tải lên CV!");
+                  setTimeout(() => {
+                    navigate("/login");
+                  }, 1200);
+                  return;
+                }
+                setUploading(true);
+                setTimeout(() => {
+                  setUploading(false);
+                  navigate("/analyze");
+                }, 1200);
+              }}
+            >
+              <FiUploadCloud className="w-6 h-6" />
+              Tải lên CV & nhận phân tích
+            </motion.button>
+
+            {/* Contact hint */}
+            <div className="mt-4 text-sm text-slate-600">
+              {loadingHome ? (
+                <span className="inline-block h-4 w-40 bg-slate-200 rounded animate-pulse" />
+              ) : (
+                <>
+                  Liên hệ: <span className="font-semibold">{phone}</span>
+                </>
+              )}
+            </div>
           </motion.div>
+
           <motion.img
             initial={{ scale: 0.88, opacity: 0, rotate: 10 }}
             animate={{ scale: 1, opacity: 1, rotate: 0 }}
@@ -130,11 +211,7 @@ const navigate = useNavigate();
                   src={img}
                   alt={`slide-${idx}`}
                   className="object-cover w-full h-[320px] md:h-[370px] rounded-xl mx-auto transition-all duration-300"
-                  style={{
-                    objectFit: "cover",
-                    maxHeight: 370,
-                    background: "#e5e5e5"
-                  }}
+                  style={{ objectFit: "cover", maxHeight: 370, background: "#e5e5e5" }}
                 />
               </div>
             ))}
@@ -157,16 +234,16 @@ const navigate = useNavigate();
           {[
             {
               icon: "https://cdn-icons-png.flaticon.com/512/300/300221.png",
-              label: "Tải CV của bạn"
+              label: "Tải CV của bạn",
             },
             {
               icon: "https://cdn-icons-png.flaticon.com/512/3523/3523063.png",
-              label: "Chúng tôi xử lý & phân tích kỹ năng còn thiếu"
+              label: "Chúng tôi xử lý & phân tích kỹ năng còn thiếu",
             },
             {
               icon: "https://cdn-icons-png.flaticon.com/512/929/929564.png",
-              label: "Nhận kết quả kỹ năng thiếu & gợi ý khóa học, công việc phù hợp"
-            }
+              label: "Nhận kết quả kỹ năng thiếu & gợi ý khóa học, công việc phù hợp",
+            },
           ].map((step, idx) => (
             <motion.div
               initial={{ opacity: 0, scale: 0.7 }}
@@ -180,9 +257,8 @@ const navigate = useNavigate();
                 <img src={step.icon} alt="" className="w-10 h-10 object-contain" />
               </div>
               <p className="text-sm text-indigo-900 text-center font-medium">{step.label}</p>
-              {/* Kẻ nối đẹp */}
               {idx !== 2 && (
-                <div className="hidden md:block absolute right-[-68px] top-1/2 -translate-y-1/2 h-1 w-14 bg-gradient-to-r from-indigo-200 to-indigo-400 opacity-80"></div>
+                <div className="hidden md:block absolute right-[-68px] top-1/2 -translate-y-1/2 h-1 w-14 bg-gradient-to-r from-indigo-200 to-indigo-400 opacity-80" />
               )}
             </motion.div>
           ))}
@@ -201,7 +277,7 @@ const navigate = useNavigate();
           Kết quả kỹ năng
         </motion.h3>
         <div className="flex flex-wrap justify-center gap-10">
-          {/* Pie Chart + % number */}
+          {/* Pie Chart */}
           <motion.div
             initial={{ opacity: 0, y: 40, scale: 0.96 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
@@ -235,12 +311,12 @@ const navigate = useNavigate();
               <CountUp end={skillPercent} />%
             </motion.div>
             <p className="mt-6 text-base text-gray-700 text-center">
-              Biểu đồ phần trăm phù hợp giữa kỹ năng của bạn và ngành công việc lựa chọn.<br />
+              Biểu đồ phần trăm phù hợp giữa kỹ năng của bạn và ngành công việc lựa chọn.
+              <br />
               Đưa ra chi tiết kỹ năng cần bổ sung để hoàn thiện.
             </p>
           </motion.div>
-         
-          {/* Job Suggestion */}
+
           <motion.div
             initial={{ opacity: 0, y: 30, scale: 0.94 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
@@ -255,7 +331,7 @@ const navigate = useNavigate();
             />
             <p className="font-semibold text-lg text-indigo-900">Đề xuất công việc phù hợp</p>
           </motion.div>
-           {/* Course Suggestion */}
+
           <motion.div
             initial={{ opacity: 0, y: 30, scale: 0.94 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
@@ -273,7 +349,7 @@ const navigate = useNavigate();
         </div>
       </section>
 
-      {/* Testimonials - Carousel */}
+      {/* Testimonials */}
       <section className="py-14 text-center bg-white px-4">
         <h3 className="text-2xl font-bold mb-8 text-indigo-900">Người dùng nói gì về chúng tôi?</h3>
         <div className="max-w-3xl mx-auto">
@@ -293,9 +369,7 @@ const navigate = useNavigate();
                     className="w-14 h-14 rounded-full mx-auto mb-3 ring-2 ring-indigo-200"
                   />
                   <p className="italic text-gray-800 mb-2">{t.text}</p>
-                  <p className="mt-2 text-yellow-500 text-lg">
-                    {"⭐️".repeat(t.stars)}
-                  </p>
+                  <p className="mt-2 text-yellow-500 text-lg">{"⭐️".repeat(t.stars)}</p>
                 </motion.div>
               </div>
             ))}

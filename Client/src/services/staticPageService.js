@@ -19,7 +19,7 @@ export const staticPageService = {
     },
     getHomePage: async () => {
         const resetonse = await apiService.get(ENDPOINTS.admin.pages.getHomePage);
-        return resetonse.result; // Returns {title, content}
+        return resetonse.result; // Returns [{title, content}]
        
     },
     getAboutUs: async () => {
