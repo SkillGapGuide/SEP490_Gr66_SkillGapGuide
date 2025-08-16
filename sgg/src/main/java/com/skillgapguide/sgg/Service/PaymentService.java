@@ -127,7 +127,6 @@ public class PaymentService {
     }
     public void confirmPaymentCassio(String json) throws Exception {
         try {
-            System.out.println("Xác nhận thanh toán từ Cassio: " + json);
             String status = "SUCCESS";
             JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
             JsonArray jsonArray = (JsonArray) jsonObject.get("data");
