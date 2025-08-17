@@ -66,7 +66,7 @@ const AnalyzeResult = () => {
   const NOT_SUITABLE_LABEL = "Không có";
   const NA_LABEL = "Không áp dụng "; // Nếu bạn thích có thể dịch thành "Không áp dụng"
   const [favoriteSkillIds, setFavoriteSkillIds] = useState([]);
-
+const analysisError = useAnalysisStore((s) => s.analysisError);
 
   // Chạy flow khi flag analysisNeedRun = true
   useEffect(() => {
@@ -148,6 +148,21 @@ const AnalyzeResult = () => {
 
   // Render phần job list (show từng job skeleton/loading/real data)
   const renderJobsSection = () => {
+       // Nếu Step 3 fail (mảng rỗng do AI fail) → show lỗi, không render skeleton
+   if (analysisError?.step === "jobList") {
+     return (
+       <div className="border rounded-xl bg-red-50 p-6 my-6 text-center">
+         <h2 className="text-red-700 font-bold mb-2">Không lấy được danh sách công việc</h2>
+         <p className="text-red-700">{analysisError.message}</p>
+         <button
+           onClick={() => setAnalysisNeedRun(true)}
+           className="mt-4 px-4 py-2 rounded bg-red-600 text-white font-semibold"
+         >
+           Thử lại
+         </button>
+       </div>
+     );
+   }
     if (isJobListLoading) {
       return Array.from({ length: 2 }).map((_, idx) => (
         <div key={idx}>
@@ -180,7 +195,7 @@ const AnalyzeResult = () => {
     if (!jobList || jobList.length === 0) {
       return (
         <p className="text-gray-400 italic">
-          Đang trong quá trình phân tích bạn vui lòng chờ trong giây lát nhé{" "}
+         Không tìm thấy công việc phù hợp.{" "}
         </p>
       );
     }
