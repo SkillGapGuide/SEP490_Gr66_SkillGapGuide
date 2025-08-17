@@ -35,6 +35,7 @@ export async function runAnalysisFlowOnce({
     setIsSkillsLoading,
     setIsJobListLoading,
     setJobsLoading,
+    setAnalysisError,
     clearAll
   } = useAnalysisStore.getState();
 
@@ -61,14 +62,38 @@ export async function runAnalysisFlowOnce({
     // Step 2: Phân tích job (backend chuẩn bị dữ liệu)
     onJobListStart?.();
     setIsJobListLoading(true);
-    await analyzeJobByOption(selectedOption);
+     let jobs = [];
+   try {
+     await analyzeJobByOption(selectedOption);
+     const jobRes = await skillGapService.getJobList();
+     jobs = jobRes.result || [];
 
-    // Step 3: Lấy danh sách công việc
-    const jobRes = await skillGapService.getJobList();
-    const jobs = jobRes.result || [];
-    setJobList(jobs);
-    setIsJobListLoading(false);
-    onJobListDone?.();
+     if (!jobs.length) {
+       // ĐÁNH DẤU LỖI PHÂN TÍCH
+       setJobList([]); // đảm bảo rỗng
+       setAnalysisError({
+         step: "jobList",
+         code: "AI_ANALYSIS_EMPTY_RESULT",
+         message: "AI phân tích thất bại hoặc không tìm thấy công việc phù hợp.",
+       });
+       showError("Không lấy được danh sách công việc. Vui lòng thử lại hoặc đổi tuỳ chọn phân tích.");
+       return onFinish?.(); // dừng flow tại đây
+     }
+
+     setJobList(jobs);
+   } catch (e) {
+     setJobList([]);
+     setAnalysisError({
+       step: "jobList",
+       code: e?.code || "JOB_LIST_FETCH_FAILED",
+       message: e?.message || "Không lấy được danh sách công việc.",
+     });
+     showError("Không lấy được danh sách công việc.");
+     return onFinish?.(); // dừng flow
+   } finally {
+     setIsJobListLoading(false);
+     onJobListDone?.();
+   }
   if (jobs.length && cvId) {
       try {
         const matchScoreRes = await skillGapService.getJobMatchScore();
