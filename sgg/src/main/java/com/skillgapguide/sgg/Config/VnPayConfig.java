@@ -13,10 +13,14 @@ public class VnPayConfig {
     @Value("${vnpay.url}")
     private String payUrl;
 
-    @Value("${vnpay.returnUrl}")
-    private String returnUrl;
+    @Value("${application.web-url}")
+    private String webUrl;
 
     // Getters
+    public String getReturnUrl() {
+        return webUrl + "/api/payment/vnpay-return";
+    }
+
     public String getTmnCode() {
         return tmnCode;
     }
@@ -27,9 +31,5 @@ public class VnPayConfig {
 
     public String getPayUrl() {
         return payUrl;
-    }
-
-    public String getReturnUrl() {
-        return returnUrl;
     }
 }
