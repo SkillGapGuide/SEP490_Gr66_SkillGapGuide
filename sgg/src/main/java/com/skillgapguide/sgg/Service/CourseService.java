@@ -2,7 +2,6 @@ package com.skillgapguide.sgg.Service;
 
 
 import com.skillgapguide.sgg.Dto.CourseDTO;
-import com.skillgapguide.sgg.Dto.ScrapeResultDTO;
 import com.skillgapguide.sgg.Entity.Course;
 import com.skillgapguide.sgg.Entity.UserFavoriteCourse;
 import com.skillgapguide.sgg.Repository.CourseRepository;
@@ -17,23 +16,14 @@ import org.jsoup.select.Elements;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.devtools.DevTools;
-import org.openqa.selenium.devtools.v136.network.Network;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import com.github.javafaker.Faker;
-import com.github.mabinogi233.undetected_chromedriver.ChromeDriverBuilder;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
@@ -206,58 +196,68 @@ public class CourseService {
 //        }
 //        return new ScrapeResultDTO(scrapedCourses, logs);
 //    }
-    public Map<String, List<Course>> scrapeCoursesGroupedByJobSkill(int numPages, int numItems, Integer cvId) {
-        Map<String, List<Course>> result = new LinkedHashMap<>();
-        List<String> jobSkills = courseRepository.findJobSkillsByCvId(cvId);
-        if (jobSkills == null || jobSkills.isEmpty()) {
-            logger.warn("Không có job skill nào cho CV id {}", cvId);
-            return result;
-        }
-
-        WebDriver driver = createChromeDriver();
-        try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
-            int skillIdx = 0;
-            for (String keyword : jobSkills) {
-                logger.info("\n\n===== BẮT ĐẦU scrape skill: {} =====", keyword);
-                List<Course> coursesForSkill = new ArrayList<>();
-                for (int page = 1; page <= numPages; page++) {
-                    boolean pageScrapedSuccessfully = false;
-                    for (int attempt = 1; attempt <= RETRY_COUNT; attempt++) {
-                        try {
-                            List<Course> pageCourses = scrapePageAndReturnCourses(driver, wait, page, numItems, keyword);
-                            coursesForSkill.addAll(pageCourses);
-                            pageScrapedSuccessfully = true;
-                            if (!pageCourses.isEmpty()) randomSleep(PAGE_DELAY_MIN, PAGE_DELAY_MAX);
-                            logger.info("Đã lấy xong page {} keyword {}", page, keyword);
-                            break; // Thành công
-                        } catch (Exception e) {
-                            logger.warn("Lỗi ở page {} keyword {} lần thử {}: {}", page, keyword, attempt, e.getMessage());
-                            if (entityManager != null) entityManager.clear();
-                            randomSleep(1000, 2000);
-                        }
-                    }
-                    if (!pageScrapedSuccessfully) {
-                        logger.error("BỎ QUA page {} của skill {} (sau {} lần thử)", page, keyword, RETRY_COUNT);
-                    }
-                }
-                result.put(keyword, coursesForSkill);
-
-                // Định kỳ reset driver tránh memory leak khi crawl dài
-                skillIdx++;
-                if (skillIdx % 5 == 0 && skillIdx < jobSkills.size()) {
-                    logger.info("*** Reset Chrome Driver sau {} kỹ năng!", skillIdx);
-                    driver.quit();
-                    driver = createChromeDriver();
-                    wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
-                }
-            }
-        } finally {
-            if (driver != null) driver.quit();
-        }
-        logger.info("== HOÀN THÀNH scrape cho {} job skills ==", jobSkills.size());
+public Map<String, List<Course>> scrapeCoursesGroupedByJobSkill(int numPages, int numItems, Integer cvId) {
+    Map<String, List<Course>> result = new LinkedHashMap<>();
+    List<String> jobSkills = courseRepository.findJobSkillsByCvId(cvId);
+    int skillIdx = 0;
+    if (jobSkills == null || jobSkills.isEmpty()) {
+        logger.warn("Không có job skill nào cho CV id {}", cvId);
         return result;
     }
+
+    WebDriver driver = createChromeDriver();
+    try {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
+        for (String keyword : jobSkills) {
+            logger.info("\n\n===== BẮT ĐẦU scrape skill: {} =====", keyword);
+            List<Course> coursesForSkill = new ArrayList<>();
+
+            for (int page = 1; page <= numPages; page++) {
+                String pageUrl = buildSearchUrl(page, keyword);
+                loadPageAndWait(driver, wait, pageUrl);
+                List<String> courseUrls = extractCourseUrls(driver, numItems);
+
+                logger.info("[{}] Đã tìm url courses: {}", keyword, courseUrls.size());
+                for (String courseUrl : courseUrls) {
+                    try {
+                        Optional<Course> existingCourse = courseRepository.findCourseByUrl(courseUrl);
+                        Course course;
+
+                        if (existingCourse.isPresent()) {
+                            course = existingCourse.get();
+                            logger.info("Đã lấy từ DB: {}", course.getTitle());
+                        } else {
+                            course = scrapeCourseDetails(driver, wait, courseUrl);
+                            if (course != null) {
+                                courseRepository.save(course);
+                                logger.info("Saved course: {}", course.getTitle());
+                            }
+                        }
+                        if (course != null) {
+                            coursesForSkill.add(course);
+                        }
+                        randomSleep(COURSE_DELAY_MIN, COURSE_DELAY_MAX);
+                    } catch (Exception e) {
+                        logger.error("Lỗi khi xử lý khóa học {}: {}", courseUrl, e.getMessage());
+                    }
+                }
+                randomSleep(PAGE_DELAY_MIN, PAGE_DELAY_MAX);
+            }
+            result.put(keyword, coursesForSkill);
+            skillIdx++;
+            if (skillIdx % 5 == 0 && skillIdx < jobSkills.size()) {
+                logger.info("*** Reset Chrome Driver sau {} kỹ năng!", skillIdx);
+                driver.quit();
+                driver = createChromeDriver();
+                wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
+            }
+        }
+    } finally {
+        if (driver != null) driver.quit();
+        logger.info("== HOÀN THÀNH scrape cho {} job skills ==", jobSkills.size());
+    }
+    return result;
+}
     private List<Course> scrapePageAndReturnCourses(WebDriver driver, WebDriverWait wait, int page, int numItems, String keyword) {
         List<Course> courses = new ArrayList<>();
         String pageUrl = buildSearchUrl(page, keyword);
@@ -336,17 +336,15 @@ public class CourseService {
         if (links.isEmpty()) {
             links = doc.select("a.ud-link-neutral.ud-custom-focus-visible");
         }
+
         List<String> courseUrls = new ArrayList<>();
         int count = Math.min(numItems, links.size());
         for (int i = 0; i < count; i++) {
             String href = links.get(i).attr("href");
             if (href.startsWith("/course/")) {
                 String courseUrl = BASE_URL + href.split("\\?")[0];
-                if (!courseRepository.existsCourseByUrl(courseUrl)) {
-                    courseUrls.add(courseUrl);
-                } else {
-                    logger.debug("Khóa học đã tồn tại: {}", courseUrl);
-                }
+                // KHÔNG lọc course đã tồn tại, luôn add vào. courseRepository.findCourseByUrl sẽ xử lý ở bước sau
+                courseUrls.add(courseUrl);
             }
         }
         return courseUrls;
