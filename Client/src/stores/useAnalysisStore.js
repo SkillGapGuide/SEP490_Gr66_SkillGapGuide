@@ -10,6 +10,8 @@ export const useAnalysisStore = create(
       setSkills: (skills) => set({ skills }),
       isSkillsLoading: false,
       setIsSkillsLoading: (v) => set({ isSkillsLoading: v }),
+       analysisError: null,
+    setAnalysisError: (analysisError) => set({ analysisError }),
 
       // Job list (chỉ danh sách công việc)
       jobList: [],
@@ -35,7 +37,8 @@ export const useAnalysisStore = create(
         isSkillsLoading: false,
         isJobListLoading: false,
         jobsLoading: {},
-        isAnalysisLoading: false
+        isAnalysisLoading: false,
+        analysisError: null,
       }),
     }),
     {
