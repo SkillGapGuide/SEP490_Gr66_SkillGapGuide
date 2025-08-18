@@ -23,7 +23,7 @@ public class JobController {
     @Autowired
     private JobService jobService;
     @PostMapping(value="/upload-jd", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Response<?> uploadCv(
+    public Response<?> uploadJd(
             @Parameter(
                     description = "Tối đa 5 file CV (.pdf, .docx)",
                     content = @Content(
