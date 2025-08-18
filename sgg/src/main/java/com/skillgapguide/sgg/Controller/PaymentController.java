@@ -60,7 +60,7 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final SubscriptionRepository subscriptionRepository;
     private final UserSubscriptionHistoryRepository userSubscriptionHistoryRepository;
-    @Value("${application.frontend-url}")
+    @Value("https://skillgapguide.engine.pro.vn")
     private String frontendUrl;
     @GetMapping("/filter")
     public Response<Page<PaymentDTO>> filterPaymentsByStatus(
