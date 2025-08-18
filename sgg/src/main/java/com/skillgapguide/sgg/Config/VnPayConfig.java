@@ -18,7 +18,7 @@ public class VnPayConfig {
 
     // Getters
     public String getReturnUrl() {
-        return webUrl + "/api/payment/vnpay-return";
+        return webUrl + "api/payment/vnpay-return";
     }
 
     public String getTmnCode() {
