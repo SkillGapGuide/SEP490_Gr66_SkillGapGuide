@@ -87,7 +87,6 @@ echo "[6/7] Create or reuse virtualenv at ${VENV_DIR}..."
 python3 -m venv "${VENV_DIR}"
 # shellcheck disable=SC1091
 source "${VENV_DIR}/bin/activate"
-python -m pip install --upgrade pip
 
 echo "[7/7] Clone/update repo and install Python deps..."
 cd "${WORKDIR}"
@@ -118,7 +117,8 @@ pip install \
   "uvicorn[standard]==0.30.1" \
   pydantic==2.9.2 \
   sentence-transformers==3.0.1 \
-  transformers==4.44.2
+  transformers==4.44.2 \
+  einops
 
 
 echo "Done. ✅"
