@@ -11,6 +11,11 @@ public class SkillMatchResultDTO {
         this.jobSkill = jobSkill;
         this.score = score;
     }
+
+    public SkillMatchResultDTO() {
+
+    }
+
     @Override
     public String toString() {
         return "{" +
