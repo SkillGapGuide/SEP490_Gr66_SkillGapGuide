@@ -2,6 +2,7 @@ package com.skillgapguide.sgg.Service;
 
 
 import com.skillgapguide.sgg.Dto.CourseDTO;
+import com.skillgapguide.sgg.Dto.ScrapeGroupedResultDTO;
 import com.skillgapguide.sgg.Entity.Course;
 import com.skillgapguide.sgg.Entity.UserFavoriteCourse;
 import com.skillgapguide.sgg.Repository.CourseRepository;
@@ -165,7 +166,7 @@ public class CourseService {
         logger.info("Removed all favorite courses for userId={}", userId);
     }
 
-//    public ScrapeResultDTO scrapeAndSaveCoursesByCvId(int numPages, int numItems, Integer cvId) {
+    //    public ScrapeResultDTO scrapeAndSaveCoursesByCvId(int numPages, int numItems, Integer cvId) {
 //        List<Course> scrapedCourses = new ArrayList<>();
 //        List<String> logs = new ArrayList<>();
 //        List<String> jobSkills = courseRepository.findJobSkillsByCvId(cvId);
@@ -196,68 +197,85 @@ public class CourseService {
 //        }
 //        return new ScrapeResultDTO(scrapedCourses, logs);
 //    }
-public Map<String, List<Course>> scrapeCoursesGroupedByJobSkill(int numPages, int numItems, Integer cvId) {
-    Map<String, List<Course>> result = new LinkedHashMap<>();
-    List<String> jobSkills = courseRepository.findJobSkillsByCvId(cvId);
-    int skillIdx = 0;
-    if (jobSkills == null || jobSkills.isEmpty()) {
-        logger.warn("Không có job skill nào cho CV id {}", cvId);
-        return result;
-    }
+    public ScrapeGroupedResultDTO scrapeCoursesGroupedByJobSkill(int numPages, int numItems, Integer cvId) {
+        Map<String, List<Course>> result = new LinkedHashMap<>();
+        List<String> jobSkills = courseRepository.findJobSkillsByCvId(cvId);
+        int skillIdx = 0;
+        boolean timeout = false;
+        long startTime = System.currentTimeMillis();
 
-    WebDriver driver = createChromeDriver();
-    try {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
-        for (String keyword : jobSkills) {
-            logger.info("\n\n===== BẮT ĐẦU scrape skill: {} =====", keyword);
-            List<Course> coursesForSkill = new ArrayList<>();
-
-            for (int page = 1; page <= numPages; page++) {
-                String pageUrl = buildSearchUrl(page, keyword);
-                loadPageAndWait(driver, wait, pageUrl);
-                List<String> courseUrls = extractCourseUrls(driver, numItems);
-
-                logger.info("[{}] Đã tìm url courses: {}", keyword, courseUrls.size());
-                for (String courseUrl : courseUrls) {
-                    try {
-                        Optional<Course> existingCourse = courseRepository.findCourseByUrl(courseUrl);
-                        Course course;
-
-                        if (existingCourse.isPresent()) {
-                            course = existingCourse.get();
-                            logger.info("Đã lấy từ DB: {}", course.getTitle());
-                        } else {
-                            course = scrapeCourseDetails(driver, wait, courseUrl);
-                            if (course != null) {
-                                courseRepository.save(course);
-                                logger.info("Saved course: {}", course.getTitle());
-                            }
-                        }
-                        if (course != null) {
-                            coursesForSkill.add(course);
-                        }
-                        randomSleep(COURSE_DELAY_MIN, COURSE_DELAY_MAX);
-                    } catch (Exception e) {
-                        logger.error("Lỗi khi xử lý khóa học {}: {}", courseUrl, e.getMessage());
-                    }
-                }
-                randomSleep(PAGE_DELAY_MIN, PAGE_DELAY_MAX);
-            }
-            result.put(keyword, coursesForSkill);
-            skillIdx++;
-            if (skillIdx % 5 == 0 && skillIdx < jobSkills.size()) {
-                logger.info("*** Reset Chrome Driver sau {} kỹ năng!", skillIdx);
-                driver.quit();
-                driver = createChromeDriver();
-                wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
-            }
+        if (jobSkills == null || jobSkills.isEmpty()) {
+            logger.warn("Không có job skill nào cho CV id {}", cvId);
+            return new ScrapeGroupedResultDTO(result, "Không có kỹ năng nào để cào!");
         }
-    } finally {
-        if (driver != null) driver.quit();
-        logger.info("== HOÀN THÀNH scrape cho {} job skills ==", jobSkills.size());
+
+        WebDriver driver = createChromeDriver();
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
+            for (String keyword : jobSkills) {
+                if (System.currentTimeMillis() - startTime > 120_000) { // quá 2 phút
+                    timeout = true;
+                    break;
+                }
+                logger.info("\n\n===== BẮT ĐẦU scrape skill: {} =====", keyword);
+                List<Course> coursesForSkill = new ArrayList<>();
+                for (int page = 1; page <= numPages; page++) {
+                    if (System.currentTimeMillis() - startTime > 120_000) { // quá 2 phút
+                        timeout = true;
+                        break;
+                    }
+                    String pageUrl = buildSearchUrl(page, keyword);
+                    loadPageAndWait(driver, wait, pageUrl);
+                    List<String> courseUrls = extractCourseUrls(driver, numItems);
+                    logger.info("[{}] Đã tìm url courses: {}", keyword, courseUrls.size());
+                    for (String courseUrl : courseUrls) {
+                        try {
+                            Optional<Course> existingCourse = courseRepository.findCourseByUrl(courseUrl);
+                            Course course;
+                            if (existingCourse.isPresent()) {
+                                course = existingCourse.get();
+                                logger.info("Đã lấy từ DB: {}", course.getTitle());
+                            } else {
+                                course = scrapeCourseDetails(driver, wait, courseUrl);
+                                if (course != null) {
+                                    courseRepository.save(course);
+                                    logger.info("Saved course: {}", course.getTitle());
+                                }
+                            }
+                            if (course != null) {
+                                coursesForSkill.add(course);
+                            }
+                            randomSleep(COURSE_DELAY_MIN, COURSE_DELAY_MAX);
+                        } catch (Exception e) {
+                            logger.error("Lỗi khi xử lý khóa học {}: {}", courseUrl, e.getMessage());
+                        }
+                    }
+                    randomSleep(PAGE_DELAY_MIN, PAGE_DELAY_MAX);
+                }
+                result.put(keyword, coursesForSkill);
+                skillIdx++;
+                if (skillIdx % 5 == 0 && skillIdx < jobSkills.size()) {
+                    logger.info("*** Reset Chrome Driver sau {} kỹ năng!", skillIdx);
+                    driver.quit();
+                    driver = createChromeDriver();
+                    wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
+                }
+            }
+        } finally {
+            if (driver != null) driver.quit();
+            logger.info("== HOÀN THÀNH scrape cho {} job skills ==", jobSkills.size());
+        }
+
+        // Xây dựng message
+        String message;
+        if (timeout) {
+            message = "Vì giới hạn thời gian là 2 phút nên đã cào được " + skillIdx + "/" + jobSkills.size() + " kỹ năng";
+        } else {
+            message = "Đã cào đủ tất cả kỹ năng (" + jobSkills.size() + "/" + jobSkills.size() + ")";
+        }
+        return new ScrapeGroupedResultDTO(result, message);
     }
-    return result;
-}
+
     private List<Course> scrapePageAndReturnCourses(WebDriver driver, WebDriverWait wait, int page, int numItems, String keyword) {
         List<Course> courses = new ArrayList<>();
         String pageUrl = buildSearchUrl(page, keyword);
@@ -350,7 +368,7 @@ public Map<String, List<Course>> scrapeCoursesGroupedByJobSkill(int numPages, in
         return courseUrls;
     }
 
-//    private void processCourses(WebDriver driver, WebDriverWait wait, List<String> courseUrls, Logger logger) {
+    //    private void processCourses(WebDriver driver, WebDriverWait wait, List<String> courseUrls, Logger logger) {
 //        for (int i = 0; i < courseUrls.size(); i++) {
 //            String courseUrl = courseUrls.get(i);
 //            try {
@@ -370,6 +388,7 @@ public Map<String, List<Course>> scrapeCoursesGroupedByJobSkill(int numPages, in
 //    }
     private static final int DESCRIPTION_MAX_LENGTH = 6000;
     private static final int DIFFICULTY_MAX_LENGTH = 2000;
+
     private Course scrapeCourseDetails(WebDriver driver, WebDriverWait wait, String courseUrl) {
         driver.get(courseUrl);
         wait.until(ExpectedConditions.visibilityOfElementLocated(
@@ -427,6 +446,7 @@ public Map<String, List<Course>> scrapeCoursesGroupedByJobSkill(int numPages, in
         );
         return options;
     }
+
     private static String getRandomUserAgent() {
         return USER_AGENTS[ThreadLocalRandom.current().nextInt(USER_AGENTS.length)];
     }
@@ -449,8 +469,13 @@ public Map<String, List<Course>> scrapeCoursesGroupedByJobSkill(int numPages, in
     private void randomSleep(int min, int max) {
         sleep(ThreadLocalRandom.current().nextInt(min, max + 1));
     }
+
     private void sleep(int milliseconds) {
-        try { Thread.sleep(milliseconds); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     // Constants

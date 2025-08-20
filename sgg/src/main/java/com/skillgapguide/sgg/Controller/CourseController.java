@@ -1,6 +1,7 @@
 package com.skillgapguide.sgg.Controller;
 
 import com.skillgapguide.sgg.Dto.CourseDTO;
+import com.skillgapguide.sgg.Dto.ScrapeGroupedResultDTO;
 import com.skillgapguide.sgg.Dto.ScrapeResultDTO;
 import com.skillgapguide.sgg.Entity.Course;
 import com.skillgapguide.sgg.Entity.UserFavoriteCourse;
@@ -102,10 +103,14 @@ public class CourseController {
                                                       @RequestParam(defaultValue = "9") int numItems,
                                                       @RequestParam int cvId) {
         try {
-            Map<String, List<Course>> result = courseService.scrapeCoursesGroupedByJobSkill(numPages, numItems, cvId);
-            return new Response<>(EHttpStatus.OK, "Đã cào và lưu thành công course", result);
+            ScrapeGroupedResultDTO result = courseService.scrapeCoursesGroupedByJobSkill(numPages, numItems, cvId);
+            return new Response<>(
+                    EHttpStatus.OK,
+                    result.getMessage(),
+                    result.getData()
+            );
         } catch (Exception e) {
             return new Response<>(EHttpStatus.BAD_REQUEST, "Lỗi xảy ra khi cào dữ liệu: " + e.getMessage(), null);
-        }
+    }
     }
 }
