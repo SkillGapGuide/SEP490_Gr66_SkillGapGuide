@@ -166,37 +166,91 @@ public class CourseService {
         logger.info("Removed all favorite courses for userId={}", userId);
     }
 
-    //    public ScrapeResultDTO scrapeAndSaveCoursesByCvId(int numPages, int numItems, Integer cvId) {
-//        List<Course> scrapedCourses = new ArrayList<>();
-//        List<String> logs = new ArrayList<>();
-//        List<String> jobSkills = courseRepository.findJobSkillsByCvId(cvId);
-//        if (jobSkills == null || jobSkills.isEmpty()) {
-//            logs.add("Không tìm thấy jobSkill nào cho cvId=" + cvId);
-//            return new ScrapeResultDTO(scrapedCourses, logs);
-//        }
-//
-//        WebDriver driver = createChromeDriver();
-//        try {
-//            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
-//            for (String keyword : jobSkills) {
-//                for (int page = 1; page <= numPages; page++) {
-//                    try {
-//                        List<Course> pageCourses = scrapePageAndReturnCourses(driver, wait, page, numItems, keyword, logs);
-//                        scrapedCourses.addAll(pageCourses);
-//                        if (!pageCourses.isEmpty()) {
-//                            randomSleep(PAGE_DELAY_MIN, PAGE_DELAY_MAX);
-//                        }
-//                    } catch (Exception e) {
-//                        logs.add("Lỗi khi xử lý trang " + page + ": " + e.getMessage());
-//                        entityManager.clear();
-//                    }
-//                }
-//            }
-//        } finally {
-//            if (driver != null) driver.quit();
-//        }
-//        return new ScrapeResultDTO(scrapedCourses, logs);
-//    }
+    public ScrapeGroupedResultDTO scrapeCoursesBySkillBatch(
+            int numPages,
+            int numItems,
+            Integer cvId,
+            int offset,
+            int limit,
+            int maxMinutes
+    ) {
+        Map<String, List<Course>> result = new LinkedHashMap<>();
+        List<String> jobSkills = courseRepository.findJobSkillsByCvIdWithOffset(cvId, offset, limit);
+        int skillIdx = 0;
+        boolean timeout = false;
+        long startTime = System.currentTimeMillis();
+        long maxTime = 3 * 60 * 1000L;
+
+        if (jobSkills == null || jobSkills.isEmpty()) {
+            logger.warn("Không có job skill nào cho CV id {} với offset {}", cvId, offset);
+            return new ScrapeGroupedResultDTO(result, "Không có kỹ năng nào để cào!");
+        }
+
+        WebDriver driver = createChromeDriver();
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
+            for (String keyword : jobSkills) {
+                if (System.currentTimeMillis() - startTime > maxTime) {
+                    timeout = true;
+                    break;
+                }
+                logger.info("\n\n===== BẮT ĐẦU scrape skill: {} =====", keyword);
+                List<Course> coursesForSkill = new ArrayList<>();
+                for (int page = 1; page <= numPages; page++) {
+                    if (System.currentTimeMillis() - startTime > maxTime) {
+                        timeout = true;
+                        break;
+                    }
+                    String pageUrl = buildSearchUrl(page, keyword);
+                    loadPageAndWait(driver, wait, pageUrl);
+                    List<String> courseUrls = extractCourseUrls(driver, numItems);
+                    logger.info("[{}] Đã tìm url courses: {}", keyword, courseUrls.size());
+                    for (String courseUrl : courseUrls) {
+                        try {
+                            Optional<Course> existingCourse = courseRepository.findCourseByUrl(courseUrl);
+                            Course course;
+                            if (existingCourse.isPresent()) {
+                                course = existingCourse.get();
+                                logger.info("Đã lấy từ DB: {}", course.getTitle());
+                            } else {
+                                course = scrapeCourseDetails(driver, wait, courseUrl);
+                                if (course != null) {
+                                    courseRepository.save(course);
+                                    logger.info("Saved course: {}", course.getTitle());
+                                }
+                            }
+                            if (course != null) {
+                                coursesForSkill.add(course);
+                            }
+                            randomSleep(COURSE_DELAY_MIN, COURSE_DELAY_MAX);
+                        } catch (Exception e) {
+                            logger.error("Lỗi khi xử lý khóa học {}: {}", courseUrl, e.getMessage());
+                        }
+                    }
+                    randomSleep(PAGE_DELAY_MIN, PAGE_DELAY_MAX);
+                }
+                result.put(keyword, coursesForSkill);
+                skillIdx++;
+                if (skillIdx % 5 == 0 && skillIdx < jobSkills.size()) {
+                    logger.info("*** Reset Chrome Driver sau {} kỹ năng!", skillIdx);
+                    driver.quit();
+                    driver = createChromeDriver();
+                    wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
+                }
+            }
+        } finally {
+            if (driver != null) driver.quit();
+            logger.info("== HOÀN THÀNH scrape cho {} job skills ==", jobSkills.size());
+        }
+
+        String message;
+        if (timeout) {
+            message = "Vì giới hạn thời gian là " + maxMinutes + " phút nên đã cào được " + skillIdx + "/" + jobSkills.size() + " kỹ năng";
+        } else {
+            message = "Đã cào đủ " + jobSkills.size() + "/" + jobSkills.size() + " kỹ năng batch (offset " + offset + ")";
+        }
+        return new ScrapeGroupedResultDTO(result, message);
+    }
     public ScrapeGroupedResultDTO scrapeCoursesGroupedByJobSkill(int numPages, int numItems, Integer cvId) {
         Map<String, List<Course>> result = new LinkedHashMap<>();
         List<String> jobSkills = courseRepository.findJobSkillsByCvId(cvId);
