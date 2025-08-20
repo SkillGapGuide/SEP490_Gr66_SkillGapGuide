@@ -113,4 +113,47 @@ public class CourseController {
             return new Response<>(EHttpStatus.BAD_REQUEST, "Lỗi xảy ra khi cào dữ liệu: " + e.getMessage(), null);
     }
     }
+    @PostMapping("/scrapeBatch1")
+    public Response<?> scrapeBatch1(
+            @RequestParam(defaultValue = "1") int numPages,
+            @RequestParam(defaultValue = "9") int numItems,
+            @RequestParam int cvId
+    ) {
+        try {
+            ScrapeGroupedResultDTO result = courseService.scrapeCoursesBySkillBatch(numPages, numItems, cvId, 0, 10, 3);
+            return new Response<>(EHttpStatus.OK, result.getMessage(), result.getData());
+        } catch (Exception e) {
+            return new Response<>(EHttpStatus.BAD_REQUEST, "Lỗi xảy ra khi cào dữ liệu: " + e.getMessage(), null);
+        }
+    }
+
+    // Đợt 2: scrape 10 skills tiếp theo, giới hạn 3 phút
+    @PostMapping("/scrapeBatch2")
+    public Response<?> scrapeBatch2(
+            @RequestParam(defaultValue = "1") int numPages,
+            @RequestParam(defaultValue = "9") int numItems,
+            @RequestParam int cvId
+    ) {
+        try {
+            ScrapeGroupedResultDTO result = courseService.scrapeCoursesBySkillBatch(numPages, numItems, cvId, 10, 10, 3);
+            return new Response<>(EHttpStatus.OK, result.getMessage(), result.getData());
+        } catch (Exception e) {
+            return new Response<>(EHttpStatus.BAD_REQUEST, "Lỗi xảy ra khi cào dữ liệu: " + e.getMessage(), null);
+        }
+    }
+
+    // Đợt 3: scrape 10 skills cuối cùng, giới hạn 3 phút
+    @PostMapping("/scrapeBatch3")
+    public Response<?> scrapeBatch3(
+            @RequestParam(defaultValue = "1") int numPages,
+            @RequestParam(defaultValue = "9") int numItems,
+            @RequestParam int cvId
+    ) {
+        try {
+            ScrapeGroupedResultDTO result = courseService.scrapeCoursesBySkillBatch(numPages, numItems, cvId, 20, 10, 3);
+            return new Response<>(EHttpStatus.OK, result.getMessage(), result.getData());
+        } catch (Exception e) {
+            return new Response<>(EHttpStatus.BAD_REQUEST, "Lỗi xảy ra khi cào dữ liệu: " + e.getMessage(), null);
+        }
+    }
 }
