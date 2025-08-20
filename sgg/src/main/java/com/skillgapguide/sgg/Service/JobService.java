@@ -12,6 +12,7 @@ import com.skillgapguide.sgg.Response.Response;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -194,7 +195,16 @@ JD:
         }
         return jobRepository.getJobsByCvId(cv.getId());
     }
-
+    public List<Job> getJobs() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalStateException("User not found"));
+        Cv cv = cvRepository.findByUserId(user.getUserId());
+        if (cv == null) {
+            throw new IllegalStateException("CV not found");
+        }
+        return jobRepository.getJobsByCvId(cv.getId());
+    }
     public void analyzeJobDescription(int option) throws IOException {
         String email = SecurityContextHolder.getContext().getAuthentication().getName(); // lấy từ JWT
         Integer userId = userRepository.findByEmail(email).map(User::getUserId).orElseThrow(() -> new RuntimeException("User not found"));
