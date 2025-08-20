@@ -100,7 +100,9 @@ export const ENDPOINTS = {
   },
   course: {
   showCourse: "/api/courses/showCourse/{courseId}",
-  scrape: "/api/courses/scrape",
+  scrape: "/api/courses/scrapeBatch1",
+  scrapeMore1:"/api/courses/scrapeBatch2",
+  scrapeMore2:"/api/courses/scrapeBatch3",
   hideCourse: "/api/courses/hideCourse/{courseId}",
   changeFavoriteCourseStatus: "/api/courses/changeFavoriteCourseStatus/{courseId}/{userId}/{status}",
   addCourseToFavorites: "/api/courses/addCourseToFavorites/{userId}/{courseId}",

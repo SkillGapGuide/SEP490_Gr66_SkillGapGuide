@@ -11,8 +11,14 @@ export const courService = {
     return await apiService.get(`${ENDPOINTS.course.getAllCourses}?pageNo=${pageNo}&pageSize=${pageSize}`);
   },
 
-  scrapeAutomation: async (numPage=1, numItems=3,cvId) => {
+  scrapeAutomation: async (numPage=1, numItems=2,cvId) => {
     return await apiService.post(`${ENDPOINTS.course.scrape}?numPage=${numPage}&numItems=${numItems}&cvId=${cvId}`);
+  },
+  scrapeMore1: async (numPage=1, numItems=2,cvId) => {
+    return await apiService.post(`${ENDPOINTS.course.scrapeMore1}?numPage=${numPage}&numItems=${numItems}&cvId=${cvId}`);
+  },
+  scrapeMore2: async (numPage=1, numItems=2,cvId) => {
+    return await apiService.post(`${ENDPOINTS.course.scrapeMore2}?numPage=${numPage}&numItems=${numItems}&cvId=${cvId}`);
   },
   addCourseManually: async (data) => {
   // Validate và chuẩn hóa đầu vào

@@ -1,5 +1,6 @@
 import React, { useState, useContext, useRef } from "react";
 import { useCourseStore } from "../../stores/courseStore";
+import {useCVWizardStore } from "../../stores/cvWizardStore";
 import TopMenu from "./TopMenu";
 import { FaHeartCirclePlus, FaHeartCircleCheck } from "react-icons/fa6";
 import {
@@ -12,7 +13,7 @@ import {
 } from "lucide-react";
 import { courService } from "../../services/courService";
 import { UserContext } from "../../context/UserContext";
-import { showError, showSuccess, showConfirm } from "../../utils/alert";
+import { showError, showSuccess, showConfirm, showInfo } from "../../utils/alert";
 import { useNavigate } from "react-router-dom";
 
 const truncate = (text, maxLength = 120) =>
@@ -40,6 +41,15 @@ const SuggestedCourses = () => {
   const [favoriteLoading, setFavoriteLoading] = useState({});
   const skillRefs = useRef({});
   const navigate = useNavigate();
+const {
+  loadMoreCount,
+  isLoadMoreLoading,
+  setScrapedCourses,
+  setLoadMoreCount,
+  setIsLoadMoreLoading,
+} = useCourseStore();
+const {cvId}= useCVWizardStore.getState();
+const [count,setCount] = useState(0); 
 
   // ✅ Chỉ PREMIUM được xem
   const role = user?.role ?? "Free User";
@@ -72,6 +82,42 @@ const SuggestedCourses = () => {
       setFavoriteLoading((prev) => ({ ...prev, [courseId]: false }));
     }
   };
+  const handleLoadMore = async () => {
+  if (!userId) return showError("Bạn cần đăng nhập.");
+
+  setIsLoadMoreLoading(true);
+  try {
+    let response;
+    if (loadMoreCount === 0) {
+      response = await courService.scrapeMore1(1, 2, cvId);
+      if (!response?.result || Object.keys(response.result).length === 0) {
+        return showInfo("Không còn khoá học nào để tải thêm!");
+      }
+    } else if (loadMoreCount === 1) {
+      response = await courService.scrapeMore2(1, 2, cvId);
+       if (!response?.result || Object.keys(response.result).length === 0) {
+        return showInfo("Không còn khoá học nào để tải thêm!");
+      }
+    } else {
+      return showInfo("Bạn đã lấy hết dữ liệu rồi!");
+    }
+
+    const newCourses = response?.data || {};
+
+    // merge thêm dữ liệu mới
+    setScrapedCourses({
+      ...scrapedCourses,
+      ...newCourses,
+    });
+
+    setLoadMoreCount(loadMoreCount + 1);
+  } catch (error) {
+    showError("Không thể tải thêm khoá học!");
+  } finally {
+    setIsLoadMoreLoading(false);
+  }
+};
+
 
   const handleSkillSidebarClick = (skill) => {
     const ref = skillRefs.current[skill];
@@ -115,7 +161,7 @@ const SuggestedCourses = () => {
         <div className="flex flex-col items-center justify-center min-h-[60vh] bg-white">
           <BookOpen className="animate-bounce mb-2 text-blue-500" size={36} />
           <span className="animate-pulse text-blue-700 font-semibold text-base">
-            Đang tìm kiếm khóa học phù hợp (quá trình này có thể mất 1-3
+            Đang tìm kiếm khóa học phù hợp (quá trình này có thể mất một vài
             phút)...
           </span>
         </div>
@@ -297,6 +343,25 @@ const SuggestedCourses = () => {
                     </div>
                   </div>
                 ))}
+                {/* ⬇️ Đặt đoạn này ở cuối danh sách */}
+  {isLoadMoreLoading && (
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
+      <CourseSkeletonCard />
+      <CourseSkeletonCard />
+    </div>
+  )}
+
+  {loadMoreCount < 2 && (
+    <div className="flex justify-center mt-8">
+      <button
+        onClick={handleLoadMore}
+        disabled={isLoadMoreLoading}
+        className="bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white px-6 py-2 rounded-lg shadow font-semibold"
+      > 
+        {isLoadMoreLoading ? "Đang tải..." : "Xem thêm khóa học"}
+      </button>
+    </div>
+  )}
               </div>
             </div>
           </div>
