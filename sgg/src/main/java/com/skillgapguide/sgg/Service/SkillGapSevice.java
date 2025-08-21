@@ -33,7 +33,9 @@ public class SkillGapSevice {
     }
     public CommentResponse getComment(int jobId, int cvId) throws JsonProcessingException {
         List<SkillMatchResultDTO> data = getMatchingResults(jobId,cvId);
-        String prompt = "Hãy đưa ra nhận xét chung tổng quát về ứng viên và yêu cầu tuyển dụng với mức phù hợp là 0.7. Nhận xét với riêng từng kỹ năng về kỹ năng của cv với lời khuyên để cải thiện và chỉ nhận xét với những kỹ năng dưới 0.7 . Chỉ trả về kết quả dưới dạng JSON theo mẫu sau, không thêm bất kỳ nội dung nào khác, không nhắc đến score cụ thể trong nhận xét:\n" +
+        String prompt = "Hãy đưa ra nhận xét chung tổng quát về ứng viên và yêu cầu tuyển dụng với mức phù hợp là 0.7. Nhận xét với riêng từng kỹ năng về kỹ năng của cv với lời khuyên để cải thiện và chỉ nhận xét với những kỹ năng dưới 0.7 " +
+                ". Yêu cầu trả lời bằng tiếng việt" +
+                ". Chỉ trả về kết quả dưới dạng JSON theo mẫu sau, không thêm bất kỳ nội dung nào khác, không nhắc đến score cụ thể trong nhận xét:\n" +
                 "{\n" +
                 "\"generalComment\":\"\",\n" +
                 "\"skillComment\":[\n" +

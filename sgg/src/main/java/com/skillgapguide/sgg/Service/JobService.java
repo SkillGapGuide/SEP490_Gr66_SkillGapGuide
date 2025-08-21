@@ -195,16 +195,6 @@ JD:
         }
         return jobRepository.getJobsByCvId(cv.getId());
     }
-    public List<Job> getJobs() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalStateException("User not found"));
-        Cv cv = cvRepository.findByUserId(user.getUserId());
-        if (cv == null) {
-            throw new IllegalStateException("CV not found");
-        }
-        return jobRepository.getJobsByCvId(cv.getId());
-    }
     public void analyzeJobDescription(int option) throws IOException {
         String email = SecurityContextHolder.getContext().getAuthentication().getName(); // lấy từ JWT
         Integer userId = userRepository.findByEmail(email).map(User::getUserId).orElseThrow(() -> new RuntimeException("User not found"));
