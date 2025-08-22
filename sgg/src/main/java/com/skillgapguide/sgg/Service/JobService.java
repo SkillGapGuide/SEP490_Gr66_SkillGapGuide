@@ -132,7 +132,8 @@ public class JobService {
                 String prompt = """
 Hãy phân tích nội dung JD dưới đây và trích xuất các thông tin sau:
 - Tên vị trí (title)
-- Mô tả công việc (description)
+- Viết lại mô tả công việc (description) bằng cách loại bỏ các phần phúc lợi, chế độ, địa điểm làm việc…
+NHƯNG phải giữ lại toàn bộ yêu cầu công việc và yêu cầu ứng viên (không được bỏ bớt ý).
 - Tên công ty (company)
 - Danh sách tất cả các kỹ năng yêu cầu (skills)
 Yêu cầu:
@@ -206,7 +207,6 @@ JD:
             }
             for (JobDesFile jobDesFile : jobDesFiles) {
                 Path path = Paths.get(jobDesFile.getFilePath());
-                String fileName = jobDesFile.getFileName();
                 extractJd(path.toAbsolutePath().toString(), userId, jobDesFile.getFileType());
             }
         } else if(option == 2|| option== 3){
@@ -216,13 +216,15 @@ JD:
             }
             for( Job job : jobList) {
                 String prompt = """
-Hãy phân tích nội dung JD dưới đây và trích xuất tất cả các kỹ năng yêu cầu của ứng viên.
+Hãy phân tích nội dung JD dưới đây và trích xuất tất cả các kỹ năng yêu cầu của ứng viên. Đồng thời viết lại mô tả công việc bằng cách loại bỏ các phần phúc lợi, chế độ, địa điểm làm việc…
+NHƯNG phải giữ lại toàn bộ yêu cầu công việc và yêu cầu ứng viên (không được bỏ bớt ý).
 Yêu cầu:
 - Giữ nguyên kỹ năng theo ngôn ngữ gốc của JD (nếu JD là tiếng Việt thì không được dịch sang tiếng Anh).
 - Chỉ trả về duy nhất định dạng JSON như sau, không thêm bất kỳ nội dung nào khác:
 {
-  "skills": [
-  ]
+"skills": [
+],
+"description":"..."
 }
 JD:
 """ + job.getDescription();
@@ -233,6 +235,8 @@ JD:
                     ExtractJDSkillDTO response = mapper.readValue(content, ExtractJDSkillDTO.class);
                     List<String> skills = response.getSkills();
                     saveJobSkillsToDb(skills, job.getJobId());
+                    job.setDescription(response.getDescription());
+                    jobRepository.save(job);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

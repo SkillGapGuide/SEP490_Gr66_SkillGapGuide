@@ -33,19 +33,27 @@ public class SkillGapSevice {
     }
     public CommentResponse getComment(int jobId, int cvId) throws JsonProcessingException {
         List<SkillMatchResultDTO> data = getMatchingResults(jobId,cvId);
-        String prompt = "Hãy đưa ra nhận xét chung tổng quát về ứng viên và yêu cầu tuyển dụng với mức phù hợp là 0.7. Nhận xét với riêng từng kỹ năng về kỹ năng của cv với lời khuyên để cải thiện và chỉ nhận xét với những kỹ năng dưới 0.7 " +
-                ". Yêu cầu trả lời bằng tiếng việt" +
-                ". Chỉ trả về kết quả dưới dạng JSON theo mẫu sau, không thêm bất kỳ nội dung nào khác, không nhắc đến score cụ thể trong nhận xét:\n" +
-                "{\n" +
-                "\"generalComment\":\"\",\n" +
-                "\"skillComment\":[\n" +
-                "\"skill\":\"\",\n" +
-                "\"comment\":\"\"\n" +
-                "]\n" +
-                "}\n" +
-                "Dữ liệu để nhận xét :\n" + data.toString() ;
+        String prompt = """
+Hãy đưa ra nhận xét chung tổng quát về ứng viên và yêu cầu tuyển dụng, giả định mức phù hợp tổng thể là 0.7. 
+- Viết nhận xét tổng quát ở phần "generalComment".
+- Với từng kỹ năng, chỉ viết nhận xét nếu điểm < 0.7. Trong nhận xét, đưa ra lời khuyên cải thiện, nhưng KHÔNG nhắc đến điểm số cụ thể.
+- Trả lời hoàn toàn bằng tiếng Việt.
+- Chỉ trả về kết quả dưới dạng JSON theo đúng mẫu sau, không thêm bất kỳ nội dung nào khác:
+
+{
+  "generalComment": "",
+  "skillComment": [
+    {
+      "skill": "",
+      "comment": ""
+    }
+  ]
+}
+
+Dữ liệu để nhận xét:
+""" + data.toString();
         OllamaService service = new OllamaService(WebClient.builder());
-        String resultAI = service.callMistralApi(prompt).block();
+        String resultAI = service.callMistralApiWithTemperature(prompt,1).block();
         ObjectMapper mapper = new ObjectMapper();
         CommentResponse result = mapper.readValue(resultAI, CommentResponse.class);
         return result;
