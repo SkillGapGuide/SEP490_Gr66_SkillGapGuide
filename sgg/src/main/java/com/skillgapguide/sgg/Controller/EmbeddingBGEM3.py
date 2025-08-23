@@ -19,6 +19,12 @@ def get_embedding(input: TextInput):
 def get_embedding(input: TextInput):
     vector = modelv2.encode(input.text).tolist()
     return {"embedding": vector}
+# @app.post("/embed_bgem3")
+# def embed_bgem3(input: TextInput):
+#     result = model.encode(input.text)
+#     dense_vector = result["dense_vecs"].tolist()   # chỉ lấy dense
+#     # sparse_vector = result["sparse_vecs"]        # nếu cần sparse thì thêm vào
+#     return {"embedding": dense_vector}
 # Chạy server
 if __name__ == "__main__":
     import uvicorn

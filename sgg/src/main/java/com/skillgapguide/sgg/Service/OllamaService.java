@@ -43,6 +43,29 @@ public class OllamaService {
                 .timeout(Duration.ofMinutes(4))
                 .onErrorResume(e -> Mono.just("Lỗi: " + e.getMessage()));
     }
+    public Mono<String> callMistralApiWithTemperature(String prompt, double temperature) {
+        Map<String, Object> requestBody = Map.of(
+                "model", "mistral:7b-instruct-v0.3-q4_0",
+                "messages", List.of(
+                        Map.of("role", "user", "content", prompt)
+                ),
+                "options", Map.of(
+                        "temperature", temperature,
+                        "num_predict", 8192
+                ),
+                "stream", false
+        );
+        return webClient.post()
+                .uri("/api/chat")
+                .header("Accept", MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(String.class)
+                .flatMap(this::parseOllamaResponse)
+                .timeout(Duration.ofMinutes(4))
+                .onErrorResume(e -> Mono.just("Lỗi: " + e.getMessage()));
+    }
     public Mono<String> callNomicApi(String prompt) {
         // Note: Ollama doesn't have embedding endpoint, this might need separate service
         // For now, keeping similar structure but may need external embedding service

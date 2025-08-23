@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -94,7 +95,7 @@ class JobServiceTest {
     }
 
     @Test
-    void getJobsSuccess() {
+    void getJobsSuccess() throws IOException {
         String email = "test@example.com";
         User user = new User();
         user.setUserId(1);
@@ -108,7 +109,7 @@ class JobServiceTest {
         when(jobRepository.getJobsByCvId(1)).thenReturn(Arrays.asList(job));
         SecurityContextHolder.setContext(securityContext);
 
-        List<Job> result = jobService.getJobs();
+        List<Job> result = jobService.getJobList();
 
         assertEquals(1, result.size());
         verify(jobRepository).getJobsByCvId(1);
@@ -125,7 +126,7 @@ class JobServiceTest {
         when(cvRepository.findByUserId(1)).thenReturn(null);
         SecurityContextHolder.setContext(securityContext);
 
-        assertThrows(IllegalStateException.class, () -> jobService.getJobs());
+        assertThrows(IllegalStateException.class, () -> jobService.getJobList());
     }
 
     @Test
