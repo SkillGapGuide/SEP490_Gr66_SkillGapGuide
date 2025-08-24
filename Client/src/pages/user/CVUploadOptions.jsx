@@ -838,7 +838,7 @@ const CVUploadOptions = ({ onNext }) => {
             <div className="bg-white rounded-2xl shadow-xl p-6 w-[90%] max-w-sm text-center">
               <div className="mx-auto mb-4 w-10 h-10 rounded-full border-4 border-gray-300 border-t-transparent animate-spin"></div>
               <h3 id="crawlTitle" className="text-lg font-semibold">
-                Đang tìm 10 tin tuyển dụng...
+                Đang tìm thông tin tuyển dụng...
               </h3>
               <p id="crawlDesc" className="text-sm text-gray-500 mt-1">
                 Vui lòng không đóng hoặc rời trang trong lúc xử lý.

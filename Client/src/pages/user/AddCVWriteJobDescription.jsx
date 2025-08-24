@@ -38,7 +38,7 @@ const AnalyzeResult = () => {
   
  
   const { user } = useContext(UserContext);
-  const role =user.role || FREE_USER_ROLE;
+ const role = user?.role ?? FREE_USER_ROLE;  // an toàn khi user null/undefined
    const isUpgraded = /pro|premium/i.test(role);
   const {
     skills,
@@ -73,7 +73,7 @@ const analysisError = useAnalysisStore((s) => s.analysisError);
     if (!analysisNeedRun) return;
     setAnalysisNeedRun(false);
     runAnalysisFlowOnce({
-        userRole: user?.role || "Free User",
+       userRole: user?.role ?? FREE_USER_ROLE,
       onSkillStart: () => setIsSkillsLoading(true),
       onSkillDone: () => setIsSkillsLoading(false),
       onJobListStart: () => setIsJobListLoading(true),
