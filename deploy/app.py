@@ -46,6 +46,7 @@ def run_deploy() -> tuple[int, str]:
         set -e
         cd {config.REPO_PATH}
         git pull
+        systemctl restart be-service
     """
     completed = subprocess.run(
         ["/bin/bash", "-lc", cmd],

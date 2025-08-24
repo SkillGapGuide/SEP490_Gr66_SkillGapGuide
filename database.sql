@@ -123,16 +123,6 @@ CREATE TABLE job_des_file (
                               PRIMARY KEY (id),
                               FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
--- Bảng User_Course (bảng nối), liên kết User và Course
-CREATE TABLE user_course (
-                             id INT NOT NULL auto_increment,
-                             user_id INT NOT NULL,
-                             course_id INT NOT NULL,
-                             status NVARCHAR(50) ,
-                             PRIMARY KEY (id),
-                             FOREIGN KEY (user_id) REFERENCES user(user_id),
-                             FOREIGN KEY (course_id) REFERENCES course(course_id)
-);
 CREATE TABLE user_favorite_course (
                                       id INT NOT NULL auto_increment,
                                       user_id INT NOT NULL,
@@ -196,32 +186,27 @@ CREATE TABLE user_subscription_history (
                                            FOREIGN KEY (subscription_id) REFERENCES subscription(subscription_id)
 );
 -- job category
-CREATE TABLE occupation_groups(  -- domain or aria
+CREATE TABLE main_job_category(  -- domain or aria
                                   id INT AUTO_INCREMENT PRIMARY KEY,
                                   name VARCHAR(100) NOT NULL,
                                   status nvarchar(100)
 );
-CREATE TABLE occupation (
+CREATE TABLE job_group (
                             id INT AUTO_INCREMENT PRIMARY KEY,
                             name VARCHAR(100) NOT NULL,
-                            occupation_groups_id INT NOT NULL,
+                            main_job_category_id INT NOT NULL,
                             status nvarchar(100),
-                            FOREIGN KEY (occupation_groups_id) REFERENCES occupation_groups(id)
+                            FOREIGN KEY (main_job_category_id) REFERENCES main_job_category(id)
 );
 CREATE TABLE specializations (
                                  id INT AUTO_INCREMENT PRIMARY KEY,
                                  name VARCHAR(100) NOT NULL,
-                                 occupation_id INT NOT NULL,
+                                 job_group_id INT NOT NULL,
                                  status nvarchar(100),
                                  url_topcv varchar(200),
-                                 FOREIGN KEY (occupation_id) REFERENCES occupation(id)
-);
-CREATE TABLE job_specializations (
-                                     job_id INT NOT NULL,
-                                     specialization_id INT NOT NULL,
-                                     PRIMARY KEY (job_id, specialization_id),
-                                     FOREIGN KEY (job_id) REFERENCES job(job_id),
-                                     FOREIGN KEY (specialization_id) REFERENCES specializations(id)
+                                 job_id INT NOT NULL,
+								FOREIGN KEY (job_id) REFERENCES job(job_id),
+                                 FOREIGN KEY (job_group_id) REFERENCES job_group(id)
 );
 create table user_cv_skills(
                                id INT AUTO_INCREMENT PRIMARY KEY,
@@ -246,7 +231,7 @@ CREATE TABLE user_favorite_missing_skill (
     skill_id INT NOT NULL,
     status nvarchar(100),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES user(user_id),
+    FOREIGN KEY (user_id) REFERENCES user(user_id)
     -- FOREIGN KEY (skill_id) REFERENCES job_des_skills(id)
 );
 create table job_des_skills_embedding(

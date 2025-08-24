@@ -38,7 +38,9 @@ const AnalyzeResult = () => {
   
  
   const { user } = useContext(UserContext);
+
  const role = user?.role ?? FREE_USER_ROLE;  // an toàn khi user null/undefined
+
    const isUpgraded = /pro|premium/i.test(role);
   const {
     skills,

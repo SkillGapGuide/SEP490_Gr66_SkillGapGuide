@@ -34,11 +34,11 @@ const featureGroups = [
   {
     title: "🧠 Phân tích kỹ năng & Khóa học",
     items: [
-      { feature: "Kỹ năng hiện tại của bạn", values: [false, false, true] },
-      { feature: "Kỹ năng còn thiếu", values: [false, false, true] },
-      { feature: "Kỹ năng yêu cầu của từng mô tả công việc", values: [false, false, true] },
-      { feature: "Độ phù hợp giữa kỹ năng hiện tại và yêu cầu", values: [false, false, true] },
-      { feature: "Nhận định chung kỹ năng của bạn và mô tả", values: [false, false, true] },
+      { feature: "Kỹ năng hiện tại của bạn", values: [true, true, true] },
+      { feature: "Kỹ năng còn thiếu", values: [false, true, true] },
+      { feature: "Kỹ năng yêu cầu của từng mô tả công việc", values: [false, true, true] },
+      { feature: "Độ phù hợp giữa kỹ năng hiện tại và yêu cầu", values: [false, true, true] },
+      { feature: "Nhận định chung kỹ năng của bạn và mô tả", values: [false, true, true] },
       { feature: "Danh sách khóa học gợi ý", values: [false, false, true] },
       { feature: "Thêm khóa học yêu thích", values: [false, false, true] },
       { feature: "Theo dõi cập nhật tiến độ khóa học", values: [false, false, true] },

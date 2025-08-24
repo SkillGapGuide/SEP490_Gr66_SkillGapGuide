@@ -165,7 +165,7 @@ export async function runAnalysisFlowOnce({
   setCourseLoading(true);
   try {
     if (cvId) {
-      const res = await courService.scrapeAutomation(1, 3, cvId);
+      const res = await courService.scrapeAutomation(1, 2, cvId);
       setScrapedCourses(res.result || {});
     }
   } catch (err) {
