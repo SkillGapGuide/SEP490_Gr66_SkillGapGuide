@@ -179,7 +179,7 @@ public class CourseService {
         int skillIdx = 0;
         boolean timeout = false;
         long startTime = System.currentTimeMillis();
-        long maxTime = 3 * 60 * 1000L;
+        long maxTime = 90_000L;
 
         if (jobSkills == null || jobSkills.isEmpty()) {
             logger.warn("Không có job skill nào cho CV id {} với offset {}", cvId, offset);
@@ -267,14 +267,14 @@ public class CourseService {
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_SECONDS));
             for (String keyword : jobSkills) {
-                if (System.currentTimeMillis() - startTime > 120_000) { // quá 2 phút
+                if (System.currentTimeMillis() - startTime > 90_000) { // quá 1 phút 30s
                     timeout = true;
                     break;
                 }
                 logger.info("\n\n===== BẮT ĐẦU scrape skill: {} =====", keyword);
                 List<Course> coursesForSkill = new ArrayList<>();
                 for (int page = 1; page <= numPages; page++) {
-                    if (System.currentTimeMillis() - startTime > 120_000) { // quá 2 phút
+                    if (System.currentTimeMillis() - startTime > 90_000) { // quá 1 phút 30s
                         timeout = true;
                         break;
                     }
@@ -568,10 +568,8 @@ public class CourseService {
 
     };
     private static final String[] USER_AGENTS = {
-//            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-//            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-//            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
     };
 }
