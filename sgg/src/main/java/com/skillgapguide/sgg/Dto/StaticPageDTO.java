@@ -15,5 +15,9 @@ public class StaticPageDTO {
         this.title = title;
         this.content = content;
     }
+
+    public StaticPageDTO() {
+
+    }
 }
 

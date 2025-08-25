@@ -81,7 +81,7 @@ public class EmbedService {
 
     public double[] getCvSkillEmbedding(String skill) throws Exception {
         try {
-            Optional<UserCvSkillsEmbedding> opt = userCvSkillsEmbeddingRepository.findBySkill(skill);
+            Optional<UserCvSkillsEmbedding> opt = userCvSkillsEmbeddingRepository.findBySkill(skill.toLowerCase());
             if (opt.isPresent()) {
                 double[] vector = objectMapper.readValue(opt.get().getEmbeddingJson(), double[].class);
                 return vector;
@@ -98,7 +98,7 @@ public class EmbedService {
 
     public double[] getJobDesSkillEmbedding(String skill) throws Exception {
         try {
-            Optional<JobDesSkillsEmbedding> opt = jobDesSkillsEmbeddingRepository.findBySkill(skill);
+            Optional<JobDesSkillsEmbedding> opt = jobDesSkillsEmbeddingRepository.findBySkill(skill.toLowerCase());
             if (opt.isPresent()) {
                 double[] vector = objectMapper.readValue(opt.get().getEmbeddingJson(), double[].class);
                 return vector;
@@ -114,11 +114,11 @@ public class EmbedService {
     }
 
     public double[] fetchEmbeddingNomicv15(String text) throws IOException, InterruptedException {
-        String prompt = "search_query: " + text;
+        String prompt = "" + text;
 
         // Use proper TextInput format as expected by FastAPI service
         var requestObj = new java.util.HashMap<String, String>();
-        requestObj.put("text", prompt);
+        requestObj.put("text", text);
         String requestBody = objectMapper.writeValueAsString(requestObj);
 
         // Force HTTP/1.1 to avoid upgrade issues with embedding service
@@ -126,6 +126,7 @@ public class EmbedService {
                 .version(HttpClient.Version.HTTP_1_1)
                 .build();
         HttpRequest request = HttpRequest.newBuilder()
+//                .uri(URI.create("http://localhost:8000/embed_bgem3"))
                 .uri(URI.create("http://localhost:8000/embed_nomicv1.5"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))

@@ -40,6 +40,10 @@ public class AuthController {
         String message = authService.register(request);
         return new Response<>(EHttpStatus.OK, "Đăng ký thành công", message);
     }
+    @GetMapping("/Test")
+    public String test() {
+        return "Hello, World!";
+    }
     @GetMapping("/verify")
     public void verifyAccount(@RequestParam("token") String token, HttpServletResponse response) throws IOException {
         try {
