@@ -24,6 +24,6 @@ export const userAdminService = {
     return await apiService.post(ENDPOINTS.systemAdmin.createAccount,{email, password, phone, fullName, roleId});
   }
   ,changeRole : async (userId, newRoleId) => {
-    return await apiService.post(ENDPOINTS.systemAdmin.changeRole(userId, newRoleId));
+    return await apiService.post(ENDPOINTS.systemAdmin.changeRole, { userId, newRoleId });
   }
 };
