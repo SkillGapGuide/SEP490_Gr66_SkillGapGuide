@@ -127,7 +127,7 @@ export async function runAnalysisFlowOnce({
         try {
           const [gap, cmt, jobSkills] = await Promise.all([
             skillGapService.getSkillGap(job.jobId, job.cvId),
-            skillGapService.getCommentSkill(job.jobId, job.cvId),
+            // skillGapService.getCommentSkill(job.jobId, job.cvId),
             skillGapService.getJobSkills(job.jobId),
           ]);
           jobDetails[job.jobId] = {
