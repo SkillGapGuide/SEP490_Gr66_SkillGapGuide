@@ -40,7 +40,7 @@ public class AuthController {
         String message = authService.register(request);
         return new Response<>(EHttpStatus.OK, "Đăng ký thành công", message);
     }
-    @GetMapping("/Test")
+    @GetMapping("/Testalo123")
     public String test() {
         return "Hello, World!";
     }
