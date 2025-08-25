@@ -51,11 +51,11 @@ public class AuthController {
             // Mã hóa message để an toàn khi đặt trên URL
             String message = URLEncoder.encode("Xác thực email thành công!", StandardCharsets.UTF_8);
             // Chuyển hướng về trang chủ của frontend với thông điệp thành công
-            response.sendRedirect(webUrl + "/login?message=" + message);
+            response.sendRedirect(webUrl + "login?message=" + message);
         } catch (IllegalStateException e) {
             String errorMessage = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
             // Chuyển hướng về trang lỗi hoặc trang đăng nhập với thông điệp lỗi
-            response.sendRedirect(webUrl + "/login?error=" + errorMessage);
+            response.sendRedirect(webUrl + "login?error=" + errorMessage);
         }
     }
 
