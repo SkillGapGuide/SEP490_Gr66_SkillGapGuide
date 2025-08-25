@@ -69,7 +69,7 @@ export default function AboutUsManager() {
           {/* Header */}
           <div className="flex justify-between items-center pb-6 border-b">
             <h2 className="text-2xl font-semibold text-gray-800">
-              Quản lý trang About Us
+              Quản lý trang về tôi
             </h2>
             <div className="flex gap-3">
               <button
@@ -83,13 +83,13 @@ export default function AboutUsManager() {
                 <Eye size={20} />
                 {showPreview ? "Tắt xem trước" : "Xem trước"}
               </button>
-              <button
-                onClick={() => setEditingSection({})}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                <Plus size={20} />
-                Thêm mục mới
-              </button>
+                {/* <button
+                  onClick={() => setEditingSection({})}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  <Plus size={20} />
+                  Thêm mục mới
+                </button> */}
             </div>
           </div>
 
@@ -120,7 +120,7 @@ export default function AboutUsManager() {
                         >
                           <Pencil size={18} />
                         </button>
-                        <button
+                        {/* <button
                           onClick={() => {
                             if (confirm("Bạn có chắc muốn xóa mục này?")) {
                               setSections(sections.filter((s) => s.id !== section.id));
@@ -129,7 +129,7 @@ export default function AboutUsManager() {
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           <Trash2 size={18} />
-                        </button>
+                        </button> */}
                       </div>
                     )}
                   </div>

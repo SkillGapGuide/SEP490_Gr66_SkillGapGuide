@@ -12,7 +12,7 @@ import {
 const menu = [
   
   { label: "Quản lý người dùng", to: "/admin/users", icon: <Users size={15} /> },
-  { label: "Quản lý đánh giá", to: "/admin/pricingtable", icon: <Users size={15} /> }
+  { label: "Quản lý giá gói", to: "/admin/pricingtable", icon: <Users size={15} /> }
 ];
 
 export default function AdminSidebar() {
