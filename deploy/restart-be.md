@@ -9,6 +9,8 @@
   - systemctl restart be-service
   - systemctl status be-service
   - tail -f /var/log/be-service.log
+  - tail -n 100 /var/log/be-service.log
+  - journalctl -u be-service -n 100
 
 
 file /etc/systemd/system/be-service.service:
