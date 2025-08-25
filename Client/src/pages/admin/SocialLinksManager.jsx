@@ -98,13 +98,13 @@ export default function SocialLinksManager() {
           Quản lý liên kết mạng xã hội
         </h2>
 
-        <button
+        {/* <button
           onClick={() => setEditingId("new")}
           className="flex items-center gap-2 px-6 py-3 text-base bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
         >
           <Plus size={20} />
           Thêm liên kết mới
-        </button>
+        </button> */}
       </div>
 
       {/* Links Grid */}

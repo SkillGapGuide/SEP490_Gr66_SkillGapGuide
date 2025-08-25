@@ -151,7 +151,7 @@ const PricingTable = () => {
       {/* HEADER */}
       <div className="flex items-center gap-2 mb-6">
         <MdOutlinePriceChange className="text-indigo-600" size={32} />
-        <h1 className="text-2xl font-bold text-indigo-800">Gói đánh giá</h1>
+        <h1 className="text-2xl font-bold text-indigo-800">Các loại gói</h1>
         {loading && (
           <Loader className="animate-spin text-indigo-500 ml-2" size={22} />
         )}
