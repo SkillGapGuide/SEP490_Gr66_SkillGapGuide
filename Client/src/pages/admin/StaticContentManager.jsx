@@ -155,9 +155,9 @@ export default function StaticContentManager() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-            <div className="text-sm text-gray-500">
+            {/* <div className="text-sm text-gray-500">
               Cập nhật lần cuối: {contents[activeTab].lastUpdated}
-            </div>
+            </div> */}
           </div>
 
           <div className="space-y-2">
@@ -189,43 +189,16 @@ export default function StaticContentManager() {
         </div>
 
         {/* Version History */}
-        <div className="border-t pt-6">
-          <h3 className="text-sm font-medium text-gray-700 mb-4 flex items-center gap-2">
-            <History size={16} />
-            Lịch sử thay đổi
-          </h3>
-          <div className="space-y-3">
-            {[
-              { date: "2024-01-20 15:30", user: "Admin" },
-              { date: "2024-01-19 10:15", user: "Editor" },
-            ].map((version, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between text-sm p-3 bg-gray-50 rounded-lg"
-              >
-                <div className="flex items-center gap-3">
-                  <button className="text-blue-600 hover:text-blue-800">
-                    <Undo size={16} />
-                  </button>
-                  <span>
-                    Chỉnh sửa bởi{" "}
-                    <span className="font-medium">{version.user}</span>
-                  </span>
-                </div>
-                <span className="text-gray-500">{version.date}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+       
       </div>
 
       {/* Auto-save indicator */}
-      <div className="fixed bottom-4 right-4">
+      {/* <div className="fixed bottom-4 right-4">
         <div className="flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg border border-green-200">
           <Check size={16} />
           <span className="text-sm">Đã lưu tự động</span>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
