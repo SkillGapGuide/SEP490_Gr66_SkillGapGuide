@@ -125,21 +125,21 @@ export async function runAnalysisFlowOnce({
         setJobsLoading({ ...jobsLoading }); // Trigger UI loading job này
 
         try {
-          const [gap, cmt, jobSkills] = await Promise.all([
+          const [gap, jobSkills] = await Promise.all([
             skillGapService.getSkillGap(job.jobId, job.cvId),
             // skillGapService.getCommentSkill(job.jobId, job.cvId),
             skillGapService.getJobSkills(job.jobId),
           ]);
           jobDetails[job.jobId] = {
             skillGap: gap.result || [],
-            commentData: cmt.result || {},
+            // commentData: cmt.result || {},
             jobSkills: jobSkills.result || [],
             error: null,
           };
         } catch (err) {
           jobDetails[job.jobId] = {
             skillGap: [],
-            commentData: {},
+            // commentData: {},
             jobSkills: [],
             error: err?.message || "Lỗi phân tích job",
           };

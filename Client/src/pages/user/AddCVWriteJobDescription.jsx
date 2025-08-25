@@ -247,7 +247,7 @@ const analysisError = useAnalysisStore((s) => s.analysisError);
           ) : (
             <>
               {/* Nhận xét */}
-              {jobInfo.commentData && (
+              {/* {jobInfo.commentData && (
                 <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4 rounded">
                   <strong>Nhận xét chung:</strong>{" "}
                   <span className="text-gray-700">
@@ -265,7 +265,7 @@ const analysisError = useAnalysisStore((s) => s.analysisError);
                       </ul>
                     )}
                 </div>
-              )}
+              )} */}
 
               {/* Bảng skill gap */}
               <div className="border rounded-xl overflow-hidden text-sm my-6">
