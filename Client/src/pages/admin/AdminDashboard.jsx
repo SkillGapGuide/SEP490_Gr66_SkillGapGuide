@@ -170,7 +170,12 @@ const AdminDashboard = () => {
         position: "left",
         beginAtZero: true,
         grid: { drawOnChartArea: true },
-        ticks: { color: "#6b7280" },
+        ticks: {
+       color: "#6b7280",
+       precision: 0,          // format số nguyên
+       stepSize: 1,           // mỗi vạch cách 1
+       callback: (v) => Number.isInteger(v) ? v : null, // ẩn vạch lẻ
+     },
         title: { display: true, text: "Users", color: "#6b7280" },
       },
       yAmount: {
@@ -374,7 +379,7 @@ const AdminDashboard = () => {
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-semibold text-gray-800">Cơ cấu gói (Free/Pro/Premium)</h3>
-          <span className="text-xs text-gray-500">Nguồn: getNumberUserSubscription</span>
+          {/* <span className="text-xs text-gray-500">Nguồn: getNumberUserSubscription</span> */}
         </div>
         <div className="h-[260px]">
           {loading ? (

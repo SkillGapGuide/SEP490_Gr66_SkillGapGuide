@@ -10,6 +10,39 @@ const STATUS_OPTIONS = [
   { label: "FAILED", value: "FAILED" },
 ];
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50];
+// --- pagination helpers ---
+const DOTS = "…";
+
+function range(start, end) {
+  const len = Math.max(0, end - start + 1);
+  return Array.from({ length: len }, (_, i) => i + start);
+}
+
+/** Trả về mảng items hiển thị: [1, '…', 8, 9, 10, '…', 50] */
+function getPageItems(currentPage, totalPages, siblingCount = 1, boundaryCount = 1) {
+  const totalNumbers = siblingCount * 2 + 3 + boundaryCount * 2; // first/last + current + 2 DOTS
+  if (totalPages <= totalNumbers) return range(1, totalPages);
+
+  const leftSibling = Math.max(currentPage - siblingCount, 1);
+  const rightSibling = Math.min(currentPage + siblingCount, totalPages);
+
+  const showLeftDots = leftSibling > boundaryCount + 2;
+  const showRightDots = rightSibling < totalPages - boundaryCount - 1;
+
+  const leftItems = range(1, boundaryCount);
+  const rightItems = range(totalPages - boundaryCount + 1, totalPages);
+
+  if (!showLeftDots && showRightDots) {
+    const leftRange = range(1, boundaryCount + siblingCount * 2 + 2);
+    return [...leftRange, DOTS, ...rightItems];
+  }
+  if (showLeftDots && !showRightDots) {
+    const rightRange = range(totalPages - (boundaryCount + siblingCount * 2 + 1), totalPages);
+    return [...leftItems, DOTS, ...rightRange];
+  }
+  const middleRange = range(leftSibling, rightSibling);
+  return [...leftItems, DOTS, ...middleRange, DOTS, ...rightItems];
+}
 
 const PaymentManagement = () => {
   const [payments, setPayments] = useState([]);
@@ -39,6 +72,8 @@ const PaymentManagement = () => {
       setDateError("");
     }
   }, [startDate, endDate]);
+
+
 
   // Fetch payments (memo để tránh tạo lại mỗi render)
   const fetchPayments = useCallback(
@@ -81,12 +116,6 @@ const PaymentManagement = () => {
   }, [pageSize, status, startDate, endDate]);
 
   // Đổi trang
-  const handlePageChange = useCallback(
-    (page) => {
-      fetchPayments(page, pageSize, status, startDate, endDate);
-    },
-    [fetchPayments, pageSize, status, startDate, endDate]
-  );
 
   // Filter payments theo search (memoized)
   const filteredPayments = useMemo(
@@ -98,6 +127,19 @@ const PaymentManagement = () => {
       ),
     [payments, searchTerm]
   );
+    // rút gọn các nút trang (sibling=1, boundary=1; muốn nhiều hơn thì tăng số)
+const pageItems = useMemo(
+  () => getPageItems(pageNo, totalPages, 1, 1),
+  [pageNo, totalPages]
+);
+
+// đảm bảo không vượt biên khi đổi trang
+const handlePageChange = useCallback((p) => {
+  const np = Math.max(1, Math.min(totalPages, p));
+  if (np !== pageNo) {
+    fetchPayments(np, pageSize, status, startDate, endDate);
+  }
+}, [fetchPayments, pageNo, pageSize, status, startDate, endDate, totalPages]);
 
   // Export PDF/Excel
 const handleExportPdf = async () => {
@@ -289,7 +331,7 @@ const handleExportExcel = async () => {
                 </td>
               </tr>
             ) : (
-              filteredPayments.map((p, idx) => (
+              filteredPayments.filter(o => o.status !== "UNPAID").map((p, idx) => (
                 <tr
                   key={p.paymentId || idx}
                   className="transition hover:bg-indigo-50"
@@ -337,56 +379,69 @@ const handleExportExcel = async () => {
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center my-6 gap-1 flex-wrap">
-          <button
-            onClick={() => handlePageChange(1)}
-            disabled={pageNo === 1}
-            className="px-3 py-1.5 border rounded-lg bg-white hover:bg-indigo-50 transition disabled:opacity-50"
-            aria-label="Trang đầu"
-          >
-            {"<<"}
-          </button>
-          <button
-            onClick={() => handlePageChange(pageNo - 1)}
-            disabled={pageNo === 1}
-            className="px-3 py-1.5 border rounded-lg bg-white hover:bg-indigo-50 transition disabled:opacity-50"
-            aria-label="Trang trước"
-          >
-            {"<"}
-          </button>
-          {Array.from({ length: totalPages }, (_, idx) => (
-            <button
-              key={idx}
-              onClick={() => handlePageChange(idx + 1)}
-              className={`px-3 py-1.5 rounded-lg border transition
-                ${pageNo === idx + 1
-                  ? "bg-indigo-600 text-white font-bold shadow"
-                  : "bg-white hover:bg-indigo-50"
-                }`}
-              aria-label={`Trang ${idx + 1}`}
-            >
-              {idx + 1}
-            </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(pageNo + 1)}
-            disabled={pageNo === totalPages}
-            className="px-3 py-1.5 border rounded-lg bg-white hover:bg-indigo-50 transition disabled:opacity-50"
-            aria-label="Trang sau"
-          >
-            {">"}
-          </button>
-          <button
-            onClick={() => handlePageChange(totalPages)}
-            disabled={pageNo === totalPages}
-            className="px-3 py-1.5 border rounded-lg bg-white hover:bg-indigo-50 transition disabled:opacity-50"
-            aria-label="Trang cuối"
-          >
-            {">>"}
-          </button>
-        </div>
-      )}
+     {totalPages > 1 && (
+  <div className="flex justify-center my-6 gap-1 flex-wrap">
+    <button
+      onClick={() => handlePageChange(1)}
+      disabled={pageNo === 1}
+      className="px-3 py-1.5 border rounded-lg bg-white hover:bg-indigo-50 transition disabled:opacity-50"
+      aria-label="Trang đầu"
+    >
+      {"<<"}
+    </button>
+
+    <button
+      onClick={() => handlePageChange(pageNo - 1)}
+      disabled={pageNo === 1}
+      className="px-3 py-1.5 border rounded-lg bg-white hover:bg-indigo-50 transition disabled:opacity-50"
+      aria-label="Trang trước"
+    >
+      {"<"}
+    </button>
+
+    {pageItems.map((it, idx) =>
+      it === DOTS ? (
+        <span
+          key={`dots-${idx}`}
+          className="px-3 py-1.5 rounded-lg border bg-white text-gray-500 select-none"
+        >
+          …
+        </span>
+      ) : (
+        <button
+          key={it}
+          onClick={() => handlePageChange(it)}
+          className={`px-3 py-1.5 rounded-lg border transition ${
+            pageNo === it ? "bg-indigo-600 text-white font-bold shadow" : "bg-white hover:bg-indigo-50"
+          }`}
+          aria-label={`Trang ${it}`}
+          aria-current={pageNo === it ? "page" : undefined}
+        >
+          {it}
+        </button>
+      )
+    )}
+
+    <button
+      onClick={() => handlePageChange(pageNo + 1)}
+      disabled={pageNo === totalPages}
+      className="px-3 py-1.5 border rounded-lg bg-white hover:bg-indigo-50 transition disabled:opacity-50"
+      aria-label="Trang sau"
+    >
+      {">"}
+    </button>
+
+    <button
+      onClick={() => handlePageChange(totalPages)}
+      disabled={pageNo === totalPages}
+      className="px-3 py-1.5 border rounded-lg bg-white hover:bg-indigo-50 transition disabled:opacity-50"
+      aria-label="Trang cuối"
+    >
+      {">>"}
+    </button>
+  </div>
+)}
+
       <div className="mt-2 text-right text-sm text-gray-500 font-semibold">
         Tổng số bản ghi: {totalElements}
       </div>

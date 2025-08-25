@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   FiSearch,
   FiEye,
@@ -29,8 +29,75 @@ const defaultCourseForm = {
   url: "",
   createdAt: "",
 };
+const compactDifficulty = (text) => {
+  if (!text) return "—";
+  const s = String(text).toLowerCase();
+  if (/(beginner|entry|novice|cơ bản)/.test(s)) return "Cơ bản";
+  if (/(intermediate|mid|trung cấp)/.test(s)) return "Trung cấp";
+  if (/(advanced|expert|pro|nâng cao)/.test(s)) return "Nâng cao";
+  if (/(all levels|mọi cấp độ|mixed)/.test(s)) return "Mọi cấp độ";
+  return text.length > 30 ? text.slice(0, 30) + "…" : text; // fallback
+};
+
+const DifficultyBadge = ({ value }) => (
+  <span
+    className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-semibold border
+               whitespace-nowrap max-w-[8rem] overflow-hidden text-ellipsis"
+    title={String(value || "")}
+  >
+    {compactDifficulty(value)}
+  </span>
+);
 
 const pageSizeOptions = [5, 10, 20];
+const DOTS = "…";
+
+function range(start, end) {
+  const len = Math.max(0, end - start + 1);
+  return Array.from({ length: len }, (_, i) => i + start);
+}
+
+/**
+ * Trả về mảng các item hiển thị: [1, '…', 8, 9, 10, '…', 50]
+ * siblingCount: số trang kề hai bên trang hiện tại
+ * boundaryCount: số trang đầu/cuối luôn hiện
+ */
+function getPageItems(
+  currentPage,
+  totalPages,
+  siblingCount = 1,
+  boundaryCount = 1
+) {
+  const totalNumbers = siblingCount * 2 + 3 + boundaryCount * 2; // first/last + current + 2 DOTS
+  if (totalPages <= totalNumbers) {
+    return range(1, totalPages);
+  }
+
+  const leftSibling = Math.max(currentPage - siblingCount, 1);
+  const rightSibling = Math.min(currentPage + siblingCount, totalPages);
+
+  const showLeftDots = leftSibling > boundaryCount + 2;
+  const showRightDots = rightSibling < totalPages - boundaryCount - 1;
+
+  const leftItems = range(1, boundaryCount);
+  const rightItems = range(totalPages - boundaryCount + 1, totalPages);
+
+  if (!showLeftDots && showRightDots) {
+    const leftRange = range(1, boundaryCount + siblingCount * 2 + 2);
+    return [...leftRange, DOTS, ...rightItems];
+  }
+
+  if (showLeftDots && !showRightDots) {
+    const rightRange = range(
+      totalPages - (boundaryCount + siblingCount * 2 + 1),
+      totalPages
+    );
+    return [...leftItems, DOTS, ...rightRange];
+  }
+
+  const middleRange = range(leftSibling, rightSibling);
+  return [...leftItems, DOTS, ...middleRange, DOTS, ...rightItems];
+}
 
 const CourseTable = () => {
   // Main states
@@ -94,6 +161,17 @@ const CourseTable = () => {
       );
     }
   }, [courses, search]);
+  // rút gọn danh sách trang (đổi 1,1 nếu muốn nhiều/ít nút kề & đầu/cuối)
+  const pageItems = useMemo(
+    () => getPageItems(page, totalPages, 1, 1),
+    [page, totalPages]
+  );
+
+  // đổi trang có chặn biên
+  const go = (p) => {
+    const np = Math.max(1, Math.min(totalPages, p));
+    if (np !== page) setPage(np);
+  };
 
   // Xử lý submit form thủ công
   const handleManualSubmit = async (e) => {
@@ -208,7 +286,9 @@ const CourseTable = () => {
               <th className="border border-black px-3 py-2 w-1/12">
                 Trạng thái
               </th>
-              <th className="border border-black px-3 py-2 w-[90px]"></th>
+              <th className="border border-black px-3 py-2 w-[90px]">
+                Hành động
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -236,8 +316,19 @@ const CourseTable = () => {
                 <td className="border border-black px-3 py-2 text-center">
                   {course.rating}
                 </td>
-                <td className="border border-black px-3 py-2 text-center">
-                  {course.difficulty}
+                <td className="border border-black px-3 py-2">
+                  <div
+                    className="text-center leading-snug"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                    title={course.difficulty || ""}
+                  >
+                    {course.difficulty}
+                  </div>
                 </td>
                 <td
                   className={`border border-black px-3 py-2 text-center ${
@@ -261,35 +352,69 @@ const CourseTable = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center items-center gap-1 text-sm mt-6">
+      {/* Pagination (rút gọn với …) */}
+      <nav
+        className="flex justify-center items-center gap-1 text-sm mt-6"
+        aria-label="Pagination"
+      >
         <button
-          className="px-2 py-1 border bg-white text-black rounded hover:bg-gray-100"
-          onClick={() => setPage(1)}
+          className="px-2 py-1 border bg-white text-black rounded hover:bg-gray-100 disabled:opacity-50"
+          onClick={() => go(1)}
           disabled={page === 1}
+          aria-label="First page"
         >
-          &lt;&lt;
+          &laquo;
         </button>
-        {[...Array(totalPages)].map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setPage(i + 1)}
-            className={`px-3 py-1 rounded border ${
-              page === i + 1
-                ? "bg-blue-700 text-white"
-                : "bg-white text-black hover:bg-gray-100"
-            }`}
-          >
-            {i + 1}
-          </button>
-        ))}
         <button
-          className="px-2 py-1 border bg-white text-black rounded hover:bg-gray-100"
-          onClick={() => setPage(totalPages)}
-          disabled={page === totalPages}
+          className="px-2 py-1 border bg-white text-black rounded hover:bg-gray-100 disabled:opacity-50"
+          onClick={() => go(page - 1)}
+          disabled={page === 1}
+          aria-label="Previous page"
         >
-          &gt;&gt;
+          &lsaquo;
         </button>
-      </div>
+
+        {pageItems.map((it, idx) =>
+          it === DOTS ? (
+            <span
+              key={`dots-${idx}`}
+              className="px-3 py-1 text-gray-500 select-none"
+            >
+              …
+            </span>
+          ) : (
+            <button
+              key={it}
+              onClick={() => go(it)}
+              className={`px-3 py-1 rounded border ${
+                page === it
+                  ? "bg-blue-700 text-white"
+                  : "bg-white text-black hover:bg-gray-100"
+              }`}
+              aria-current={page === it ? "page" : undefined}
+            >
+              {it}
+            </button>
+          )
+        )}
+
+        <button
+          className="px-2 py-1 border bg-white text-black rounded hover:bg-gray-100 disabled:opacity-50"
+          onClick={() => go(page + 1)}
+          disabled={page === totalPages}
+          aria-label="Next page"
+        >
+          &rsaquo;
+        </button>
+        <button
+          className="px-2 py-1 border bg-white text-black rounded hover:bg-gray-100 disabled:opacity-50"
+          onClick={() => go(totalPages)}
+          disabled={page === totalPages}
+          aria-label="Last page"
+        >
+          &raquo;
+        </button>
+      </nav>
 
       {/* Modal chọn cách cập nhật */}
       {showOptionModal && (
@@ -313,7 +438,7 @@ const CourseTable = () => {
             >
               <FiPlusCircle size={20} /> Cập nhật thủ công
             </button>
-            <button
+            {/* <button
               className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded flex items-center gap-3 justify-center transition"
               onClick={() => {
                 setShowOptionModal(false);
@@ -321,7 +446,7 @@ const CourseTable = () => {
               }}
             >
               <FiZap size={20} /> Cập nhật tự động
-            </button>
+            </button> */}
           </div>
         </div>
       )}
@@ -394,8 +519,8 @@ const CourseTable = () => {
                 setCourseForm({ ...courseForm, status: e.target.value })
               }
             >
-              <option value="Active">Hoạt động</option>
-              <option value="Inactive">Ngưng hoạt động</option>
+              <option value="ACTIVE">Hoạt động</option>
+              <option value="INACTIVE">Ngưng hoạt động</option>
             </select>
             <input
               type="text"

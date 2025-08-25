@@ -11,6 +11,10 @@ const statusLabel = {
   NOT_VERIFIED: { label: "Vô hiệu hóa", color: "text-red-500" },
   BANNED: { label: "Bị cấm", color: "text-red-500" }
 };
+const ROLE_ID = { "Content Manager": 2, "Finance Admin": 3 };
+const ROLE_NAME = { 2: "Content Manager", 3: "Finance Admin" };
+const getRoleId = (u) => u?.roleId ?? ROLE_ID[u?.role] ?? null;
+
 
 const pageSizeOptions = [5, 10, 15];
 
@@ -104,6 +108,35 @@ function ManagerUser() {
     }
     setShowCreate(false);
   };
+  const handleChangeRole = async (user, newRoleId) => {
+  const current = getRoleId(user);
+  if (current == null) return showError("Không xác định được vai trò hiện tại.");
+  if (newRoleId === current) return showInfo("Vai trò không thay đổi.");
+
+  const userId = user.userId ?? user.id; // đổi theo field id của API bạn
+  if (!userId) return showError("Không xác định được userId.");
+
+  try {
+    await userAdminService.changeRole(userId, Number(newRoleId));
+    showSuccess("Đã cập nhật vai trò.");
+    // refresh list
+    const data = await userAdminService.getAllUsers({
+      searchText: search,
+      role: role === "Tất cả" ? "" : role,
+      status: status === "Tất cả" ? "" : status,
+      pageNo: page,
+      pageSize,
+    });
+    setUsers(data);
+    // cập nhật ngay trên modal
+    setSelectedUser((prev) =>
+      prev ? { ...prev, roleId: Number(newRoleId), role: ROLE_NAME[newRoleId] ?? prev.role } : prev
+    );
+  } catch (e) {
+    showError(e?.response?.data?.message || "Đổi vai trò thất bại.");
+  }
+};
+
 
   const handleStatusChange = async (user) => {
     try {
@@ -270,7 +303,8 @@ function ManagerUser() {
         <UserDetailModal 
           user={selectedUser} 
           onClose={() => setShowDetail(false)}
-          onStatusChange={handleStatusChange}  // Add this line
+          onStatusChange={handleStatusChange} 
+          onChangeRole={handleChangeRole} // Add this line
         />
       )}
       
@@ -296,7 +330,10 @@ function EyeIcon() {
 }
 
 // Add Modal Components
-function UserDetailModal({ user, onClose, onStatusChange }) {  // Add onStatusChange prop
+function UserDetailModal({ user, onClose, onStatusChange,onChangeRole  }) { 
+  const currentRoleId = user.roleId ?? ROLE_ID[user.role] ?? null;
+  const canSwitch = currentRoleId === 2 || currentRoleId === 3;
+  const [newRoleId, setNewRoleId] = useState(currentRoleId); // Add onStatusChange prop
   return (
     <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
       <div className="bg-white/90 backdrop-blur-md rounded-lg p-6 w-full max-w-lg shadow-xl">
@@ -314,9 +351,31 @@ function UserDetailModal({ user, onClose, onStatusChange }) {  // Add onStatusCh
           <DetailRow label="Số điện thoại" value={user.phone} />
           <DetailRow label="Vai trò" value={user.role} />
           <DetailRow label="Trạng thái" value={statusLabel[user.status].label} />
-          <DetailRow label="Gói đăng ký" value={user.subscription} />
+          
           <div className="flex items-center justify-between pt-4 border-t">
             <span className="font-medium text-gray-600">Thao tác:</span>
+            {canSwitch && (
+           <div className="pt-4 border-t">
+             
+             <div className="flex items-center gap-2">
+               <select
+                 className="px-3 py-2 border rounded-md"
+                 value={newRoleId}
+                 onChange={(e) => setNewRoleId(Number(e.target.value))}
+               >
+                 <option value={3}>Quản lý tài chính</option>
+                 <option value={2}>Quản lý nội dung</option>
+               </select>
+               <button
+                 className="px-4 py-2 bg-blue-600 text-white rounded-md disabled:opacity-60"
+                 disabled={newRoleId === currentRoleId}
+                 onClick={() => onChangeRole(user, newRoleId)}
+               >
+                 Cập nhật
+               </button>
+             </div>
+           </div>
+         )}
             <button
               onClick={() => onStatusChange(user)}
               className={`px-4 py-2 rounded-full flex items-center gap-2 ${

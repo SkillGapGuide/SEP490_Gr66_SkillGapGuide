@@ -4,7 +4,7 @@ const BASE_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:8080';
 // 1. api instance - Cấu hình cơ bản axios
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 20 * 60 * 1000, // 20 phú
+  // timeout: 20 * 60 * 1000, // 20 phú
   // headers: {
   //   'Content-Type': 'application/json',
   // }
