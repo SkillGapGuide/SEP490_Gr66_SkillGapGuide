@@ -92,10 +92,6 @@ public class  UserService {
                     && (userFilterRequest.getStatus() == null || userFilterRequest.getStatus().isBlank())) {
                 return userRepository.getAllUser(paging);
             }
-            Page<UserListResponse> test = userRepository.filterUser(userFilterRequest.getSearchText() == null ? "" : userFilterRequest.getSearchText().toLowerCase(),
-                    userFilterRequest.getRole(),
-                    userFilterRequest.getStatus(),
-                    paging);
             return userRepository.filterUser(userFilterRequest.getSearchText() == null ? "" : userFilterRequest.getSearchText().toLowerCase(),
                     userFilterRequest.getRole(),
                     userFilterRequest.getStatus(),

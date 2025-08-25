@@ -17,9 +17,9 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByEmail(String email);
-    @Query(value = "select u.email as email, u.fullName as name, u.phone as phone,r.name as role, us.name as status from User as u join Role as r on u.roleId = r.roleId join UserStatus as us on u.status = us")
+    @Query(value = "select u.userId as id ,u.email as email, u.fullName as name, u.phone as phone,r.name as role, us.name as status from User as u join Role as r on u.roleId = r.roleId join UserStatus as us on u.status = us")
     Page<UserListResponse> getAllUser(Pageable pageable);
-    @Query(value = "select u.email as email, u.fullName as name, u.phone as phone,r.name as role, us.name as status " +
+    @Query(value = "select u.userId as id , u.email as email, u.fullName as name, u.phone as phone,r.name as role, us.name as status " +
             "from User as u join Role as r on u.roleId = r.roleId join UserStatus as us on u.status = us " +
             "WHERE (:keyword IS NULL OR LOWER(u.fullName) LIKE  CONCAT('%', :keyword, '%') OR LOWER(u.email) LIKE  CONCAT('%', :keyword, '%')) " +
             "AND ((:role IS NULL or :role = '') OR r.name = :role) " +
