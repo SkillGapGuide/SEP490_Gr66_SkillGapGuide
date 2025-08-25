@@ -178,6 +178,7 @@ export async function runAnalysisFlowOnce({
 
   } catch (err) {
     showError("Lỗi trong quá trình phân tích: " + (err?.message || ""));
+     onFinish?.();
   }
 }
 
