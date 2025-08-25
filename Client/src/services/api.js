@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { showError } from "../utils/alert"; 
-const BASE_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:8080';
+const BASE_URL = import.meta.env.VITE_APP_API_URL || 'https://fluffy-adults-crash.loca.lt';
 // 1. api instance - Cấu hình cơ bản axios
 const api = axios.create({
   baseURL: BASE_URL,
