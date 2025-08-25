@@ -29,7 +29,7 @@ const testimonials = [
   },
   {
     img: "https://cdn-icons-png.flaticon.com/512/1946/1946429.png",
-    text: "“Trải nghiệm thực sự khác biệt, đề xuất rất hữu ích! test 123”",
+    text: "“Trải nghiệm thực sự khác biệt, đề xuất rất hữu ích!",
     stars: 5,
   },
 ];
