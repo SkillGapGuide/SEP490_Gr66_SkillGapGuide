@@ -83,12 +83,7 @@ else
   fi
 fi
 
-echo "[6/7] Create or reuse virtualenv at ${VENV_DIR}..."
-python3 -m venv "${VENV_DIR}"
-# shellcheck disable=SC1091
-source "${VENV_DIR}/bin/activate"
-
-echo "[7/7] Clone/update repo and install Python deps..."
+echo "[6/7] Clone/update repo and install Python deps..."
 cd "${WORKDIR}"
 
 if [ -d "${REPO_DIR}/.git" ]; then
@@ -105,20 +100,84 @@ else
   cd "${REPO_DIR}"
   git checkout dev
 fi
+EOF
 
-echo "Installing Python packages into venv..."
+
+
+echo "[7/7] Install Python deps..."
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source $HOME/.local/bin/env
+
+cd /workspace/SEP490_Gr66_SkillGapGuide/sgg/src/main/java/com/skillgapguide/sgg/Controller/
+pip install torch==2.4.1+cu124 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+
+uv run EmbeddingBGEM3.py
+
+
+
+echo "Done. ✅"
+
+
+EOF
+
+<!-- echo "Installing Python packages into venv..."
 pip install --upgrade \
   --index-url https://download.pytorch.org/whl/cu124 \
   --extra-index-url https://pypi.org/simple \
-  torch==2.4.1+cu124 torchvision==0.19.1+cu124 torchaudio==2.4.1+cu124
+  torch==2.4.1+cu124 torchvision==0.19.1+cu124 torchaudio==2.4.1+cu124 -->
 
-pip install \
+<!-- pip install \
   fastapi==0.115.0 \
   "uvicorn[standard]==0.30.1" \
   pydantic==2.9.2 \
   sentence-transformers==3.0.1 \
   transformers==4.44.2 \
-  einops
+  einops -->
+
+cd /workspace
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source $HOME/.local/bin/env
+uv venv
+source .venv/bin/activate
+cd /workspace/SEP490_Gr66_SkillGapGuide/sgg/src/main/java/com/skillgapguide/sgg/Controller
+# Chạy app ngay lập tức (tạo & tái dùng venv/cache tự động)
+uv run \
+  --with "fastapi==0.115.0" \
+  --with "uvicorn[standard]==0.30.1" \
+  --with "pydantic==2.9.2" \
+  --with "sentence-transformers==3.0.1" \
+  --with "transformers==4.44.2" \
+  --with "einops" \
+  --with "torch==2.4.1" 
+
+uv run python EmbeddingBGEM3.py
+cat > /workspace/SEP490_Gr66_SkillGapGuide/sgg/src/main/java/com/skillgapguide/sgg/Controller/pyproject.toml <<'EOF'
+[project]
+name = "skillgap-embedding-api"
+version = "0.1.0"
+description = "FastAPI service for embeddings with sentence-transformers"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi==0.115.0",
+    "uvicorn[standard]==0.30.1",
+    "pydantic==2.9.2",
+    "sentence-transformers==3.0.1",
+    "transformers==4.44.2",
+    "einops",
+    "torch==2.4.1",
+]
+EOF
+uv pip install .
+uv run python EmbeddingBGEM3.py
+
+<!-- uv run \
+--with "fastapi==0.115.0" \
+--with "uvicorn[standard]==0.30.1" \
+--with "pydantic==2.9.2" \
+--with "sentence-transformers==3.0.1" \
+--with "transformers==4.44.2" \
+--with "einops" \
+--with "torch==2.4.1+cu124" --index-url https://download.pytorch.org/whl/cu124 -->
 
 
 echo "Done. ✅"
@@ -158,11 +217,13 @@ chmod +x /workspace/run-python-service.sh
 bash /workspace/run-python-service.sh
 
 ssh root@14.225.36.166 -A
-ssh root@213.173.98.24 -p 11181 -i ~/.ssh/id_ed25519
+ssh root@213.173.108.37 -p 15136 -i ~/.ssh/id_ed25519
 
-ssh -i ~/.ssh/id_ed25519 -p 11181 \
+ssh -i ~/.ssh/id_ed25519 -p 15136 \
   -o StrictHostKeyChecking=no \
   -o UserKnownHostsFile=/dev/null \
   -L 0.0.0.0:8000:localhost:8000 \
   -L 0.0.0.0:1234:localhost:11434 \
-  root@213.173.98.24
+  root@213.173.108.37
+
+

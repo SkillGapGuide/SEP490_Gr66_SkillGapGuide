@@ -1,0 +1,13 @@
+[project]
+name = "skillgap-embedding-api"
+version = "0.1.0"
+description = "FastAPI service for embeddings with sentence-transformers"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi== 0.116.1",
+    "uvicorn[standard]==0.30.1",
+    "pydantic==2.11.7",
+    "sentence-transformers==5.0.0",
+    "transformers==4.54.0",
+    "einops==0.8.1"
+]
