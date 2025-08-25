@@ -146,7 +146,7 @@ const skillGapSheetData = [
             // Xác định enable cho từng menu item
             let isEnabled = true;
             if (item.label === "Phân tích kỹ năng") {
-              isEnabled = canOpenAnalysis;
+              isEnabled = true;
             }
 
             return (

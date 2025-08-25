@@ -51,6 +51,11 @@ const AnalyzeResult = () => {
     jobsLoading,
     setIsSkillsLoading,
     setIsJobListLoading,
+    jobListStarted,
+    jobListFinished,
+    setJobListStarted,
+    setJobListFinished,
+    setAnalysisLoading,
     setJobsLoading,
     setJobDetails,
     setSkills,
@@ -74,15 +79,18 @@ const analysisError = useAnalysisStore((s) => s.analysisError);
   useEffect(() => {
     if (!analysisNeedRun) return;
     setAnalysisNeedRun(false);
+     setJobListStarted(false);
+ setJobListFinished(false);
+  setAnalysisLoading(true);
     runAnalysisFlowOnce({
        userRole: user?.role ?? FREE_USER_ROLE,
       onSkillStart: () => setIsSkillsLoading(true),
       onSkillDone: () => setIsSkillsLoading(false),
-      onJobListStart: () => setIsJobListLoading(true),
-      onJobListDone: () => setIsJobListLoading(false),
+      onJobListStart: () => { setJobListStarted(true); setIsJobListLoading(true); },
+   onJobListDone: () => { setIsJobListLoading(false); setJobListFinished(true); },
       onJobDetailStart: () => {},
       onJobDetailDone: () => {},
-      onFinish: () => {},
+      onFinish: () => { setAnalysisLoading(false); },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [analysisNeedRun]);
@@ -166,11 +174,14 @@ const analysisError = useAnalysisStore((s) => s.analysisError);
      );
    }
     if (isJobListLoading) {
-      return Array.from({ length: 2 }).map((_, idx) => (
-        <div key={idx}>
-          <JobSkeleton />
-        </div>
-      ));
+      return (
+        <>
+         <div className="text-sm text-blue-700 mb-2">AI đang phân tích danh sách công việc…</div>
+          {Array.from({ length: 2 }).map((_, idx) => (
+            <div key={idx}><JobSkeleton /></div>
+          ))}
+        </>
+      );
     }
     if (role === FREE_USER_ROLE) {
       return (
@@ -194,7 +205,16 @@ const analysisError = useAnalysisStore((s) => s.analysisError);
         </div>
       );
     }
-    if (!jobList || jobList.length === 0) {
+     // CHƯA BẮT ĐẦU bước jobList → đừng nói "không tìm thấy"
+ if (!jobListStarted) {
+   return (
+     <div className="text-blue-700 bg-blue-50 border border-blue-200 rounded px-3 py-2 inline-flex items-center gap-2">
+       <span className="inline-block h-3 w-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+       AI đang chuẩn bị phân tích danh sách công việc…
+     </div>
+   );
+ }
+   if (jobListFinished && (!jobList || jobList.length === 0)) {
       return (
         <p className="text-gray-400 italic">
          Không tìm thấy công việc phù hợp.{" "}
