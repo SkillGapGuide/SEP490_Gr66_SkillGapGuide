@@ -10,6 +10,10 @@ export const courService = {
   getAllCourses: async (pageNo=1 ,pageSize =10) => {
     return await apiService.get(`${ENDPOINTS.course.getAllCourses}?pageNo=${pageNo}&pageSize=${pageSize}`);
   },
+  scrapeFinal: async (numPage=1, numItems=2,cvId,offset) => {
+    return await apiService.post(`${ENDPOINTS.course.scrapeFinal}?numPage=${numPage}&numItems=${numItems}&cvId=${cvId}&offset=${offset}`);
+  },
+  
 
   scrapeAutomation: async (numPage=1, numItems=2,cvId) => {
     return await apiService.post(`${ENDPOINTS.course.scrape}?numPage=${numPage}&numItems=${numItems}&cvId=${cvId}`);

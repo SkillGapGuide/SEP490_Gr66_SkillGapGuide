@@ -134,7 +134,7 @@ const CVUploadOptions = ({ onNext }) => {
 
       try {
         const result = await showConfirm(
-          `Bạn muốn tìm 10 tin tuyển dụng cho chuyên môn: "${val}"?`
+          `Bạn muốn tìm tin tuyển dụng cho chuyên môn: "${val}"?`
         );
 
         if (!result.isConfirmed) return;
