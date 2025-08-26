@@ -113,6 +113,22 @@ public class CourseController {
             return new Response<>(EHttpStatus.BAD_REQUEST, "Lỗi xảy ra khi cào dữ liệu: " + e.getMessage(), null);
     }
     }
+    @PostMapping("/scrapeBatch")
+    public ResponseEntity<?> scrapeBatch(
+            @RequestParam(defaultValue = "1") int numPages,
+            @RequestParam(defaultValue = "2") int numItems,
+            @RequestParam int cvId,
+            @RequestParam int offset    // truyền vào: 0, 6, 12, 18, 24
+    ) {
+        final int limit = 6;
+        final int maxSeconds = 85;
+        try {
+            ScrapeGroupedResultDTO result = courseService.scrapeCoursesBySkillBatch(numPages, numItems, cvId, offset, limit, maxSeconds);
+            return ResponseEntity.ok(new Response<>(EHttpStatus.OK, result.getMessage(), result.getData()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new Response<>(EHttpStatus.BAD_REQUEST, "Lỗi xảy ra khi cào dữ liệu: " + e.getMessage(), null));
+        }
+    }
     @PostMapping("/scrapeBatch1")
     public Response<?> scrapeBatch1(
             @RequestParam(defaultValue = "1") int numPages,

@@ -170,16 +170,16 @@ public class CourseService {
             int numPages,
             int numItems,
             Integer cvId,
-            int offset,
-            int limit,
-            int maxMinutes
+            int offset,       // bắt đầu từ 0, 6, 12 ...
+            int limit,        // luôn là 6
+            int maxSeconds    // luôn là 90
     ) {
         Map<String, List<Course>> result = new LinkedHashMap<>();
         List<String> jobSkills = courseRepository.findJobSkillsByCvIdWithOffset(cvId, offset, limit);
         int skillIdx = 0;
         boolean timeout = false;
         long startTime = System.currentTimeMillis();
-        long maxTime = 90_000L;
+        long maxTime = maxSeconds * 1000L; // 90 giây
 
         if (jobSkills == null || jobSkills.isEmpty()) {
             logger.warn("Không có job skill nào cho CV id {} với offset {}", cvId, offset);
@@ -245,12 +245,13 @@ public class CourseService {
 
         String message;
         if (timeout) {
-            message = "Vì giới hạn thời gian là " + maxMinutes + " phút nên đã cào được " + skillIdx + "/" + jobSkills.size() + " kỹ năng";
+            message = "Vì giới hạn thời gian là " + maxSeconds + " giây nên đã cào được " + skillIdx + "/" + jobSkills.size() + " kỹ năng batch (offset " + offset + ")";
         } else {
             message = "Đã cào đủ " + jobSkills.size() + "/" + jobSkills.size() + " kỹ năng batch (offset " + offset + ")";
         }
         return new ScrapeGroupedResultDTO(result, message);
     }
+
     public ScrapeGroupedResultDTO scrapeCoursesGroupedByJobSkill(int numPages, int numItems, Integer cvId) {
         Map<String, List<Course>> result = new LinkedHashMap<>();
         List<String> jobSkills = courseRepository.findJobSkillsByCvId(cvId);
