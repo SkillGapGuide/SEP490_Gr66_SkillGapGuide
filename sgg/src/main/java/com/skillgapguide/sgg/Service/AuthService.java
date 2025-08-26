@@ -77,7 +77,7 @@ public class AuthService {
         tokenRepository.save(verificationToken);
 
         // Tạo link xác thực
-        String verificationLink = webUrl + "/api/auth/verify?token=" + token;
+        String verificationLink = webUrl + "api/auth/verify?token=" + token;
 
         // Gửi email (Bạn cần tự implement EmailService)
         emailService.sendMail(
