@@ -100,6 +100,7 @@ export const ENDPOINTS = {
   },
   course: {
   showCourse: "/api/courses/showCourse/{courseId}",
+  scrapeFinal:"/api/courses/scrapeBatch",
   scrape: "/api/courses/scrapeBatch1",
   scrapeMore1:"/api/courses/scrapeBatch2",
   scrapeMore2:"/api/courses/scrapeBatch3",

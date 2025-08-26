@@ -89,12 +89,12 @@ const [count,setCount] = useState(0);
   try {
     let response;
     if (loadMoreCount === 0) {
-      response = await courService.scrapeMore1(1, 2, cvId);
+      response = await courService.scrapeFinal(1, 2, cvId,6);
       if (!response?.result || Object.keys(response.result).length === 0) {
         return showInfo("Không còn khoá học nào để tải thêm!");
       }
     } else if (loadMoreCount === 1) {
-      response = await courService.scrapeMore2(1, 2, cvId);
+      response = await courService.scrapeFinal(1, 2, cvId,12);
        if (!response?.result || Object.keys(response.result).length === 0) {
         return showInfo("Không còn khoá học nào để tải thêm!");
       }
@@ -103,7 +103,7 @@ const [count,setCount] = useState(0);
     }
 
     const newCourses = response?.result || response?.data?.result || {};
-    setScrapedCourses(prev => ({ ...prev, ...newCourses }));
+    setScrapedCourses({ ...scrapedCourses, ...newCourses });
 
 
     setLoadMoreCount(loadMoreCount + 1);
