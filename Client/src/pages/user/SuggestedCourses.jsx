@@ -102,13 +102,9 @@ const [count,setCount] = useState(0);
       return showInfo("Bạn đã lấy hết dữ liệu rồi!");
     }
 
-    const newCourses = response?.data || {};
+    const newCourses = response?.result || response?.data?.result || {};
+    setScrapedCourses(prev => ({ ...prev, ...newCourses }));
 
-    // merge thêm dữ liệu mới
-    setScrapedCourses({
-      ...scrapedCourses,
-      ...newCourses,
-    });
 
     setLoadMoreCount(loadMoreCount + 1);
   } catch (error) {
