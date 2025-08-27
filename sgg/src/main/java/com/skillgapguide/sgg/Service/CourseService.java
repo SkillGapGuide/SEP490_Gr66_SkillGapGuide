@@ -543,8 +543,8 @@ public class CourseService {
     private static final int RETRY_COUNT = 2;
     private static final int SCROLL_ITERATIONS = 4;
     private static final int SCROLL_DELAY = 700;
-    private static final int PAGE_DELAY_MIN = 2000, PAGE_DELAY_MAX = 3400;
-    private static final int COURSE_DELAY_MIN = 2000, COURSE_DELAY_MAX = 3400;
+    private static final int PAGE_DELAY_MIN = 3000, PAGE_DELAY_MAX = 3400;
+    private static final int COURSE_DELAY_MIN = 3000, COURSE_DELAY_MAX = 3400;
 
     private static final String[] TITLE_SELECTORS = {
             "h1[data-purpose='lead-title']",
