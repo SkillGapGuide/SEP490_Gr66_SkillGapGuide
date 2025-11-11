@@ -1,5 +1,4 @@
 # SEP490
-THIS REPOSITORY IS FOR SEP490-ĐỒ ÁN TỐT NGHIỆP GR66
 
 SkillGapGuide: AI-Powered Skill Gap Analyzer and Learning Recommendation System
 Tóm tắt dự án
